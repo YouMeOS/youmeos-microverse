@@ -25,6 +25,18 @@ export interface ServiceInfo {
   specs?: string[];
 }
 
+export interface StackLayerStatus {
+  id: 'portal' | 'compass' | 'core' | 'bedrock' | 'database' | 'server' | 'network';
+  name: string;
+  category: string;
+  installed: boolean;
+  active: boolean;
+  version?: string;
+  details?: string;
+  isUpToDate?: boolean;
+  status: 'running' | 'stopped' | 'starting' | 'error';
+}
+
 export interface GatewayEndpoint {
   label: string;
   url: string;
@@ -37,6 +49,7 @@ export interface EngineStatusInfo {
   message?: string;
   downloadProgress?: DownloadProgress | null;
   services: ServiceInfo[];
+  stackLayers?: StackLayerStatus[];
   url: string;
   gateways?: GatewayEndpoint[];
   availableEngines: {

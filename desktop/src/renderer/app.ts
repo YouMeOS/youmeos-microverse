@@ -2,6 +2,7 @@ import type {
   DownloadProgress,
   ServiceInfo,
   EngineStatusInfo,
+  StackLayerStatus,
   LogEntry,
   LogFilterOptions
 } from '../main/engine/types';
@@ -27,6 +28,24 @@ interface DesktopApi {
 }
 
 const windowApi: DesktopApi = (window as unknown as { api: DesktopApi }).api;
+
+// Splash Screen Elements
+const splashScreenOverlay = document.getElementById('splash-screen-overlay') as HTMLElement | null;
+const splash3dCanvasContainer = document.getElementById('splash-3d-canvas-container') as HTMLElement | null;
+const splashEngineSelector = document.getElementById('splash-engine-selector') as HTMLSelectElement | null;
+const splashStatusPill = document.getElementById('splash-status-pill') as HTMLElement | null;
+const splashStatusDot = document.getElementById('splash-status-dot') as HTMLElement | null;
+const splashStatusText = document.getElementById('splash-status-text') as HTMLElement | null;
+const splashVerificationSummary = document.getElementById('splash-verification-summary') as HTMLElement | null;
+const chkStaySplash = document.getElementById('chk-stay-splash') as HTMLInputElement | null;
+const splashBtnStart = document.getElementById('splash-btn-start') as HTMLButtonElement | null;
+const splashBtnLaunch = document.getElementById('splash-btn-launch') as HTMLButtonElement | null;
+const splashBtnDashboard = document.getElementById('splash-btn-dashboard') as HTMLButtonElement | null;
+const btnReturnSplash = document.getElementById('btn-return-splash') as HTMLButtonElement | null;
+const btnOpenSplash = document.getElementById('btn-open-splash') as HTMLButtonElement | null;
+
+// Dashboard 3D Canvas Container
+const dash3dCanvasContainer = document.getElementById('dash-3d-canvas-container') as HTMLElement | null;
 
 // Top Bar Elements
 const overallStatusPill = document.getElementById('overall-status-pill') as HTMLElement | null;
@@ -121,6 +140,8 @@ let isActionPending = false;
 let hideDownloadTimer: NodeJS.Timeout | null = null;
 let architecture3D: Architecture3DManager | null = null;
 let smokeCanvas: SmokeCanvasEngine | null = null;
+let currentCanvasParent: 'splash' | 'dashboard' = 'splash';
+let hasAutoTransitioned = false;
 
 // Log Stream State
 let logBuffer: LogEntry[] = [];
@@ -324,6 +345,118 @@ function openQuakeConsoleWithFilter(serviceCategory: string): void {
     });
   }
   renderLogStream();
+}
+
+function switchCanvasContainer(target: 'splash' | 'dashboard'): void {
+  if (currentCanvasParent === target) return;
+  const rendererDom = document.querySelector('canvas[data-engine="three.js"]') || splash3dCanvasContainer?.querySelector('canvas') || dash3dCanvasContainer?.querySelector('canvas');
+
+  if (target === 'splash' && splash3dCanvasContainer) {
+    if (rendererDom && rendererDom.parentElement !== splash3dCanvasContainer) {
+      splash3dCanvasContainer.appendChild(rendererDom);
+    }
+    currentCanvasParent = 'splash';
+  } else if (target === 'dashboard' && dash3dCanvasContainer) {
+    if (rendererDom && rendererDom.parentElement !== dash3dCanvasContainer) {
+      dash3dCanvasContainer.appendChild(rendererDom);
+    }
+    currentCanvasParent = 'dashboard';
+  }
+
+  setTimeout(() => architecture3D?.resize(), 60);
+}
+
+function openSplashScreen(): void {
+  if (!splashScreenOverlay) return;
+  splashScreenOverlay.classList.remove('hidden');
+  switchCanvasContainer('splash');
+}
+
+function dismissSplashScreen(): void {
+  if (!splashScreenOverlay) return;
+  splashScreenOverlay.classList.add('hidden');
+  switchCanvasContainer('dashboard');
+}
+
+function renderStackLayersVerification(layers?: StackLayerStatus[]): void {
+  if (!layers || layers.length === 0) return;
+
+  let activeCount = 0;
+  let installedCount = 0;
+
+  layers.forEach(layer => {
+    if (layer.installed) installedCount++;
+    if (layer.active) activeCount++;
+
+    const isRunning = layer.active;
+    const isError = !layer.installed;
+    const statusClass = isRunning ? 'running' : (isError ? 'stopped' : 'stopped');
+    const statusLabel = isRunning ? 'Online' : (isError ? 'Missing' : 'Offline');
+
+    // 1. Update Splash HUD Card
+    const splashCard = document.getElementById(`splash-card-${layer.id}`);
+    const splashPill = document.getElementById(`splash-pill-${layer.id}`);
+    const splashDot = document.getElementById(`splash-dot-${layer.id}`);
+    const splashLabel = document.getElementById(`splash-label-${layer.id}`);
+    const splashDetail = document.getElementById(`splash-detail-${layer.id}`);
+
+    if (splashCard && splashPill && splashDot && splashLabel) {
+      splashPill.className = `telemetry-status-pill ${statusClass}`;
+      splashDot.className = `dot ${statusClass}`;
+      splashLabel.textContent = statusLabel;
+      if (splashDetail && layer.details) {
+        splashDetail.textContent = layer.details;
+      }
+      if (isRunning) {
+        splashCard.classList.add('is-running');
+      } else {
+        splashCard.classList.remove('is-running');
+      }
+    }
+
+    // 2. Update Dashboard Sidebar Card
+    const dashCard = document.getElementById(`dash-card-${layer.id}`);
+    const dashPill = document.getElementById(`dash-pill-${layer.id}`);
+    const dashDot = document.getElementById(`dash-dot-${layer.id}`);
+    const dashLabel = document.getElementById(`dash-label-${layer.id}`);
+    const dashSub = document.getElementById(`dash-sub-${layer.id}`);
+
+    if (dashCard && dashPill && dashDot && dashLabel) {
+      dashPill.className = `tier-status-pill ${statusClass}`;
+      dashDot.className = `dot ${statusClass}`;
+      dashLabel.textContent = statusLabel;
+      if (dashSub && layer.details) {
+        dashSub.textContent = layer.details;
+      }
+      if (isRunning) {
+        dashCard.classList.add('is-running');
+      } else {
+        dashCard.classList.remove('is-running');
+      }
+    }
+
+    // 3. Update System Architecture Tab Text
+    const archSub = document.getElementById(`arch-sub-${layer.id}`);
+    const archVer = document.getElementById(`arch-ver-${layer.id}`);
+    if (archSub && layer.details) {
+      archSub.textContent = layer.details;
+    }
+    if (archVer && layer.version) {
+      archVer.textContent = `v${layer.version}`;
+    }
+  });
+
+  if (splashVerificationSummary) {
+    if (activeCount === layers.length) {
+      splashVerificationSummary.textContent = `${activeCount} / ${layers.length} Active & In Harmony`;
+      splashVerificationSummary.style.color = 'var(--status-running)';
+      splashVerificationSummary.style.borderColor = 'var(--status-running)';
+    } else {
+      splashVerificationSummary.textContent = `${installedCount} / ${layers.length} Components Verified`;
+      splashVerificationSummary.style.color = 'var(--accent-cyan)';
+      splashVerificationSummary.style.borderColor = 'rgba(98, 201, 255, 0.3)';
+    }
+  }
 }
 
 function applyLayerStatus(
@@ -608,10 +741,17 @@ function updateStatusUI(info: Partial<EngineStatusInfo>): void {
 
   architecture3D?.setRunning(isRunning);
 
+  // Update Top Bar & Splash Status Indicators
   if (overallStatusPill && statusDot && statusText) {
     overallStatusPill.className = `badge badge-status ${status}`;
     statusDot.className = `dot ${status}`;
     statusText.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+  }
+
+  if (splashStatusPill && splashStatusDot && splashStatusText) {
+    splashStatusPill.className = `badge badge-status ${status}`;
+    splashStatusDot.className = `dot ${status}`;
+    splashStatusText.textContent = status.charAt(0).toUpperCase() + status.slice(1);
   }
 
   if (localMachineError && localMachineErrorText) {
@@ -653,52 +793,97 @@ function updateStatusUI(info: Partial<EngineStatusInfo>): void {
     });
   }
 
-  if (info.engineType && engineSelector && engineSelector.value !== info.engineType) {
-    engineSelector.value = info.engineType;
-  }
-
-  const brandIcon = document.querySelector('.brand-icon');
-  if (brandIcon) {
-    if (isTransitioning) {
-      brandIcon.classList.add('spin');
-    } else {
-      brandIcon.classList.remove('spin');
+  if (info.engineType) {
+    if (engineSelector && engineSelector.value !== info.engineType) {
+      engineSelector.value = info.engineType;
+    }
+    if (splashEngineSelector && splashEngineSelector.value !== info.engineType) {
+      splashEngineSelector.value = info.engineType;
     }
   }
 
-  if (!btnStart || !btnStop || !btnRestart) return;
+  const brandIcons = document.querySelectorAll('.brand-icon');
+  brandIcons.forEach(icon => {
+    if (isTransitioning) {
+      icon.classList.add('spin');
+    } else {
+      icon.classList.remove('spin');
+    }
+  });
 
-  if (isActionPending) {
-    btnStart.disabled = true;
-    btnStop.disabled = true;
-    btnRestart.disabled = true;
-    return;
+  if (splashBtnStart) {
+    if (isActionPending || isTransitioning) {
+      splashBtnStart.disabled = true;
+      splashBtnStart.className = 'splash-action-btn primary-btn';
+      splashBtnStart.innerHTML = `
+        <svg class="spin" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 2a10 10 0 0 1 10 10"/>
+        </svg>
+        <span>Processing...</span>
+      `;
+    } else if (isRunning) {
+      splashBtnStart.disabled = false;
+      splashBtnStart.className = 'splash-action-btn stop-btn';
+      splashBtnStart.innerHTML = `
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+          <rect x="4" y="4" width="16" height="16" rx="2" ry="2"/>
+        </svg>
+        <span>Stop Cluster</span>
+      `;
+    } else {
+      splashBtnStart.disabled = false;
+      splashBtnStart.className = 'splash-action-btn primary-btn';
+      splashBtnStart.innerHTML = `
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+          <polygon points="6 4 20 12 6 20 6 4" />
+        </svg>
+        <span>Start Cluster</span>
+      `;
+    }
   }
 
-  if (isRunning) {
-    btnStart.disabled = true;
-    btnStart.classList.add('is-active');
-    btnStop.disabled = false;
-    btnStop.classList.remove('is-active');
-    btnRestart.disabled = false;
-  } else if (isStopped) {
-    btnStart.disabled = false;
-    btnStart.classList.remove('is-active');
-    btnStop.disabled = true;
-    btnStop.classList.add('is-active');
-    btnRestart.disabled = true;
-  } else if (isTransitioning) {
-    btnStart.disabled = true;
-    btnStart.classList.remove('is-active');
-    btnStop.disabled = true;
-    btnStop.classList.remove('is-active');
-    btnRestart.disabled = true;
-  } else if (isError) {
-    btnStart.disabled = false;
-    btnStart.classList.remove('is-active');
-    btnStop.disabled = true;
-    btnStop.classList.remove('is-active');
-    btnRestart.disabled = true;
+  // Tape Deck Transport Button States
+  if (btnStart && btnStop && btnRestart) {
+    if (isActionPending) {
+      btnStart.disabled = true;
+      btnStop.disabled = true;
+      btnRestart.disabled = true;
+    } else if (isRunning) {
+      btnStart.disabled = true;
+      btnStart.classList.add('is-active');
+      btnStop.disabled = false;
+      btnStop.classList.remove('is-active');
+      btnRestart.disabled = false;
+    } else if (isStopped) {
+      btnStart.disabled = false;
+      btnStart.classList.remove('is-active');
+      btnStop.disabled = true;
+      btnStop.classList.add('is-active');
+      btnRestart.disabled = true;
+    } else if (isTransitioning) {
+      btnStart.disabled = true;
+      btnStart.classList.remove('is-active');
+      btnStop.disabled = true;
+      btnStop.classList.remove('is-active');
+      btnRestart.disabled = true;
+    } else if (isError) {
+      btnStart.disabled = false;
+      btnStart.classList.remove('is-active');
+      btnStop.disabled = true;
+      btnStop.classList.remove('is-active');
+      btnRestart.disabled = true;
+    }
+  }
+
+  // Check if we should auto-transition from splash when running (if not locked by user preference)
+  if (isRunning && !hasAutoTransitioned && !chkStaySplash?.checked) {
+    hasAutoTransitioned = true;
+    setTimeout(() => {
+      if (!chkStaySplash?.checked) {
+        dismissSplashScreen();
+      }
+    }, 1200);
   }
 }
 
@@ -776,8 +961,8 @@ function switchTab(targetTabId: string): void {
     const isTarget = content.id === targetTabId;
     if (isTarget) {
       content.classList.remove('hidden');
-      if (targetTabId === 'tab-model') {
-        setTimeout(() => architecture3D?.resize(), 50);
+      if (targetTabId === 'tab-matrix') {
+        switchCanvasContainer('dashboard');
       }
     } else {
       content.classList.add('hidden');
@@ -791,6 +976,7 @@ async function pollStatus(): Promise<void> {
     updateStatusUI(info);
     renderServices(info.services);
     renderModelView(info.services, info.engineType);
+    renderStackLayersVerification(info.stackLayers);
     if (info.downloadProgress !== undefined) {
       renderDownloadProgress(info.downloadProgress);
     }
@@ -804,20 +990,59 @@ async function init(): Promise<void> {
   // Initialize Smoke Canvas Background
   smokeCanvas = initSmokeCanvas('microverse-smoke-canvas');
 
-  // Initialize 3D Architecture Visualizations
-  const containerHorizon = document.getElementById('canvas-container-horizon');
-  const containerCompass = document.getElementById('canvas-container-compass');
-  const containerCore = document.getElementById('canvas-container-core');
-  const containerBedrock = document.getElementById('canvas-container-bedrock');
-
-  if (containerHorizon || containerCompass || containerCore || containerBedrock) {
-    architecture3D = new Architecture3DManager({
-      containerHorizon,
-      containerCompass,
-      containerCore,
-      containerBedrock
+  // Initialize Stay on Splash Preference
+  const savedStaySplash = localStorage.getItem('youmeos_stay_splash') === 'true';
+  if (chkStaySplash) {
+    chkStaySplash.checked = savedStaySplash;
+    chkStaySplash.addEventListener('change', () => {
+      localStorage.setItem('youmeos_stay_splash', chkStaySplash.checked ? 'true' : 'false');
     });
   }
+
+  // Initialize Single Unified 3D Architecture Canvas inside Splash Viewport by default
+  const initialContainer = splash3dCanvasContainer || dash3dCanvasContainer;
+  if (initialContainer) {
+    architecture3D = new Architecture3DManager({
+      container: initialContainer,
+      onLayerSelect: (layerId) => {
+        openQuakeConsoleWithFilter(layerId === 'portal' ? 'gateway' : (layerId === 'compass' || layerId === 'core' ? 'core' : 'network'));
+      }
+    });
+  }
+
+  // Wire up 3D Layer Hover Highlights from UI cards
+  const interactiveLayerCards = document.querySelectorAll<HTMLElement>('[data-layer]');
+  interactiveLayerCards.forEach(card => {
+    const layer = card.getAttribute('data-layer');
+    card.addEventListener('mouseenter', () => {
+      if (layer) architecture3D?.highlightLayer(layer);
+    });
+    card.addEventListener('mouseleave', () => {
+      architecture3D?.highlightLayer(null);
+    });
+    card.addEventListener('click', () => {
+      if (layer === 'portal' || layer === 'server') {
+        windowApi.openUrl(currentGatewayUrl);
+      } else if (layer === 'compass' || layer === 'core' || layer === 'database') {
+        openQuakeConsoleWithFilter('core');
+      } else {
+        openQuakeConsoleWithFilter('network');
+      }
+    });
+  });
+
+  // Splash Navigation Handlers
+  splashBtnDashboard?.addEventListener('click', () => {
+    dismissSplashScreen();
+  });
+
+  btnReturnSplash?.addEventListener('click', () => {
+    openSplashScreen();
+  });
+
+  btnOpenSplash?.addEventListener('click', () => {
+    openSplashScreen();
+  });
 
   if (versionTag && windowApi.getVersion) {
     try {
@@ -863,6 +1088,7 @@ async function init(): Promise<void> {
       updateStatusUI(info);
       renderServices(info.services);
       renderModelView(info.services, info.engineType);
+      renderStackLayersVerification(info.stackLayers);
       if (info.downloadProgress !== undefined) {
         renderDownloadProgress(info.downloadProgress);
       }
@@ -1041,6 +1267,14 @@ async function init(): Promise<void> {
     }
   };
   btnStart?.addEventListener('click', startHandler);
+  splashBtnStart?.addEventListener('click', async () => {
+    const isCurrentlyRunning = splashBtnStart.textContent?.toLowerCase().includes('stop');
+    if (isCurrentlyRunning) {
+      await stopHandler();
+    } else {
+      await startHandler();
+    }
+  });
 
   const stopHandler = async () => {
     isActionPending = true;
@@ -1076,6 +1310,7 @@ async function init(): Promise<void> {
   };
   linkGateway?.addEventListener('click', openBrowserHandler);
   btnOpenBrowser?.addEventListener('click', () => openBrowserHandler());
+  splashBtnLaunch?.addEventListener('click', () => openBrowserHandler());
 
   const updatePluginsHandler = async () => {
     if (!btnUpdatePlugins) return;
@@ -1116,17 +1351,21 @@ async function init(): Promise<void> {
   };
   btnUpdatePlugins?.addEventListener('click', updatePluginsHandler);
 
-  const engineChangeHandler = async () => {
-    if (!engineSelector) return;
-    const selected = engineSelector.value;
+  const handleEngineChange = async (targetEngine: string) => {
     try {
-      await windowApi.setEngineType(selected);
+      await windowApi.setEngineType(targetEngine);
       await pollStatus();
     } catch (e: any) {
       alert(`Failed to switch engine: ${e?.message}`);
     }
   };
-  engineSelector?.addEventListener('change', engineChangeHandler);
+
+  engineSelector?.addEventListener('change', () => {
+    if (engineSelector) handleEngineChange(engineSelector.value);
+  });
+  splashEngineSelector?.addEventListener('change', () => {
+    if (splashEngineSelector) handleEngineChange(splashEngineSelector.value);
+  });
 }
 
 init();

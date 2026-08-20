@@ -12,6 +12,7 @@ import {
   GatewayEndpoint
 } from './types';
 import { setupDockerEnvironment } from './docker-setup';
+import { inspectStackLayers } from './stack-inspector';
 
 const execFileAsync = promisify(execFile);
 
@@ -54,9 +55,7 @@ const KNOWN_SERVICES: Record<
 
 const DOCKER_GATEWAYS: GatewayEndpoint[] = [
   { label: 'my.youmeos.com', url: 'https://my.youmeos.com', isPrimary: true },
-  { label: 'youmeos.localhost', url: 'http://youmeos.localhost' },
-  { label: 'youmeos.local', url: 'http://youmeos.local' },
-  { label: 'localhost', url: 'http://localhost' }
+  { label: 'youmeos.localhost', url: 'http://youmeos.localhost' }
 ];
 
 export class DockerEngine extends BaseEngine {
@@ -272,12 +271,19 @@ export class DockerEngine extends BaseEngine {
 
   async status(): Promise<EngineStatusInfo> {
     const isDocker = await this.isAvailable();
+    const stackLayers = await inspectStackLayers({
+      projectDir: this.projectDir,
+      resourcesDir: this.resourcesDir,
+      isServerRunning: false
+    });
+
     if (!isDocker) {
       return {
         status: 'error',
         engineType: 'docker',
         message: 'Docker daemon is not running or not installed.',
         services: this.getDefaultServices('error'),
+        stackLayers,
         url: 'https://my.youmeos.com',
         gateways: DOCKER_GATEWAYS,
         availableEngines: { docker: false, embedded: true }
@@ -291,6 +297,7 @@ export class DockerEngine extends BaseEngine {
         message: 'Docker cluster is starting...',
         downloadProgress: this.currentDownloadProgress,
         services: this.getDefaultServices('starting'),
+        stackLayers,
         url: 'https://my.youmeos.com',
         gateways: DOCKER_GATEWAYS,
         availableEngines: { docker: true, embedded: true }
@@ -304,6 +311,7 @@ export class DockerEngine extends BaseEngine {
           status: 'stopped',
           engineType: 'docker',
           services: this.getDefaultServices('stopped'),
+          stackLayers,
           url: 'https://my.youmeos.com',
           gateways: DOCKER_GATEWAYS,
           availableEngines: { docker: true, embedded: true }
@@ -408,11 +416,18 @@ export class DockerEngine extends BaseEngine {
         overallStatus = 'starting';
       }
 
+      const stackLayers = await inspectStackLayers({
+        projectDir: this.projectDir,
+        resourcesDir: this.resourcesDir,
+        isServerRunning: overallStatus === 'running'
+      });
+
       return {
         status: overallStatus,
         engineType: 'docker',
         downloadProgress: this.currentDownloadProgress,
         services: resultServices,
+        stackLayers,
         url: 'https://my.youmeos.com',
         gateways: DOCKER_GATEWAYS,
         availableEngines: { docker: true, embedded: true }
@@ -424,6 +439,7 @@ export class DockerEngine extends BaseEngine {
         message: e.message || 'Failed to inspect Docker stack',
         downloadProgress: this.currentDownloadProgress,
         services: this.getDefaultServices('error'),
+        stackLayers,
         url: 'https://my.youmeos.com',
         gateways: DOCKER_GATEWAYS,
         availableEngines: { docker: isDocker, embedded: true }

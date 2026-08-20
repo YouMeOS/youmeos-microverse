@@ -13,6 +13,7 @@ import {
   GatewayEndpoint
 } from './types';
 import { setupEmbeddedEnvironment, DEFAULT_CADDYFILE } from './embedded-setup';
+import { inspectStackLayers } from './stack-inspector';
 
 export class EmbeddedEngine extends BaseEngine {
   readonly type: EngineType = 'embedded';
@@ -358,10 +359,15 @@ export class EmbeddedEngine extends BaseEngine {
     const primaryUrl = 'https://my.youmeos.com';
     const gateways: GatewayEndpoint[] = [
       { label: 'my.youmeos.com', url: primaryUrl, isPrimary: true },
-      { label: 'youmeos.localhost', url: 'http://youmeos.localhost' },
-      { label: 'youmeos.local', url: 'http://youmeos.local' },
-      { label: 'localhost', url: 'http://localhost' }
+      { label: 'youmeos.localhost', url: 'http://youmeos.localhost' }
     ];
+
+    const stackLayers = await inspectStackLayers({
+      projectDir: this.projectDir,
+      resourcesDir: this.resourcesDir,
+      isServerRunning: isRunning,
+      port: this.activePort
+    });
 
     return {
       status: this.currentStatus,
@@ -369,6 +375,7 @@ export class EmbeddedEngine extends BaseEngine {
       message: this.lastErrorMessage,
       downloadProgress: this.currentDownloadProgress,
       services,
+      stackLayers,
       url: primaryUrl,
       gateways,
       availableEngines: { docker: false, embedded: true }
