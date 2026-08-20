@@ -32,6 +32,10 @@ const windowApi: DesktopApi = (window as unknown as { api: DesktopApi }).api;
 // Splash Screen Elements
 const splashScreenOverlay = document.getElementById('splash-screen-overlay') as HTMLElement | null;
 const splash3dCanvasContainer = document.getElementById('splash-3d-canvas-container') as HTMLElement | null;
+const splashHudToggle = document.getElementById('splash-hud-toggle') as HTMLButtonElement | null;
+const splashHudClose = document.getElementById('splash-hud-close') as HTMLButtonElement | null;
+const splashSidePanel = document.getElementById('splash-side-panel') as HTMLElement | null;
+const splashStatusDotFloating = document.getElementById('splash-status-dot-floating') as HTMLSpanElement | null;
 const splashEngineSelector = document.getElementById('splash-engine-selector') as HTMLSelectElement | null;
 const splashStatusPill = document.getElementById('splash-status-pill') as HTMLElement | null;
 const splashStatusDot = document.getElementById('splash-status-dot') as HTMLElement | null;
@@ -370,6 +374,7 @@ function openSplashScreen(): void {
   if (!splashScreenOverlay) return;
   splashScreenOverlay.classList.remove('hidden');
   switchCanvasContainer('splash');
+  setTimeout(() => architecture3D?.resize(), 60);
 }
 
 function dismissSplashScreen(): void {
@@ -754,6 +759,10 @@ function updateStatusUI(info: Partial<EngineStatusInfo>): void {
     splashStatusText.textContent = status.charAt(0).toUpperCase() + status.slice(1);
   }
 
+  if (splashStatusDotFloating) {
+    splashStatusDotFloating.className = `dot ${status}`;
+  }
+
   if (localMachineError && localMachineErrorText) {
     if (isError && info.message) {
       localMachineErrorText.textContent = info.message;
@@ -1031,7 +1040,17 @@ async function init(): Promise<void> {
     });
   });
 
-  // Splash Navigation Handlers
+  // Splash Navigation & HUD Drawer Handlers
+  splashHudToggle?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    splashSidePanel?.classList.toggle('collapsed');
+  });
+
+  splashHudClose?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    splashSidePanel?.classList.add('collapsed');
+  });
+
   splashBtnDashboard?.addEventListener('click', () => {
     dismissSplashScreen();
   });
@@ -1272,6 +1291,7 @@ async function init(): Promise<void> {
     if (isCurrentlyRunning) {
       await stopHandler();
     } else {
+      splashSidePanel?.classList.add('collapsed');
       await startHandler();
     }
   });

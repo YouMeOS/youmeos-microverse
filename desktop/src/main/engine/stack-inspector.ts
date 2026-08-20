@@ -122,6 +122,25 @@ export async function inspectStackLayers(options: StackInspectionOptions): Promi
       status: isCompassActive ? 'running' : (isCompassInstalled ? 'stopped' : 'error')
     },
     {
+      id: 'database',
+      name: 'SQLite Database Store',
+      category: 'Encrypted VFS Persistent Storage',
+      installed: isDbInstalled,
+      active: isDbActive,
+      details: isDbInstalled ? `database.sqlite (${dbSizeStr || 'Active'})` : 'No database file',
+      status: isDbActive ? 'running' : (isDbInstalled ? 'stopped' : 'error')
+    },
+    {
+      id: 'bedrock',
+      name: 'Blackbox Bedrock',
+      category: 'Must-Use (MU) Foundation & Genesis Wave',
+      installed: isBedrockInstalled,
+      active: isBedrockActive,
+      version: bedrockVersion,
+      details: isBedrockInstalled ? `MU-Plugin · v${bedrockVersion || '26.8'}` : 'Bedrock MU missing',
+      status: isBedrockActive ? 'running' : (isBedrockInstalled ? 'stopped' : 'error')
+    },
+    {
       id: 'core',
       name: 'Headless WordPress Core',
       category: 'Application Kernel & REST/GraphQL API',
@@ -131,15 +150,6 @@ export async function inspectStackLayers(options: StackInspectionOptions): Promi
       isUpToDate: isWpUpToDate,
       details: isWpInstalled ? `WordPress v${wpVersion} · ${isWpUpToDate ? 'Up-to-Date' : 'Update Available'}` : 'Core files missing',
       status: isWpActive ? 'running' : (isWpInstalled ? 'stopped' : 'error')
-    },
-    {
-      id: 'database',
-      name: 'SQLite Database Store',
-      category: 'Encrypted VFS Persistent Storage',
-      installed: isDbInstalled,
-      active: isDbActive,
-      details: isDbInstalled ? `database.sqlite (${dbSizeStr || 'Active'})` : 'No database file',
-      status: isDbActive ? 'running' : (isDbInstalled ? 'stopped' : 'error')
     },
     {
       id: 'server',
@@ -158,16 +168,6 @@ export async function inspectStackLayers(options: StackInspectionOptions): Promi
       active: isNetworkActive,
       details: 'youmeos.local · Port 5353 / Loopback',
       status: isNetworkActive ? 'running' : 'stopped'
-    },
-    {
-      id: 'bedrock',
-      name: 'Blackbox Bedrock',
-      category: 'Must-Use (MU) Foundation & Genesis Wave',
-      installed: isBedrockInstalled,
-      active: isBedrockActive,
-      version: bedrockVersion,
-      details: isBedrockInstalled ? `MU-Plugin · v${bedrockVersion || '26.8'}` : 'Bedrock MU missing',
-      status: isBedrockActive ? 'running' : (isBedrockInstalled ? 'stopped' : 'error')
     }
   ];
 
