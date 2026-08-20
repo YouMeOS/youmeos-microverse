@@ -42,7 +42,6 @@ const btnStart = document.getElementById('btn-start') as HTMLButtonElement | nul
 const btnStop = document.getElementById('btn-stop') as HTMLButtonElement | null;
 const btnRestart = document.getElementById('btn-restart') as HTMLButtonElement | null;
 const btnOpenBrowser = document.getElementById('btn-open-browser') as HTMLButtonElement | null;
-const btnCopyUrl = document.getElementById('btn-copy-url') as HTMLButtonElement | null;
 const btnUpdatePlugins = document.getElementById('btn-update-plugins') as HTMLButtonElement | null;
 
 // Tab Elements
@@ -852,7 +851,6 @@ async function init(): Promise<void> {
   };
 
   btnCopyGateway?.addEventListener('click', () => copyUrlToClipboard(currentGatewayUrl, btnCopyGateway));
-  btnCopyUrl?.addEventListener('click', () => copyUrlToClipboard(currentGatewayUrl, btnCopyUrl));
 
   const selectLogTab = (serviceCategory: string) => {
     activeServiceFilter = serviceCategory;
@@ -1016,24 +1014,23 @@ async function init(): Promise<void> {
   const updatePluginsHandler = async () => {
     if (!btnUpdatePlugins) return;
     btnUpdatePlugins.disabled = true;
+    btnUpdatePlugins.classList.add('is-updating');
     const labelSpan = btnUpdatePlugins.querySelector('.deck-label');
     const prevText = labelSpan ? labelSpan.textContent : btnUpdatePlugins.textContent;
     if (labelSpan) labelSpan.textContent = 'Updating...';
     try {
-      handleIncomingLog({
-        service: 'setup',
-        text: 'Fetching latest YouMeOS plugin updates via Composer...',
-        level: 'info',
-        timestamp: Date.now()
-      });
+      selectLogTab('setup');
       const result = await windowApi.updatePlugins();
-      const raw = (result?.stdout || result?.stderr || JSON.stringify(result));
-      const lines = raw.split('\n').filter((l: string) => Boolean(l.trim()));
+      const output = [result?.stdout, result?.stderr].filter(Boolean).join('\n');
+      const lines = output.split('\n').filter((l: string) => Boolean(l.trim()));
       for (const line of lines) {
+        const isErr = line.toLowerCase().includes('error');
+        const isWarn = line.toLowerCase().includes('warn') || line.toLowerCase().includes('problem');
+        const level = isErr ? 'error' : (isWarn ? 'warn' : 'info');
         handleIncomingLog({
           service: 'setup',
           text: line,
-          level: line.toLowerCase().includes('error') ? 'error' : 'info',
+          level,
           timestamp: Date.now()
         });
       }
@@ -1046,7 +1043,8 @@ async function init(): Promise<void> {
       });
     } finally {
       btnUpdatePlugins.disabled = false;
-      if (labelSpan) labelSpan.textContent = prevText || 'Update';
+      btnUpdatePlugins.classList.remove('is-updating');
+      if (labelSpan) labelSpan.textContent = prevText || 'Update Plugins';
       await pollStatus();
     }
   };

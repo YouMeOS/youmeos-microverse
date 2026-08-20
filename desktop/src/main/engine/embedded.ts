@@ -12,7 +12,7 @@ import {
   DownloadProgress,
   GatewayEndpoint
 } from './types';
-import { setupEmbeddedEnvironment } from './embedded-setup';
+import { setupEmbeddedEnvironment, DEFAULT_CADDYFILE } from './embedded-setup';
 
 export class EmbeddedEngine extends BaseEngine {
   readonly type: EngineType = 'embedded';
@@ -37,6 +37,11 @@ export class EmbeddedEngine extends BaseEngine {
   }
 
   private resolveCaddyfilePath(): string {
+    const embeddedCaddyfile = path.join(this.projectDir, 'data', 'embedded', 'Caddyfile');
+    if (fs.existsSync(embeddedCaddyfile)) {
+      return embeddedCaddyfile;
+    }
+
     const candidates = [
       path.join(__dirname, 'Caddyfile'),
       path.join(__dirname, '..', 'engine', 'Caddyfile'),
@@ -49,10 +54,32 @@ export class EmbeddedEngine extends BaseEngine {
 
     for (const c of candidates) {
       if (fs.existsSync(c)) {
-        return c;
+        if (c.includes('.asar')) {
+          try {
+            const content = fs.readFileSync(c, 'utf8');
+            const targetDir = path.dirname(embeddedCaddyfile);
+            if (!fs.existsSync(targetDir)) {
+              fs.mkdirSync(targetDir, { recursive: true });
+            }
+            fs.writeFileSync(embeddedCaddyfile, content, 'utf8');
+            return embeddedCaddyfile;
+          } catch {}
+        } else {
+          return c;
+        }
       }
     }
-    return candidates[0];
+
+    try {
+      const targetDir = path.dirname(embeddedCaddyfile);
+      if (!fs.existsSync(targetDir)) {
+        fs.mkdirSync(targetDir, { recursive: true });
+      }
+      fs.writeFileSync(embeddedCaddyfile, DEFAULT_CADDYFILE, 'utf8');
+      return embeddedCaddyfile;
+    } catch {}
+
+    return embeddedCaddyfile;
   }
 
   private checkServerHealth(port: number): Promise<boolean> {
@@ -121,10 +148,11 @@ export class EmbeddedEngine extends BaseEngine {
       this.serverProcess = spawn(frankenPath, ['run', '--config', caddyfilePath], {
         env: {
           ...process.env,
-          WP_ROOT: wpCoreDir,
+          WP_ROOT: wpCoreDir.replace(/\\/g, '/'),
           PORT: this.activePort.toString(),
-          TLS_CERT: hasCerts ? activeCert : 'internal',
-          TLS_KEY: hasCerts ? activeKey : ''
+          HTTPS_PORT: '443',
+          TLS_CERT: hasCerts ? activeCert.replace(/\\/g, '/') : 'internal',
+          TLS_KEY: hasCerts ? activeKey.replace(/\\/g, '/') : ''
         }
       });
 
@@ -134,7 +162,8 @@ export class EmbeddedEngine extends BaseEngine {
           try {
             const parsed = JSON.parse(line);
             const msg = parsed.msg || parsed.message || JSON.stringify(parsed);
-            const level = parsed.level === 'error' ? 'error' : (parsed.level === 'warn' ? 'warn' : 'info');
+            const rawLevel = (parsed.level || '').toLowerCase();
+            const level = rawLevel === 'error' ? 'error' : (rawLevel === 'warn' || rawLevel === 'warning' ? 'warn' : (rawLevel === 'debug' ? 'debug' : 'info'));
             const service = (parsed.logger && parsed.logger.includes('http')) ? 'gateway' : 'core';
             this.pushLog(service, msg, level);
           } catch {
@@ -149,13 +178,24 @@ export class EmbeddedEngine extends BaseEngine {
           try {
             const parsed = JSON.parse(line);
             const msg = parsed.msg || parsed.message || JSON.stringify(parsed);
-            const level = parsed.level === 'error' ? 'error' : 'warn';
+            const rawLevel = (parsed.level || '').toLowerCase();
+            const level = rawLevel === 'error' ? 'error' : (rawLevel === 'warn' || rawLevel === 'warning' ? 'warn' : (rawLevel === 'debug' ? 'debug' : 'info'));
             const service = (parsed.logger && parsed.logger.includes('http')) ? 'gateway' : 'core';
             this.pushLog(service, msg, level);
           } catch {
-            const isErr = line.toLowerCase().includes('error') || line.toLowerCase().includes('fatal') || line.toLowerCase().includes('permission denied') || line.toLowerCase().includes('bind:');
-            const isWarn = line.toLowerCase().includes('warn');
-            const level = isErr ? 'error' : (isWarn ? 'warn' : 'info');
+            const lower = line.toLowerCase();
+            const isErr = lower.includes('fatal') || lower.includes('permission denied') || lower.includes('bind:') || lower.includes('[error]');
+            const isWarn = lower.includes('warning') || lower.includes('[warn]');
+            const isNotice =
+              lower.includes('[notice]') ||
+              lower.includes('maxprocs:') ||
+              lower.includes('gomemlimit') ||
+              lower.includes('byeee') ||
+              lower.includes('process exited') ||
+              lower.includes('using config') ||
+              lower.includes('adapted config') ||
+              lower.includes('admin endpoint');
+            const level = isErr ? 'error' : (isNotice ? 'info' : (isWarn ? 'warn' : 'info'));
             this.pushLog('core', line, level);
             if (isErr && !this.lastErrorMessage) {
               this.lastErrorMessage = line;
@@ -206,6 +246,7 @@ export class EmbeddedEngine extends BaseEngine {
           this.healthCheckTimer = setTimeout(runProbe, pollInterval);
         } else if (this.serverProcess) {
           this.currentStatus = 'running';
+          this.pushLog('gateway', `Native engine process running, but HTTP health probe on port ${this.activePort} did not respond. Check port ${this.activePort} availability or permissions.`, 'warn');
           this.notifyStatus();
         }
       };

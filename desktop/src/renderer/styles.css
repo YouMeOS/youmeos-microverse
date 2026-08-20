@@ -35,6 +35,10 @@
   padding: 0;
 }
 
+.hidden {
+  display: none !important;
+}
+
 /* Custom Glass Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
@@ -1462,6 +1466,10 @@ body {
   font-family: var(--font-mono);
 }
 
+.log-empty-state.hidden {
+  display: none !important;
+}
+
 /* Download Progress Indicator */
 .download-panel {
   display: flex;
@@ -1577,21 +1585,12 @@ body {
 .tape-deck-chassis {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 6px;
-}
-
-.tape-deck-transport {
-  display: flex;
-  align-items: center;
   gap: 5px;
-  flex: 1;
 }
 
+.tape-deck-transport,
 .tape-deck-aux {
-  display: flex;
-  align-items: center;
-  gap: 5px;
+  display: contents;
 }
 
 .deck-separator {
@@ -1599,6 +1598,8 @@ body {
   height: 32px;
   background: linear-gradient(180deg, transparent, rgba(98, 201, 255, 0.4) 25%, rgba(98, 201, 255, 0.4) 75%, transparent);
   margin: 0 3px;
+  flex: 0 0 2px;
+  flex-shrink: 0;
 }
 
 /* Mechanical Tape Deck Key */
@@ -1608,10 +1609,11 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  flex: 1;
-  min-width: 50px;
+  flex: 1 1 0;
+  min-width: 0;
+  width: 100%;
   height: 42px;
-  padding: 2px 6px;
+  padding: 2px 4px;
   border-radius: var(--radius-sm);
   background: linear-gradient(180deg, #1f2a3f 0%, #111827 100%);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -1654,8 +1656,22 @@ body {
   box-shadow: 0 1px 0 #050810;
 }
 
+.deck-key.is-updating {
+  opacity: 0.9 !important;
+  cursor: wait !important;
+  border-color: var(--accent-cyan) !important;
+  box-shadow: 0 0 10px var(--accent-cyan-glow) !important;
+  color: var(--accent-cyan) !important;
+}
+
+.deck-key.is-updating .deck-icon {
+  animation: spin 1.2s linear infinite;
+}
+
 .deck-key-play.is-active,
-.deck-key-play:active:not(:disabled) {
+.deck-key-play:active:not(:disabled),
+.deck-key-start.is-active,
+.deck-key-start:active:not(:disabled) {
   border-color: rgba(34, 197, 94, 0.5);
   box-shadow: 
     0 1px 0 #050810,
@@ -1687,7 +1703,8 @@ body {
   transition: all 0.2s ease;
 }
 
-.deck-key-play.is-active .deck-led-indicator {
+.deck-key-play.is-active .deck-led-indicator,
+.deck-key-start.is-active .deck-led-indicator {
   background: #22c55e;
   box-shadow: 0 0 6px #22c55e;
 }
@@ -1698,7 +1715,10 @@ body {
 }
 
 .deck-icon {
+  width: 14px;
+  height: 14px;
   margin-bottom: 2px;
+  flex-shrink: 0;
 }
 
 .deck-label {
@@ -1706,6 +1726,9 @@ body {
   font-weight: 700;
   letter-spacing: 0.8px;
   text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 /* Footer Status Bar */

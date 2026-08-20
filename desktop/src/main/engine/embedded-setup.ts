@@ -11,6 +11,45 @@ const execFileAsync = promisify(execFile);
 const SQLITE_PLUGIN_URL = 'https://downloads.wordpress.org/plugin/sqlite-database-integration.zip';
 const WORDPRESS_CORE_URL = 'https://wordpress.org/latest.zip';
 
+export const DEFAULT_CADDYFILE = `{
+	# FrankenPHP Options
+	frankenphp
+	order php_server before file_server
+	http_port {$PORT:80}
+	https_port {$HTTPS_PORT:443}
+	auto_https off
+	admin off
+	pki {
+		ca local {
+			skip_install_trust
+		}
+	}
+}
+
+# HTTPS Gateway
+https://my.youmeos.com:{$HTTPS_PORT:443}, https://my.umeos.com:{$HTTPS_PORT:443}, https://youmeos.localhost:{$HTTPS_PORT:443}, https://localhost:{$HTTPS_PORT:443}, :{$HTTPS_PORT:443} {
+	tls {$TLS_CERT:internal} {$TLS_KEY}
+	root * {$WP_ROOT}
+	encode zstd br gzip
+	php_server
+	log {
+		format json
+		output stdout
+	}
+}
+
+# HTTP Gateway
+:{$PORT:80}, http://my.youmeos.com:{$PORT:80}, http://youmeos.localhost:{$PORT:80}, http://youmeos.local:{$PORT:80}, http://localhost:{$PORT:80}, http://127.0.0.1:{$PORT:80} {
+	root * {$WP_ROOT}
+	encode zstd br gzip
+	php_server
+	log {
+		format json
+		output stdout
+	}
+}
+`;
+
 function getFrankenPhpUrl(): string {
   const platform = process.platform;
   const arch = process.arch;
@@ -102,6 +141,43 @@ export async function setupEmbeddedEnvironment(
         onProgress('Initialized blackbox workspace from bundled resources.');
       } catch {}
     }
+
+    const bundledDocker = path.join(resourcesDir, 'docker');
+    const hostDocker = path.join(projectDir, 'docker');
+    if (fs.existsSync(bundledDocker) && !fs.existsSync(hostDocker)) {
+      try {
+        fs.cpSync(bundledDocker, hostDocker, { recursive: true, errorOnExist: false });
+        onProgress('Initialized certificates from bundled resources.');
+      } catch {}
+    }
+  }
+
+  const targetCaddyfile = path.join(embeddedDir, 'Caddyfile');
+  if (!fs.existsSync(targetCaddyfile)) {
+    let caddyContent = DEFAULT_CADDYFILE;
+    const candidates = [
+      path.join(__dirname, 'Caddyfile'),
+      path.join(__dirname, '..', 'engine', 'Caddyfile'),
+      resourcesDir ? path.join(resourcesDir, 'desktop', 'dist', 'main', 'engine', 'Caddyfile') : '',
+      resourcesDir ? path.join(resourcesDir, 'Caddyfile') : '',
+      path.join(projectDir, 'Caddyfile'),
+      path.join(__dirname, '..', '..', 'src', 'main', 'engine', 'Caddyfile'),
+      path.join(projectDir, 'desktop', 'src', 'main', 'engine', 'Caddyfile')
+    ].filter(Boolean);
+
+    for (const c of candidates) {
+      if (fs.existsSync(c)) {
+        try {
+          caddyContent = fs.readFileSync(c, 'utf8');
+          break;
+        } catch {}
+      }
+    }
+
+    try {
+      fs.writeFileSync(targetCaddyfile, caddyContent, 'utf8');
+      onProgress('Caddyfile configured in embedded runtime.');
+    } catch {}
   }
 
   const frankenBinaryName = process.platform === 'win32' ? 'frankenphp.exe' : 'frankenphp';

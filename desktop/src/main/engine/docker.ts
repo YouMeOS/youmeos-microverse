@@ -98,9 +98,30 @@ export class DockerEngine extends BaseEngine {
 
     const lower = text.toLowerCase();
     let level: 'info' | 'warn' | 'error' | 'debug' = 'info';
-    if (lower.includes('error') || lower.includes('fatal') || lower.includes('emerg') || lower.includes('failed')) {
+
+    const isExplicitError = lower.includes('error') || lower.includes('fatal') || lower.includes('emerg') || lower.includes('[error]');
+    const isExplicitWarn = lower.includes('warn') || lower.includes('warning') || lower.includes('[warning]') || lower.includes('[warn]');
+    const isNoticeOrInfo =
+      lower.includes('[notice]') ||
+      lower.includes('notice:') ||
+      lower.includes('creating') ||
+      lower.includes('created') ||
+      lower.includes('starting') ||
+      lower.includes('started') ||
+      lower.includes('stopping') ||
+      lower.includes('stopped') ||
+      lower.includes('removing') ||
+      lower.includes('removed') ||
+      lower.includes('ready to handle connections') ||
+      lower.includes('start worker process') ||
+      lower.includes('event method') ||
+      lower.includes('getrlimit');
+
+    if (isNoticeOrInfo) {
+      level = 'info';
+    } else if (isExplicitError && !lower.includes('0 [warning]')) {
       level = 'error';
-    } else if (lower.includes('warn') || lower.includes('warning') || lower.includes('notice')) {
+    } else if (isExplicitWarn) {
       level = 'warn';
     } else if (lower.includes('debug')) {
       level = 'debug';
@@ -127,7 +148,7 @@ export class DockerEngine extends BaseEngine {
       const lines = data.toString().trim().split('\n').filter(Boolean);
       for (const line of lines) {
         const parsed = this.parseDockerLogLine(line);
-        this.pushLog(parsed.service, parsed.text, parsed.level === 'info' ? 'warn' : parsed.level);
+        this.pushLog(parsed.service, parsed.text, parsed.level);
       }
     });
 
@@ -206,9 +227,9 @@ export class DockerEngine extends BaseEngine {
     this.progressCallback?.(null);
 
     this.pushLog('gateway', 'Starting Docker cluster containers...');
-    await this.runComposeStream(['up', '-d'], (line, isErr) => {
+    await this.runComposeStream(['up', '-d'], (line) => {
       const parsed = this.parseDockerLogLine(line);
-      this.pushLog(parsed.service, parsed.text, isErr ? 'warn' : 'info');
+      this.pushLog(parsed.service, parsed.text, parsed.level);
     });
 
     this.isStarting = false;
@@ -219,9 +240,9 @@ export class DockerEngine extends BaseEngine {
   async stop(): Promise<void> {
     this.stopLogsFollower();
     this.pushLog('gateway', 'Stopping Docker cluster containers...');
-    await this.runComposeStream(['down'], (line, isErr) => {
+    await this.runComposeStream(['down'], (line) => {
       const parsed = this.parseDockerLogLine(line);
-      this.pushLog(parsed.service, parsed.text, isErr ? 'warn' : 'info');
+      this.pushLog(parsed.service, parsed.text, parsed.level);
     });
     this.notifyStatus();
   }
@@ -229,9 +250,9 @@ export class DockerEngine extends BaseEngine {
   async restart(): Promise<void> {
     this.stopLogsFollower();
     this.pushLog('gateway', 'Restarting Docker cluster...');
-    await this.runComposeStream(['restart'], (line, isErr) => {
+    await this.runComposeStream(['restart'], (line) => {
       const parsed = this.parseDockerLogLine(line);
-      this.pushLog(parsed.service, parsed.text, isErr ? 'warn' : 'info');
+      this.pushLog(parsed.service, parsed.text, parsed.level);
     });
     this.startLogsFollower();
     this.notifyStatus();
