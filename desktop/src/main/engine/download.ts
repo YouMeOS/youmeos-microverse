@@ -35,7 +35,7 @@ export function downloadFile(
       }
 
       if (response.statusCode !== 200) {
-        return reject(new Error(`Failed to download: ${response.statusCode}`));
+        return reject(new Error(`Failed to download ${url}: HTTP ${response.statusCode}`));
       }
 
       const totalBytes = parseInt(response.headers['content-length'] || '0', 10);
@@ -95,7 +95,16 @@ export function downloadFile(
       reject(err);
     };
 
-    const req = isHttps ? https.get(url, handleResponse) : http.get(url, handleResponse);
+    const requestOptions = {
+      headers: {
+        'User-Agent': 'YouMeOS-Microverse/Desktop',
+        'Accept': '*/*'
+      }
+    };
+
+    const req = isHttps
+      ? https.get(url, requestOptions, handleResponse)
+      : http.get(url, requestOptions, handleResponse);
     req.on('error', handleReqError);
   });
 }
