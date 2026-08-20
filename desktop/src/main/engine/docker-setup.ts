@@ -30,6 +30,15 @@ export async function setupDockerEnvironment(
   const pluginsDir = path.join(hostWpDir, 'plugins');
   const dbDest = path.join(hostWpDir, 'db.php');
 
+  const envPath = path.join(projectDir, '.env');
+  const envExamplePath = path.join(projectDir, '.env.example');
+  if (!fs.existsSync(envPath) && fs.existsSync(envExamplePath)) {
+    try {
+      fs.copyFileSync(envExamplePath, envPath);
+      onProgress('Initialized .env from .env.example.');
+    } catch {}
+  }
+
   try {
     ensureWritableRecursive(hostWpDir);
   } catch {}

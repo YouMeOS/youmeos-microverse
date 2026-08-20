@@ -1,8 +1,12 @@
 import fs from 'fs';
 import path from 'path';
+import { execFile } from 'child_process';
+import { promisify } from 'util';
 import AdmZip from 'adm-zip';
 import { ProgressCallback, SimpleLogCallback } from './types';
 import { downloadFile, downloadAndExtractZip, formatBytes } from './download';
+
+const execFileAsync = promisify(execFile);
 
 const SQLITE_PLUGIN_URL = 'https://downloads.wordpress.org/plugin/sqlite-database-integration.zip';
 const WORDPRESS_CORE_URL = 'https://wordpress.org/latest.zip';
@@ -189,9 +193,12 @@ define( 'WP_DEBUG_DISPLAY', false );
 define('DB_FILE', 'database.sqlite');
 define('DB_DIR', '${hostWpDir.replace(/\\/g, '/')}');
 
-$is_https = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+$is_https = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || 
+            (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ||
+            (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443) ||
+            (isset($_SERVER['HTTP_HOST']) && (strpos($_SERVER['HTTP_HOST'], 'my.youmeos.com') !== false || strpos($_SERVER['HTTP_HOST'], 'my.umeos.com') !== false));
 $proto = $is_https ? 'https://' : 'http://';
-$host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'localhost';
+$host = isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'my.youmeos.com';
 define('WP_HOME', $proto . $host);
 define('WP_SITEURL', $proto . $host);
 
@@ -268,7 +275,35 @@ require_once ABSPATH . 'wp-settings.php';
     }
   }
 
+  // 6. Ensure FrankenPHP has port 80 binding privileges on Linux
+  await ensurePort80Privilege(frankenPath, onProgress);
+
   onProgress('Embedded setup complete.');
   onDownloadProgress?.(null);
   return frankenPath;
+}
+
+export async function ensurePort80Privilege(
+  frankenPath: string,
+  onProgress?: SimpleLogCallback
+): Promise<boolean> {
+  if (process.platform === 'linux') {
+    try {
+      const { stdout } = await execFileAsync('getcap', [frankenPath]);
+      if (stdout.includes('cap_net_bind_service')) {
+        return true;
+      }
+    } catch {}
+
+    onProgress?.('Prompting for admin privileges to bind port 80 (setcap)...');
+    try {
+      await execFileAsync('pkexec', ['setcap', 'cap_net_bind_service=+ep', frankenPath]);
+      onProgress?.('Port 80 binding privileges configured successfully.');
+      return true;
+    } catch (err: any) {
+      onProgress?.(`Admin privilege prompt failed: ${err.message}`);
+      return false;
+    }
+  }
+  return true;
 }

@@ -1,6 +1,7 @@
 export type EngineStatus = 'stopped' | 'starting' | 'running' | 'stopping' | 'error';
 export type EngineType = 'docker' | 'embedded';
 export type DownloadStage = 'downloading' | 'extracting' | 'verifying' | 'complete';
+export type LogLevel = 'info' | 'warn' | 'error' | 'debug';
 
 export interface DownloadProgress {
   item: string;
@@ -20,6 +21,8 @@ export interface ServiceInfo {
   ports?: string[];
   health?: string;
   uptime?: string;
+  category?: string;
+  specs?: string[];
 }
 
 export interface GatewayEndpoint {
@@ -43,10 +46,18 @@ export interface EngineStatusInfo {
 }
 
 export interface LogEntry {
+  id?: string;
   service: string;
   text: string;
-  level?: 'info' | 'warn' | 'error' | 'debug';
+  level?: LogLevel;
   timestamp?: number;
+}
+
+export interface LogFilterOptions {
+  service?: string;
+  level?: LogLevel | 'all';
+  search?: string;
+  tail?: number;
 }
 
 export type ProgressCallback = (progress: DownloadProgress | null) => void;
@@ -61,9 +72,10 @@ export interface MicroverseEngine {
   restart(): Promise<void>;
   status(): Promise<EngineStatusInfo>;
   logs(service?: string, tail?: number): Promise<string>;
+  getStructuredLogs?(filter?: LogFilterOptions): Promise<LogEntry[]>;
+  clearLogs?(): void;
   isAvailable(): Promise<boolean>;
   setProgressCallback?(callback: ProgressCallback): void;
   setLogCallback?(callback: LogCallback): void;
   setStatusCallback?(callback: StatusCallback): void;
 }
-

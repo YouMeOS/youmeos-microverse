@@ -113,6 +113,8 @@ const readyHandler = async () => {
   ipcMain.handle('engine:restart', () => engineManager.restart());
   ipcMain.handle('engine:status', () => engineManager.status());
   ipcMain.handle('engine:logs', (_, service, tail) => engineManager.logs(service, tail));
+  ipcMain.handle('engine:structured-logs', (_, filter) => engineManager.getStructuredLogs(filter));
+  ipcMain.handle('engine:clear-logs', () => engineManager.clearLogs());
   ipcMain.handle('engine:set-type', (_, type: EngineType) => engineManager.setEngineType(type));
   ipcMain.handle('app:version', () => app.getVersion());
 

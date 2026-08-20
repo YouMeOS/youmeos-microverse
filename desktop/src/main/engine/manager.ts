@@ -2,6 +2,8 @@ import {
   MicroverseEngine,
   EngineStatusInfo,
   EngineType,
+  LogEntry,
+  LogFilterOptions,
   ProgressCallback,
   LogCallback,
   StatusCallback
@@ -126,5 +128,18 @@ export class EngineManager {
 
   async logs(service?: string, tail?: number): Promise<string> {
     return this.activeEngine.logs(service, tail);
+  }
+
+  async getStructuredLogs(filter?: LogFilterOptions): Promise<LogEntry[]> {
+    if (this.activeEngine.getStructuredLogs) {
+      return this.activeEngine.getStructuredLogs(filter);
+    }
+    return [];
+  }
+
+  clearLogs(): void {
+    if (this.activeEngine.clearLogs) {
+      this.activeEngine.clearLogs();
+    }
   }
 }

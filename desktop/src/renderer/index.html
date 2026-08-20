@@ -1,22 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' http://localhost:5173 ws://localhost:5173; script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5173; style-src 'self' 'unsafe-inline' http://localhost:5173; img-src 'self' data: http://localhost:5173; font-src 'self' data: http://localhost:5173;">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YouMeOS Microverse Control Matrix</title>
-  <link rel="stylesheet" href="./styles.css">
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="default-src 'self' 'unsafe-inline' http://localhost:5173 ws://localhost:5173; script-src 'self' 'unsafe-inline' 'unsafe-eval' http://localhost:5173; style-src 'self' 'unsafe-inline' http://localhost:5173; img-src 'self' data: http://localhost:5173; font-src 'self' data: http://localhost:5173;"
+  >
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+  <title>My YouMeOS Microverse</title>
+  <link
+    rel="stylesheet"
+    href="./styles.css"
+  >
 </head>
+
 <body>
   <div class="app-layout">
     <!-- Header Bar -->
     <header class="app-header">
       <div class="brand">
         <div class="brand-badge">
-          <svg class="brand-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="12" cy="12" r="10"/>
-            <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
-            <path d="M2 12h20"/>
+          <svg
+            class="brand-icon"
+            viewBox="0 0 24 24"
+            width="16"
+            height="16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle
+              cx="12"
+              cy="12"
+              r="10"
+            />
+            <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+            <path d="M2 12h20" />
           </svg>
         </div>
         <div class="brand-meta">
@@ -27,17 +50,36 @@
 
       <div class="header-controls">
         <div class="engine-select-wrapper">
-          <select id="engine-selector" class="engine-select" title="Switch Microverse Engine">
+          <select
+            id="engine-selector"
+            class="engine-select"
+            title="Switch Microverse Engine"
+          >
             <option value="embedded">Native Embedded</option>
             <option value="docker">Docker Cluster</option>
           </select>
-          <svg class="select-chevron" viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="6 9 12 15 18 9"/>
+          <svg
+            class="select-chevron"
+            viewBox="0 0 24 24"
+            width="10"
+            height="10"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="6 9 12 15 18 9" />
           </svg>
         </div>
 
-        <div id="overall-status-pill" class="badge badge-status stopped" role="status">
-          <span id="status-dot" class="dot stopped"></span>
+        <div
+          id="overall-status-pill"
+          class="badge badge-status stopped"
+          role="status"
+        >
+          <span
+            id="status-dot"
+            class="dot stopped"
+          ></span>
           <span id="status-text">Stopped</span>
         </div>
       </div>
@@ -48,89 +90,240 @@
       <div class="gateway-main-row">
         <div class="gateway-left">
           <span class="gateway-tag">Gateway</span>
-          <a href="#" id="link-gateway" class="gateway-link-btn" title="Open Primary Gateway in browser">
+          <a
+            href="#"
+            id="link-gateway"
+            class="gateway-link-btn"
+            title="Open Primary Gateway in browser"
+          >
             https://my.youmeos.com
-            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+            <svg
+              viewBox="0 0 24 24"
+              width="12"
+              height="12"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
             </svg>
           </a>
-          <button id="btn-copy-gateway" class="btn-copy-url" title="Copy Gateway URL">
-            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          <button
+            id="btn-copy-gateway"
+            class="btn-copy-url"
+            title="Copy Gateway URL"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="13"
+              height="13"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect
+                x="9"
+                y="9"
+                width="13"
+                height="13"
+                rx="2"
+                ry="2"
+              />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
             </svg>
           </button>
         </div>
 
         <div class="gateway-right">
-          <div class="trust-badge-pill" title="End-to-end local sandbox with zero outbound telemetry">
-            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-              <polyline points="9 12 11 14 15 10"/>
+          <div
+            class="trust-badge-pill"
+            title="End-to-end local sandbox with zero outbound telemetry"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="12"
+              height="12"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              <polyline points="9 12 11 14 15 10" />
             </svg>
             <span>Private Local Sandbox</span>
           </div>
         </div>
       </div>
 
-      <div class="gateway-endpoints-row" id="gateway-endpoints-row">
+      <div
+        class="gateway-endpoints-row"
+        id="gateway-endpoints-row"
+      >
         <span class="endpoints-label">Gateways:</span>
-        <div class="endpoint-chips" id="endpoint-chips">
-          <a href="#" class="endpoint-chip is-primary" data-url="https://my.youmeos.com">my.youmeos.com</a>
-          <a href="#" class="endpoint-chip" data-url="https://youmeos.localhost">youmeos.localhost</a>
-          <a href="#" class="endpoint-chip" data-url="http://youmeos.local">youmeos.local</a>
-          <a href="#" class="endpoint-chip" data-url="https://localhost">localhost</a>
+        <div
+          class="endpoint-chips"
+          id="endpoint-chips"
+        >
+          <a
+            href="#"
+            class="endpoint-chip is-primary"
+            data-url="https://my.youmeos.com"
+          >my.youmeos.com</a>
+          <a
+            href="#"
+            class="endpoint-chip"
+            data-url="https://youmeos.localhost"
+          >youmeos.localhost</a>
+          <a
+            href="#"
+            class="endpoint-chip"
+            data-url="http://youmeos.local"
+          >youmeos.local</a>
+          <a
+            href="#"
+            class="endpoint-chip"
+            data-url="https://localhost"
+          >localhost</a>
         </div>
       </div>
     </section>
 
     <!-- Navigation Tabs -->
     <section class="tabs-container">
-      <div class="tabs-list glass-panel" role="tablist">
-        <button class="tabs-trigger active" id="tab-btn-model" role="tab" aria-selected="true" data-tab="tab-model">
-          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
-            <polygon points="12 2 2 7 12 12 22 7 12 2"/>
-            <polyline points="2 17 12 22 22 17"/>
-            <polyline points="2 12 12 17 22 12"/>
+      <div
+        class="tabs-list glass-panel"
+        role="tablist"
+      >
+        <button
+          class="tabs-trigger active"
+          id="tab-btn-model"
+          role="tab"
+          aria-selected="true"
+          data-tab="tab-model"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            width="13"
+            height="13"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polygon points="12 2 2 7 12 12 22 7 12 2" />
+            <polyline points="2 17 12 22 22 17" />
+            <polyline points="2 12 12 17 22 12" />
           </svg>
           System Architecture
         </button>
 
-        <button class="tabs-trigger" id="tab-btn-services" role="tab" aria-selected="false" data-tab="tab-services">
-          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
-            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
-            <line x1="6" y1="6" x2="6.01" y2="6"/>
-            <line x1="6" y1="18" x2="6.01" y2="18"/>
+        <button
+          class="tabs-trigger"
+          id="tab-btn-services"
+          role="tab"
+          aria-selected="false"
+          data-tab="tab-services"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            width="13"
+            height="13"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <rect
+              x="2"
+              y="2"
+              width="20"
+              height="8"
+              rx="2"
+              ry="2"
+            />
+            <rect
+              x="2"
+              y="14"
+              width="20"
+              height="8"
+              rx="2"
+              ry="2"
+            />
+            <line
+              x1="6"
+              y1="6"
+              x2="6.01"
+              y2="6"
+            />
+            <line
+              x1="6"
+              y1="18"
+              x2="6.01"
+              y2="18"
+            />
           </svg>
           Services
-          <span id="services-count" class="tab-badge">0 / 0</span>
+          <span
+            id="services-count"
+            class="tab-badge"
+          >0 / 0</span>
         </button>
 
-        <button class="tabs-trigger" id="tab-btn-logs" role="tab" aria-selected="false" data-tab="tab-logs">
-          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="4 17 10 11 4 5"/>
-            <line x1="12" y1="19" x2="20" y2="19"/>
+        <button
+          class="tabs-trigger"
+          id="tab-btn-logs"
+          role="tab"
+          aria-selected="false"
+          data-tab="tab-logs"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            width="13"
+            height="13"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="4 17 10 11 4 5" />
+            <line
+              x1="12"
+              y1="19"
+              x2="20"
+              y2="19"
+            />
           </svg>
           Console Logs
         </button>
       </div>
 
       <!-- Tab: System Architecture (Layered Model) -->
-      <section class="tab-content" id="tab-model">
-        <div class="system-model-view" id="system-model-view">
+      <section
+        class="tab-content"
+        id="tab-model"
+      >
+        <div
+          class="system-model-view"
+          id="system-model-view"
+        >
           <!-- Layer 1: Event Horizon -->
-          <div class="model-layer-card glass-panel" id="layer-event-horizon">
+          <div
+            class="model-layer-card glass-panel"
+            id="layer-event-horizon"
+          >
             <div class="layer-accent-glow glow-cyan"></div>
             <div class="layer-body">
               <div class="layer-header">
                 <div class="layer-identity">
                   <span class="layer-badge">Front-End Interface</span>
-                  <h3 class="layer-title">Event Horizon Portal</h3>
+                  <h3 class="layer-title">YouMeOS Portal</h3>
                   <p class="layer-subtitle">3D Rendering Engine & Vue 3 Micro-Frontends</p>
                 </div>
-                <div class="layer-status-pill stopped" id="status-pill-event-horizon">
-                  <span class="dot stopped" id="dot-event-horizon"></span>
+                <div
+                  class="layer-status-pill stopped"
+                  id="status-pill-event-horizon"
+                >
+                  <span
+                    class="dot stopped"
+                    id="dot-event-horizon"
+                  ></span>
                   <span id="label-event-horizon">Offline</span>
                 </div>
               </div>
@@ -140,11 +333,17 @@
                 <span class="spec-tag">Spatial Canvas</span>
               </div>
             </div>
-            <div class="layer-graphic" id="canvas-container-horizon"></div>
+            <div
+              class="layer-graphic"
+              id="canvas-container-horizon"
+            ></div>
           </div>
 
           <!-- Layer 2: Headless Core -->
-          <div class="model-layer-card glass-panel" id="layer-headless-core">
+          <div
+            class="model-layer-card glass-panel"
+            id="layer-headless-core"
+          >
             <div class="layer-accent-glow glow-purple"></div>
             <div class="layer-body">
               <div class="layer-header">
@@ -153,8 +352,14 @@
                   <h3 class="layer-title serif-gold">Headless Core</h3>
                   <p class="layer-subtitle">WordPress Engine, REST & GraphQL APIs</p>
                 </div>
-                <div class="layer-status-pill stopped" id="status-pill-core">
-                  <span class="dot stopped" id="dot-core"></span>
+                <div
+                  class="layer-status-pill stopped"
+                  id="status-pill-core"
+                >
+                  <span
+                    class="dot stopped"
+                    id="dot-core"
+                  ></span>
                   <span id="label-core">Offline</span>
                 </div>
               </div>
@@ -164,48 +369,105 @@
                 <span class="spec-tag">JWT Auth</span>
               </div>
             </div>
-            <div class="layer-graphic" id="canvas-container-core"></div>
+            <div
+              class="layer-graphic"
+              id="canvas-container-core"
+            ></div>
           </div>
 
           <!-- Layer 3: Infrastructure Platform -->
-          <div class="model-layer-card glass-panel" id="layer-lamp-stack">
+          <div
+            class="model-layer-card glass-panel"
+            id="layer-lamp-stack"
+          >
             <div class="layer-accent-glow glow-blue"></div>
             <div class="layer-body">
               <div class="layer-header">
                 <div class="layer-identity">
                   <span class="layer-badge">Infrastructure Platform</span>
-                  <h3 class="layer-title" id="platform-layer-title">Blackbox Bedrock</h3>
-                  <p class="layer-subtitle" id="platform-layer-subtitle">Isolated Gateway, PHP 8.3 & ZeroConf Mesh</p>
+                  <h3
+                    class="layer-title"
+                    id="platform-layer-title"
+                  >Blackbox Bedrock</h3>
+                  <p
+                    class="layer-subtitle"
+                    id="platform-layer-subtitle"
+                  >Isolated Gateway, PHP 8.3 & ZeroConf Mesh</p>
                 </div>
-                <div class="layer-status-pill stopped" id="status-pill-platform">
-                  <span class="dot stopped" id="dot-platform"></span>
+                <div
+                  class="layer-status-pill stopped"
+                  id="status-pill-platform"
+                >
+                  <span
+                    class="dot stopped"
+                    id="dot-platform"
+                  ></span>
                   <span id="label-platform">Offline</span>
                 </div>
               </div>
               <div class="layer-specs">
-                <span class="spec-tag" id="spec-runtime">PHP 8.3 / FrankenPHP</span>
-                <span class="spec-tag" id="spec-gateway">Gateway Proxy</span>
-                <span class="spec-tag" id="spec-db">SQLite Store</span>
+                <span
+                  class="spec-tag"
+                  id="spec-runtime"
+                >PHP 8.3 / FrankenPHP</span>
+                <span
+                  class="spec-tag"
+                  id="spec-gateway"
+                >Gateway Proxy</span>
+                <span
+                  class="spec-tag"
+                  id="spec-db"
+                >SQLite Store</span>
               </div>
             </div>
-            <div class="layer-graphic" id="canvas-container-bedrock"></div>
+            <div
+              class="layer-graphic"
+              id="canvas-container-bedrock"
+            ></div>
           </div>
 
           <!-- Local Host Substrate Row -->
           <div class="local-substrate-row">
             <span class="substrate-label">Local Host Environment:</span>
-            <div class="substrate-pill" id="local-machine-pill">
+            <div
+              class="substrate-pill"
+              id="local-machine-pill"
+            >
               <span class="substrate-dot"></span>
               <span id="local-machine-name">Localhost Node</span>
             </div>
           </div>
 
           <!-- Error Alert Banner -->
-          <div id="local-machine-error" class="error-banner hidden">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="8" x2="12" y2="12"/>
-              <line x1="12" y1="16" x2="12.01" y2="16"/>
+          <div
+            id="local-machine-error"
+            class="error-banner hidden"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="14"
+              height="14"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+              />
+              <line
+                x1="12"
+                y1="8"
+                x2="12"
+                y2="12"
+              />
+              <line
+                x1="12"
+                y1="16"
+                x2="12.01"
+                y2="16"
+              />
             </svg>
             <span id="local-machine-error-text"></span>
           </div>
@@ -213,57 +475,317 @@
       </section>
 
       <!-- Tab: Individual Services Grid -->
-      <section class="tab-content hidden" id="tab-services">
-        <div id="services-grid" class="services-grid">
+      <section
+        class="tab-content hidden"
+        id="tab-services"
+      >
+        <div
+          id="services-grid"
+          class="services-grid"
+        >
           <!-- Populated dynamically -->
         </div>
       </section>
 
       <!-- Tab: Real-Time Console Logs -->
-      <section class="tab-content hidden" id="tab-logs">
+      <section
+        class="tab-content hidden"
+        id="tab-logs"
+      >
         <div class="logs-wrapper glass-panel">
+          <!-- Primary Service Category Tabs -->
           <div class="logs-header">
-            <div class="log-service-tabs" id="log-tabs">
-              <button class="log-tab active" data-service="all">All Logs</button>
-              <button class="log-tab" data-service="nginx">Gateway</button>
-              <button class="log-tab" data-service="wordpress">Core</button>
-              <button class="log-tab" data-service="avahi">Network</button>
+            <div
+              class="log-service-tabs"
+              id="log-tabs"
+            >
+              <button
+                class="log-tab active"
+                data-service="all"
+              >
+                All Logs <span
+                  class="tab-badge"
+                  id="badge-count-all"
+                >0</span>
+              </button>
+              <button
+                class="log-tab"
+                data-service="gateway"
+              >
+                Gateway <span
+                  class="tab-badge"
+                  id="badge-count-gateway"
+                >0</span>
+              </button>
+              <button
+                class="log-tab"
+                data-service="core"
+              >
+                Core Engine <span
+                  class="tab-badge"
+                  id="badge-count-core"
+                >0</span>
+              </button>
+              <button
+                class="log-tab"
+                data-service="network"
+              >
+                Network <span
+                  class="tab-badge"
+                  id="badge-count-network"
+                >0</span>
+              </button>
+              <button
+                class="log-tab"
+                data-service="setup"
+              >
+                Setup & System <span
+                  class="tab-badge"
+                  id="badge-count-setup"
+                >0</span>
+              </button>
             </div>
+            <div class="logs-status-bar">
+              <span
+                id="log-metrics-counter"
+                class="log-metrics-counter"
+              >0 entries</span>
+              <span
+                id="log-stream-status"
+                class="log-stream-status"
+              ><span class="pulse-dot"></span> Live Stream</span>
+            </div>
+          </div>
+
+          <!-- Secondary Toolbar: Levels, Search, Actions -->
+          <div class="logs-toolbar">
+            <div
+              class="log-level-filters"
+              id="level-filters"
+            >
+              <button
+                class="level-btn active"
+                data-level="all"
+              >All</button>
+              <button
+                class="level-btn level-btn-error"
+                data-level="error"
+              >
+                Errors <span
+                  class="level-badge badge-error"
+                  id="badge-error-count"
+                >0</span>
+              </button>
+              <button
+                class="level-btn level-btn-warn"
+                data-level="warn"
+              >
+                Warnings <span
+                  class="level-badge badge-warn"
+                  id="badge-warn-count"
+                >0</span>
+              </button>
+              <button
+                class="level-btn level-btn-info"
+                data-level="info"
+              >Info</button>
+            </div>
+
+            <div class="log-search-wrapper">
+              <svg
+                class="search-icon"
+                viewBox="0 0 24 24"
+                width="12"
+                height="12"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle
+                  cx="11"
+                  cy="11"
+                  r="8"
+                />
+                <line
+                  x1="21"
+                  y1="21"
+                  x2="16.65"
+                  y2="16.65"
+                />
+              </svg>
+              <input
+                type="text"
+                id="input-log-search"
+                placeholder="Filter logs (text / regex)..."
+                spellcheck="false"
+                autocomplete="off"
+              >
+              <button
+                id="btn-clear-search"
+                class="btn-clear-search hidden"
+                title="Clear search"
+              >&times;</button>
+            </div>
+
             <div class="logs-actions">
-              <label class="autoscroll-toggle">
-                <input type="checkbox" id="chk-autoscroll" checked>
+              <label
+                class="autoscroll-toggle"
+                title="Keep stream pinned to bottom"
+              >
+                <input
+                  type="checkbox"
+                  id="chk-autoscroll"
+                  checked
+                >
                 <span>Autoscroll</span>
               </label>
-              <button id="btn-clear-logs" class="btn-icon" title="Clear Logs">
-                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
-                  <polyline points="3 6 5 6 21 6"/>
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+              <button
+                id="btn-copy-logs"
+                class="btn-icon"
+                title="Copy filtered logs to clipboard"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="12"
+                  height="12"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <rect
+                    x="9"
+                    y="9"
+                    width="13"
+                    height="13"
+                    rx="2"
+                    ry="2"
+                  />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+              </button>
+              <button
+                id="btn-export-logs"
+                class="btn-icon"
+                title="Export logs as file"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="12"
+                  height="12"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line
+                    x1="12"
+                    y1="15"
+                    x2="12"
+                    y2="3"
+                  />
+                </svg>
+              </button>
+              <button
+                id="btn-clear-logs"
+                class="btn-icon"
+                title="Clear log buffer"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="12"
+                  height="12"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
                 </svg>
               </button>
             </div>
           </div>
-          <div id="log-container" class="logs-body">
-            <pre id="log-viewer"><code>[Matrix] Initializing console stream...</code></pre>
+
+          <!-- Log Stream Container -->
+          <div
+            id="log-container"
+            class="logs-body"
+          >
+            <div
+              id="log-viewer"
+              class="log-stream"
+            >
+              <div class="log-line-entry log-system-entry">
+                <span class="log-time">[Init]</span>
+                <span class="log-tag log-tag-gateway">SYSTEM</span>
+                <span class="log-text">Microverse Real-Time Stream Initialized.</span>
+              </div>
+            </div>
+            <div
+              id="log-empty-state"
+              class="log-empty-state hidden"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="28"
+                height="28"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.5"
+              >
+                <circle
+                  cx="11"
+                  cy="11"
+                  r="8"
+                />
+                <line
+                  x1="21"
+                  y1="21"
+                  x2="16.65"
+                  y2="16.65"
+                />
+              </svg>
+              <span>No log entries match the selected filters</span>
+            </div>
           </div>
         </div>
       </section>
     </section>
 
     <!-- Download Progress Panel -->
-    <div id="download-panel" class="download-panel glass-panel hidden">
+    <div
+      id="download-panel"
+      class="download-panel glass-panel hidden"
+    >
       <div class="download-header">
         <div class="download-info">
           <span class="download-badge">Downloading</span>
-          <span id="download-title" class="download-title">FrankenPHP Binary</span>
-          <span id="download-detail" class="download-detail">0 B / 0 B</span>
+          <span
+            id="download-title"
+            class="download-title"
+          >FrankenPHP Binary</span>
+          <span
+            id="download-detail"
+            class="download-detail"
+          >0 B / 0 B</span>
         </div>
         <div class="download-metrics">
-          <span id="download-speed" class="download-speed">0 KB/s</span>
-          <span id="download-percent" class="download-percent">0%</span>
+          <span
+            id="download-speed"
+            class="download-speed"
+          >0 KB/s</span>
+          <span
+            id="download-percent"
+            class="download-percent"
+          >0%</span>
         </div>
       </div>
       <div class="download-track">
-        <div id="download-bar" class="download-bar" style="width: 0%;"></div>
+        <div
+          id="download-bar"
+          class="download-bar"
+          style="width: 0%;"
+        ></div>
       </div>
     </div>
 
@@ -272,27 +794,66 @@
       <div class="tape-deck-chassis">
         <div class="tape-deck-transport">
           <!-- Play Key -->
-          <button id="btn-start" class="deck-key deck-key-play" title="Engage Microverse Cluster">
+          <button
+            id="btn-start"
+            class="deck-key deck-key-play"
+            title="Engage Microverse Cluster"
+          >
             <div class="deck-led-indicator"></div>
-            <svg class="deck-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
-              <polygon points="6 4 20 12 6 20 6 4"/>
+            <svg
+              class="deck-icon"
+              viewBox="0 0 24 24"
+              width="14"
+              height="14"
+              fill="currentColor"
+            >
+              <polygon points="6 4 20 12 6 20 6 4" />
             </svg>
             <span class="deck-label">Play</span>
           </button>
 
           <!-- Stop Key -->
-          <button id="btn-stop" class="deck-key deck-key-stop" title="Disengage Microverse Cluster">
+          <button
+            id="btn-stop"
+            class="deck-key deck-key-stop"
+            title="Disengage Microverse Cluster"
+          >
             <div class="deck-led-indicator"></div>
-            <svg class="deck-icon" viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
-              <rect x="5" y="5" width="14" height="14" rx="2" ry="2"/>
+            <svg
+              class="deck-icon"
+              viewBox="0 0 24 24"
+              width="13"
+              height="13"
+              fill="currentColor"
+            >
+              <rect
+                x="5"
+                y="5"
+                width="14"
+                height="14"
+                rx="2"
+                ry="2"
+              />
             </svg>
             <span class="deck-label">Stop</span>
           </button>
 
           <!-- Restart Key -->
-          <button id="btn-restart" class="deck-key deck-key-restart" title="Cycle Microverse Cluster">
-            <svg class="deck-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2">
-              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+          <button
+            id="btn-restart"
+            class="deck-key deck-key-restart"
+            title="Cycle Microverse Cluster"
+          >
+            <svg
+              class="deck-icon"
+              viewBox="0 0 24 24"
+              width="13"
+              height="13"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.2"
+            >
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
             </svg>
             <span class="deck-label">Restart</span>
           </button>
@@ -302,30 +863,87 @@
 
         <div class="tape-deck-aux">
           <!-- Open Gateway in Browser -->
-          <button id="btn-open-browser" class="deck-key deck-key-aux" title="Open Gateway in Web Browser">
-            <svg class="deck-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="2" y1="12" x2="22" y2="12"/>
-              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          <button
+            id="btn-open-browser"
+            class="deck-key deck-key-aux"
+            title="Open Gateway in Web Browser"
+          >
+            <svg
+              class="deck-icon"
+              viewBox="0 0 24 24"
+              width="13"
+              height="13"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+              />
+              <line
+                x1="2"
+                y1="12"
+                x2="22"
+                y2="12"
+              />
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
             </svg>
             <span class="deck-label">Launch</span>
           </button>
 
           <!-- Copy Gateway URL -->
-          <button id="btn-copy-url" class="deck-key deck-key-aux" title="Copy Gateway URL to Clipboard">
-            <svg class="deck-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
-              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          <button
+            id="btn-copy-url"
+            class="deck-key deck-key-aux"
+            title="Copy Gateway URL to Clipboard"
+          >
+            <svg
+              class="deck-icon"
+              viewBox="0 0 24 24"
+              width="13"
+              height="13"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect
+                x="9"
+                y="9"
+                width="13"
+                height="13"
+                rx="2"
+                ry="2"
+              />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
             </svg>
             <span class="deck-label">Copy</span>
           </button>
 
           <!-- Update Plugins -->
-          <button id="btn-update-plugins" class="deck-key deck-key-aux" title="Update YouMeOS Plugins via Composer">
-            <svg class="deck-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
+          <button
+            id="btn-update-plugins"
+            class="deck-key deck-key-aux"
+            title="Update YouMeOS Plugins via Composer"
+          >
+            <svg
+              class="deck-icon"
+              viewBox="0 0 24 24"
+              width="13"
+              height="13"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line
+                x1="12"
+                y1="15"
+                x2="12"
+                y2="3"
+              />
             </svg>
             <span class="deck-label">Update</span>
           </button>
@@ -340,10 +958,17 @@
         <span class="footer-sep">&bull;</span>
         <span class="ssl-status">SSL Active</span>
       </div>
-      <span id="version-tag" class="version-tag">Microverse v1.0.0</span>
+      <span
+        id="version-tag"
+        class="version-tag"
+      >Microverse v1.0.0</span>
     </footer>
   </div>
 
-  <script type="module" src="./app.ts"></script>
+  <script
+    type="module"
+    src="./app.ts"
+  ></script>
 </body>
+
 </html>

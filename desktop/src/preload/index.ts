@@ -5,6 +5,8 @@ const stopHandler = () => ipcRenderer.invoke('engine:stop');
 const restartHandler = () => ipcRenderer.invoke('engine:restart');
 const getStatusHandler = () => ipcRenderer.invoke('engine:status');
 const getLogsHandler = (service?: string, tail?: number) => ipcRenderer.invoke('engine:logs', service, tail);
+const getStructuredLogsHandler = (filter?: any) => ipcRenderer.invoke('engine:structured-logs', filter);
+const clearLogsHandler = () => ipcRenderer.invoke('engine:clear-logs');
 const openUrlHandler = (url?: string) => ipcRenderer.invoke('engine:open-url', url);
 const openBrowserHandler = () => ipcRenderer.invoke('engine:open-browser');
 const setEngineTypeHandler = (type: string) => ipcRenderer.invoke('engine:set-type', type);
@@ -41,6 +43,8 @@ contextBridge.exposeInMainWorld('api', {
   restart: restartHandler,
   getStatus: getStatusHandler,
   getLogs: getLogsHandler,
+  getStructuredLogs: getStructuredLogsHandler,
+  clearLogs: clearLogsHandler,
   openUrl: openUrlHandler,
   openBrowser: openBrowserHandler,
   setEngineType: setEngineTypeHandler,

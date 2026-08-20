@@ -2,7 +2,8 @@ import type {
   DownloadProgress,
   ServiceInfo,
   EngineStatusInfo,
-  LogEntry
+  LogEntry,
+  LogFilterOptions
 } from '../main/engine/types';
 import { Architecture3DManager } from './architecture-3d';
 
@@ -12,6 +13,8 @@ interface DesktopApi {
   restart: () => Promise<void>;
   getStatus: () => Promise<EngineStatusInfo>;
   getLogs: (service?: string, tail?: number) => Promise<string>;
+  getStructuredLogs?: (filter?: LogFilterOptions) => Promise<LogEntry[]>;
+  clearLogs?: () => Promise<void>;
   openUrl: (url?: string) => Promise<void>;
   openBrowser: () => Promise<void>;
   setEngineType: (type: string) => Promise<void>;
@@ -72,11 +75,27 @@ const servicesGrid = document.getElementById('services-grid') as HTMLElement | n
 const servicesCount = document.getElementById('services-count') as HTMLElement | null;
 
 // Console Log Elements
-const logViewer = document.getElementById('log-viewer')?.querySelector('code') as HTMLElement | null;
+const logViewer = document.getElementById('log-viewer') as HTMLElement | null;
 const logContainer = document.getElementById('log-container') as HTMLElement | null;
+const logEmptyState = document.getElementById('log-empty-state') as HTMLElement | null;
 const chkAutoscroll = document.getElementById('chk-autoscroll') as HTMLInputElement | null;
+const btnCopyLogs = document.getElementById('btn-copy-logs') as HTMLButtonElement | null;
+const btnExportLogs = document.getElementById('btn-export-logs') as HTMLButtonElement | null;
 const btnClearLogs = document.getElementById('btn-clear-logs') as HTMLButtonElement | null;
 const logTabs = document.getElementById('log-tabs') as HTMLElement | null;
+const levelFilters = document.getElementById('level-filters') as HTMLElement | null;
+const inputLogSearch = document.getElementById('input-log-search') as HTMLInputElement | null;
+const btnClearSearch = document.getElementById('btn-clear-search') as HTMLButtonElement | null;
+const logMetricsCounter = document.getElementById('log-metrics-counter') as HTMLElement | null;
+
+// Badge Count Elements
+const badgeCountAll = document.getElementById('badge-count-all') as HTMLElement | null;
+const badgeCountGateway = document.getElementById('badge-count-gateway') as HTMLElement | null;
+const badgeCountCore = document.getElementById('badge-count-core') as HTMLElement | null;
+const badgeCountNetwork = document.getElementById('badge-count-network') as HTMLElement | null;
+const badgeCountSetup = document.getElementById('badge-count-setup') as HTMLElement | null;
+const badgeErrorCount = document.getElementById('badge-error-count') as HTMLElement | null;
+const badgeWarnCount = document.getElementById('badge-warn-count') as HTMLElement | null;
 
 // Download Panel Elements
 const downloadPanel = document.getElementById('download-panel') as HTMLElement | null;
@@ -86,12 +105,182 @@ const downloadSpeed = document.getElementById('download-speed') as HTMLElement |
 const downloadPercent = document.getElementById('download-percent') as HTMLElement | null;
 const downloadBar = document.getElementById('download-bar') as HTMLElement | null;
 
-let currentSelectedService = 'all';
+// Application State
 let currentGatewayUrl = 'https://my.youmeos.com';
 let isActionPending = false;
 let hideDownloadTimer: NodeJS.Timeout | null = null;
-let lastLogText = '';
 let architecture3D: Architecture3DManager | null = null;
+
+// Log Stream State
+let logBuffer: LogEntry[] = [];
+let activeServiceFilter = 'all';
+let activeLevelFilter = 'all';
+let searchFilterQuery = '';
+
+function normalizeServiceCategory(service: string): 'gateway' | 'core' | 'network' | 'setup' {
+  const s = (service || '').toLowerCase();
+  if (s.includes('nginx') || s.includes('gateway') || s.includes('caddy') || s.includes('franken')) return 'gateway';
+  if (s.includes('wp') || s.includes('core') || s.includes('php') || s.includes('sqlite') || s.includes('mariadb')) return 'core';
+  if (s.includes('avahi') || s.includes('network') || s.includes('mdns') || s.includes('mesh')) return 'network';
+  return 'setup';
+}
+
+function entryMatchesFilters(entry: LogEntry): boolean {
+  if (activeServiceFilter !== 'all') {
+    const cat = normalizeServiceCategory(entry.service);
+    if (cat !== activeServiceFilter && entry.service.toLowerCase() !== activeServiceFilter.toLowerCase()) {
+      return false;
+    }
+  }
+
+  if (activeLevelFilter !== 'all') {
+    const entryLevel = entry.level || 'info';
+    if (entryLevel !== activeLevelFilter) {
+      return false;
+    }
+  }
+
+  if (searchFilterQuery.trim()) {
+    const q = searchFilterQuery.trim().toLowerCase();
+    const matchesText = entry.text.toLowerCase().includes(q);
+    const matchesService = entry.service.toLowerCase().includes(q);
+    if (!matchesText && !matchesService) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+function updateBadgeCounts(): void {
+  let countAll = 0;
+  let countGateway = 0;
+  let countCore = 0;
+  let countNetwork = 0;
+  let countSetup = 0;
+  let countErrors = 0;
+  let countWarns = 0;
+
+  for (const entry of logBuffer) {
+    countAll++;
+    const cat = normalizeServiceCategory(entry.service);
+    if (cat === 'gateway') countGateway++;
+    else if (cat === 'core') countCore++;
+    else if (cat === 'network') countNetwork++;
+    else countSetup++;
+
+    if (entry.level === 'error') countErrors++;
+    else if (entry.level === 'warn') countWarns++;
+  }
+
+  if (badgeCountAll) badgeCountAll.textContent = countAll.toString();
+  if (badgeCountGateway) badgeCountGateway.textContent = countGateway.toString();
+  if (badgeCountCore) badgeCountCore.textContent = countCore.toString();
+  if (badgeCountNetwork) badgeCountNetwork.textContent = countNetwork.toString();
+  if (badgeCountSetup) badgeCountSetup.textContent = countSetup.toString();
+  if (badgeErrorCount) badgeErrorCount.textContent = countErrors.toString();
+  if (badgeWarnCount) badgeWarnCount.textContent = countWarns.toString();
+}
+
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function formatLogTimestamp(ts?: number): string {
+  const d = ts ? new Date(ts) : new Date();
+  const pad = (n: number) => n.toString().padStart(2, '0');
+  return `[${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}]`;
+}
+
+function renderSingleEntryHtml(entry: LogEntry): string {
+  const timeStr = formatLogTimestamp(entry.timestamp);
+  const category = normalizeServiceCategory(entry.service);
+  const tagClass = `log-tag-${category}`;
+  const level = entry.level || 'info';
+
+  const entryClass = level === 'error' ? 'log-line-entry error-entry' : (level === 'warn' ? 'log-line-entry warn-entry' : (level === 'debug' ? 'log-line-entry debug-entry' : 'log-line-entry'));
+  const pillClass = `log-level-pill level-${level}`;
+  const pillLabel = level === 'error' ? '[ERR]' : (level === 'warn' ? '[WRN]' : (level === 'debug' ? '[DBG]' : '[INF]'));
+
+  let escaped = escapeHtml(entry.text);
+
+  if (searchFilterQuery.trim()) {
+    const escapedQuery = searchFilterQuery.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(${escapedQuery})`, 'gi');
+    escaped = escaped.replace(regex, '<mark class="log-highlight">$1</mark>');
+  }
+
+  escaped = escaped.replace(/(https?:\/\/[^\s&<]+)/g, '<span class="log-url">$1</span>');
+  escaped = escaped.replace(/(\/(?:home|var|etc|usr|data|desktop)[^\s:&<]+)/g, '<span class="log-path">$1</span>');
+
+  return `
+    <div class="${entryClass}">
+      <span class="log-time">${timeStr}</span>
+      <span class="log-tag ${tagClass}">${escapeHtml(entry.service.toUpperCase())}</span>
+      <span class="${pillClass}">${pillLabel}</span>
+      <span class="log-text">${escaped}</span>
+    </div>
+  `;
+}
+
+function renderLogStream(): void {
+  if (!logViewer) return;
+
+  const filtered = logBuffer.filter(entryMatchesFilters);
+
+  if (logMetricsCounter) {
+    logMetricsCounter.textContent = `${filtered.length} / ${logBuffer.length} entries`;
+  }
+
+  if (filtered.length === 0) {
+    logViewer.innerHTML = '';
+    logEmptyState?.classList.remove('hidden');
+  } else {
+    logEmptyState?.classList.add('hidden');
+    logViewer.innerHTML = filtered.map(renderSingleEntryHtml).join('');
+  }
+
+  if (chkAutoscroll?.checked && logContainer) {
+    logContainer.scrollTop = logContainer.scrollHeight;
+  }
+}
+
+function handleIncomingLog(entry: LogEntry): void {
+  logBuffer.push(entry);
+  if (logBuffer.length > 1000) {
+    logBuffer.shift();
+  }
+
+  updateBadgeCounts();
+
+  if (!entryMatchesFilters(entry)) {
+    if (logMetricsCounter) {
+      const visibleCount = logBuffer.filter(entryMatchesFilters).length;
+      logMetricsCounter.textContent = `${visibleCount} / ${logBuffer.length} entries`;
+    }
+    return;
+  }
+
+  logEmptyState?.classList.add('hidden');
+  if (logViewer) {
+    const html = renderSingleEntryHtml(entry);
+    logViewer.insertAdjacentHTML('beforeend', html);
+  }
+
+  if (logMetricsCounter) {
+    const visibleCount = logBuffer.filter(entryMatchesFilters).length;
+    logMetricsCounter.textContent = `${visibleCount} / ${logBuffer.length} entries`;
+  }
+
+  if (chkAutoscroll?.checked && logContainer) {
+    logContainer.scrollTop = logContainer.scrollHeight;
+  }
+}
 
 function applyLayerStatus(
   card: HTMLElement | null,
@@ -164,12 +353,138 @@ function renderModelView(services: ServiceInfo[], engineType?: string): void {
   }
 }
 
+function getServiceVisualMeta(service: ServiceInfo): {
+  category: string;
+  glowClass: string;
+  specTags: string[];
+  iconType: 'gateway' | 'core' | 'network';
+  actionType: 'open-gateway' | 'filter-logs';
+  actionTarget: string;
+} {
+  const name = (service.name || '').toLowerCase();
+
+  if (name.includes('nginx') || name.includes('gateway') || name.includes('server') || name.includes('php-server')) {
+    return {
+      category: service.category || 'Edge Gateway & SSL Proxy',
+      glowClass: 'glow-cyan',
+      specTags: service.specs || ['HTTP/2 · TLS 1.3', 'Reverse Proxy', 'SSL Offloader'],
+      iconType: 'gateway',
+      actionType: 'open-gateway',
+      actionTarget: currentGatewayUrl || 'https://my.youmeos.com'
+    };
+  }
+
+  if (name.includes('wordpress') || name.includes('core') || name.includes('engine') || name.includes('php')) {
+    return {
+      category: service.category || 'Application Kernel & DB',
+      glowClass: 'glow-purple',
+      specTags: service.specs || ['PHP 8.3 FPM', 'SQLite VFS Engine', 'REST & GraphQL'],
+      iconType: 'core',
+      actionType: 'filter-logs',
+      actionTarget: 'core'
+    };
+  }
+
+  if (name.includes('sqlite') || name.includes('database') || name.includes('store')) {
+    return {
+      category: service.category || 'Persistent Storage',
+      glowClass: 'glow-purple',
+      specTags: service.specs || ['SQLite 3 Sandbox', 'Zero Latency', 'Auto-Vacuum'],
+      iconType: 'core',
+      actionType: 'filter-logs',
+      actionTarget: 'core'
+    };
+  }
+
+  return {
+    category: service.category || 'Local Mesh & Discovery',
+    glowClass: 'glow-blue',
+    specTags: service.specs || ['mDNS / DNS-SD', 'ZeroConf', 'Peer Broadcast'],
+    iconType: 'network',
+    actionType: 'filter-logs',
+    actionTarget: 'network'
+  };
+}
+
+function getServiceSvgGraphic(type: 'gateway' | 'core' | 'network', isRunning: boolean): string {
+  if (type === 'gateway') {
+    return `
+      <svg class="service-svg-visual" viewBox="0 0 140 85" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="gwGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#62c9ff" stop-opacity="0.3"/>
+            <stop offset="100%" stop-color="#62c9ff" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <circle cx="70" cy="42" r="32" fill="url(#gwGlow)"/>
+        ${isRunning ? '<circle class="ping-circle" cx="70" cy="42" r="12" stroke="#62c9ff" stroke-width="1.5" opacity="0.6"/>' : ''}
+        ${isRunning ? '<circle class="ping-circle delay" cx="70" cy="42" r="22" stroke="#62c9ff" stroke-width="1" opacity="0.3"/>' : ''}
+        <polygon points="70,18 96,32 96,54 70,68 44,54 44,32" stroke="#62c9ff" stroke-width="1.8" fill="rgba(14, 30, 55, 0.7)"/>
+        <polygon points="70,24 90,35 90,51 70,62 50,51 50,35" stroke="rgba(98, 201, 255, 0.4)" stroke-width="1" stroke-dasharray="3 3"/>
+        <circle cx="70" cy="42" r="5" fill="#62c9ff" ${isRunning ? 'class="pulse-node"' : ''}/>
+        <line x1="44" y1="42" x2="65" y2="42" stroke="#62c9ff" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="75" y1="42" x2="96" y2="42" stroke="#62c9ff" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="70" y1="24" x2="70" y2="37" stroke="#62c9ff" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="70" y1="47" x2="70" y2="62" stroke="#62c9ff" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M67 40 V38 C67 36.3 68.3 35 70 35 C71.7 35 73 36.3 73 38 V40" stroke="#ffffff" stroke-width="1.2" fill="none"/>
+      </svg>
+    `;
+  }
+
+  if (type === 'core') {
+    return `
+      <svg class="service-svg-visual" viewBox="0 0 140 85" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stop-color="#a855f7" stop-opacity="0.35"/>
+            <stop offset="100%" stop-color="#a855f7" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <circle cx="70" cy="42" r="30" fill="url(#coreGlow)"/>
+        <polygon points="70,16 102,32 70,48 38,32" stroke="#a855f7" stroke-width="1.8" fill="rgba(35, 18, 55, 0.75)"/>
+        <polygon points="70,48 102,32 102,46 70,62" stroke="#a855f7" stroke-width="1.5" fill="rgba(24, 10, 40, 0.85)"/>
+        <polygon points="70,48 38,32 38,46 70,62" stroke="rgba(168, 85, 247, 0.7)" stroke-width="1.5" fill="rgba(18, 6, 30, 0.9)"/>
+        <polygon points="70,24 88,33 70,42 52,33" stroke="#ffd599" stroke-width="1.2" fill="rgba(255, 213, 153, 0.15)"/>
+        <circle cx="70" cy="33" r="3" fill="#ffd599" ${isRunning ? 'class="pulse-gold"' : ''}/>
+        <line x1="26" y1="26" x2="38" y2="32" stroke="#a855f7" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="26" y1="38" x2="38" y2="44" stroke="#a855f7" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="114" y1="26" x2="102" y2="32" stroke="#a855f7" stroke-width="1.2" stroke-linecap="round"/>
+        <line x1="114" y1="38" x2="102" y2="44" stroke="#a855f7" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+    `;
+  }
+
+  return `
+    <svg class="service-svg-visual" viewBox="0 0 140 85" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <radialGradient id="meshGlow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#2979ff" stop-opacity="0.3"/>
+          <stop offset="100%" stop-color="#2979ff" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <circle cx="70" cy="42" r="32" fill="url(#meshGlow)"/>
+      <ellipse cx="70" cy="42" rx="36" ry="20" stroke="rgba(41, 121, 255, 0.3)" stroke-width="1" stroke-dasharray="3 3"/>
+      <ellipse cx="70" cy="42" rx="22" ry="12" stroke="rgba(98, 201, 255, 0.4)" stroke-width="1.2"/>
+      <circle cx="70" cy="42" r="6" fill="rgba(41, 121, 255, 0.3)" stroke="#2979ff" stroke-width="1.5"/>
+      <circle cx="70" cy="42" r="3" fill="#62c9ff" ${isRunning ? 'class="pulse-node"' : ''}/>
+      <g ${isRunning ? 'class="mesh-orbit-group"' : ''} style="transform-origin: 70px 42px;">
+        <circle cx="40" cy="36" r="3.5" fill="#2979ff" stroke="#fff" stroke-width="0.8"/>
+        <line x1="40" y1="36" x2="70" y2="42" stroke="rgba(98, 201, 255, 0.5)" stroke-width="1"/>
+        <circle cx="100" cy="48" r="3" fill="#62c9ff" stroke="#fff" stroke-width="0.8"/>
+        <line x1="100" y1="48" x2="70" y2="42" stroke="rgba(98, 201, 255, 0.5)" stroke-width="1"/>
+        <circle cx="76" cy="24" r="2.5" fill="#38bdf8"/>
+        <line x1="76" y1="24" x2="70" y2="42" stroke="rgba(98, 201, 255, 0.3)" stroke-width="0.8"/>
+      </g>
+    </svg>
+  `;
+}
+
 function renderServices(services: ServiceInfo[]): void {
   if (!servicesGrid) return;
 
   if (!services || services.length === 0) {
     servicesGrid.innerHTML = `
-      <div class="service-card" style="grid-column: span 2; text-align: center; color: var(--text-muted);">
+      <div class="service-card" style="text-align: center; justify-content: center; color: var(--text-muted);">
         No active services detected.
       </div>
     `;
@@ -185,23 +500,60 @@ function renderServices(services: ServiceInfo[]): void {
     const isStarting = s.status === 'starting';
     const isError = s.status === 'error';
     const statusClass = isRunning ? 'running' : (isStarting ? 'starting' : (isError ? 'error' : 'stopped'));
-    const statusLabel = isRunning ? 'Running' : (isStarting ? 'Starting' : (isError ? 'Error' : 'Stopped'));
-    const portsDisplay = s.ports && s.ports.length > 0 ? `<span class="service-ports">Port: ${s.ports.join(', ')}</span>` : '';
+    const statusLabel = isRunning ? 'Online' : (isStarting ? 'Starting' : (isError ? 'Error' : 'Offline'));
+    const meta = getServiceVisualMeta(s);
+
+    const formattedPorts = s.ports && s.ports.length > 0 
+      ? s.ports.map(p => {
+          if (p === '80' || p === '443') return `${p}`;
+          return p.replace(/->/g, ' → ');
+        }).join(', ')
+      : '';
+    const portTag = formattedPorts ? `<span class="service-spec-tag highlight">Port: ${formattedPorts}</span>` : '';
+
+    const specTagsHtml = meta.specTags.map(tag => `<span class="service-spec-tag">${tag}</span>`).join('');
+    const svgVisual = getServiceSvgGraphic(meta.iconType, isRunning);
 
     return `
-      <div class="service-card">
-        <div class="service-meta">
-          <span class="service-name">${s.displayName || s.name}</span>
-          <span class="service-role">${s.role || ''}</span>
-          ${portsDisplay}
+      <div class="service-card ${isRunning ? 'is-running' : ''}" data-action="${meta.actionType}" data-target="${meta.actionTarget}">
+        <div class="service-accent-glow ${meta.glowClass}"></div>
+        <div class="service-body">
+          <div class="service-header">
+            <div class="service-identity">
+              <span class="service-category">${meta.category}</span>
+              <h3 class="service-name">${s.displayName || s.name}</h3>
+              <p class="service-role">${s.role || ''}</p>
+            </div>
+            <div class="service-status-pill ${statusClass}">
+              <span class="dot ${statusClass}"></span>
+              <span>${statusLabel}</span>
+            </div>
+          </div>
+          <div class="service-specs">
+            ${portTag}
+            ${specTagsHtml}
+          </div>
         </div>
-        <div class="badge badge-status ${statusClass}">
-          <span class="dot ${statusClass}"></span>
-          <span>${statusLabel}</span>
+        <div class="service-graphic">
+          ${svgVisual}
         </div>
       </div>
     `;
   }).join('');
+
+  servicesGrid.querySelectorAll<HTMLElement>('.service-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const action = card.getAttribute('data-action');
+      const target = card.getAttribute('data-target');
+      if (action === 'open-gateway' && target) {
+        windowApi.openUrl(target);
+      } else if (action === 'filter-logs' && target) {
+        switchTab('tab-logs');
+        const filterBtn = document.querySelector(`.log-filter-btn[data-service="${target}"]`) as HTMLElement;
+        filterBtn?.click();
+      }
+    });
+  });
 }
 
 function updateStatusUI(info: Partial<EngineStatusInfo>): void {
@@ -364,105 +716,6 @@ function renderDownloadProgress(progress: DownloadProgress | null | undefined): 
   }
 }
 
-function escapeHtml(text: string): string {
-  return text
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
-
-function getServiceTagClass(service: string): string {
-  const s = service.toLowerCase();
-  if (s.includes('franken') || s.includes('setup')) return 'log-tag-franken';
-  if (s.includes('wp') || s.includes('php') || s.includes('core')) return 'log-tag-wp';
-  if (s.includes('docker') || s.includes('server')) return 'log-tag-docker';
-  if (s.includes('avahi') || s.includes('mdns') || s.includes('network')) return 'log-tag-network';
-  if (s.includes('gateway') || s.includes('nginx')) return 'log-tag-gateway';
-  return 'log-tag-default';
-}
-
-function formatLogLine(rawLine: string): string {
-  if (!rawLine || !rawLine.trim()) return '';
-
-  const isError = /error|emerg|fatal|failed|permission denied|exception|bind: address already in use/i.test(rawLine);
-  const isWarn = /warn|warning/i.test(rawLine) && !isError;
-
-  let escaped = escapeHtml(rawLine);
-
-  let timeHtml = '';
-  const timeMatch = escaped.match(/^\[(\d{1,2}:\d{2}:\d{2}(?:\s*[AP]M)?)\]\s*/i);
-  if (timeMatch) {
-    timeHtml = `<span class="log-time">[${timeMatch[1]}]</span>`;
-    escaped = escaped.slice(timeMatch[0].length);
-  }
-
-  let tagHtml = '';
-  const bracketMatch = escaped.match(/^\[([a-zA-Z0-9_\-\.]+?)\]\s*/);
-  const pipeMatch = escaped.match(/^([a-zA-Z0-9_\-\.]+?)\s*\|\s*/);
-
-  if (bracketMatch) {
-    const sName = bracketMatch[1];
-    const tagClass = getServiceTagClass(sName);
-    tagHtml = `<span class="log-tag ${tagClass}">[${sName}]</span>`;
-    escaped = escaped.slice(bracketMatch[0].length);
-  } else if (pipeMatch) {
-    const sName = pipeMatch[1];
-    const tagClass = getServiceTagClass(sName);
-    tagHtml = `<span class="log-tag ${tagClass}">${sName}</span><span class="log-sep">|</span>`;
-    escaped = escaped.slice(pipeMatch[0].length);
-  }
-
-  escaped = escaped.replace(/\[(info|debug)\]/gi, '<span class="log-level-info">[$1]</span>');
-  escaped = escaped.replace(/\[(warn|warning)\]/gi, '<span class="log-level-warn">[$1]</span>');
-  escaped = escaped.replace(/\[(error|emerg|fatal)\]/gi, '<span class="log-level-error">[$1]</span>');
-  escaped = escaped.replace(/\b(Error|Fatal|Exception|emerg):/gi, '<span class="log-level-error">$1:</span>');
-  escaped = escaped.replace(/(https?:\/\/[^\s&<]+)/g, '<span class="log-url">$1</span>');
-  escaped = escaped.replace(/(\/(?:home|var|etc|usr|data|desktop)[^\s:&<]+)/g, '<span class="log-path">$1</span>');
-
-  const lineClass = isError ? 'log-line error-line' : (isWarn ? 'log-line warn-line' : 'log-line');
-  return `<span class="${lineClass}">${timeHtml}${tagHtml}<span class="log-text">${escaped}</span></span>`;
-}
-
-async function fetchLogs(): Promise<void> {
-  if (!logViewer) return;
-  try {
-    const rawLogs = await windowApi.getLogs(currentSelectedService, 120);
-    const content = rawLogs || 'No logs recorded.';
-    if (content !== lastLogText) {
-      lastLogText = content;
-      const formatted = content
-        .split('\n')
-        .filter(l => Boolean(l.trim()))
-        .map(formatLogLine)
-        .join('');
-      logViewer.innerHTML = formatted || formatLogLine('No logs recorded.');
-      if (chkAutoscroll && chkAutoscroll.checked && logContainer) {
-        logContainer.scrollTop = logContainer.scrollHeight;
-      }
-    }
-  } catch (e: any) {
-    logViewer.innerHTML = formatLogLine(`[Error] Error fetching logs: ${e.message || e}`);
-  }
-}
-
-async function pollStatus(): Promise<void> {
-  try {
-    const info = await windowApi.getStatus();
-    updateStatusUI(info);
-    renderServices(info.services);
-    renderModelView(info.services, info.engineType);
-    if (info.downloadProgress !== undefined) {
-      renderDownloadProgress(info.downloadProgress);
-    }
-    await fetchLogs();
-  } catch (e: any) {
-    console.error('Failed to poll status', e);
-    updateStatusUI({ status: 'error', message: e?.message });
-  }
-}
-
 function switchTab(targetTabId: string): void {
   tabTriggers.forEach(btn => {
     const btnTab = btn.getAttribute('data-tab');
@@ -487,6 +740,21 @@ function switchTab(targetTabId: string): void {
       content.classList.add('hidden');
     }
   });
+}
+
+async function pollStatus(): Promise<void> {
+  try {
+    const info = await windowApi.getStatus();
+    updateStatusUI(info);
+    renderServices(info.services);
+    renderModelView(info.services, info.engineType);
+    if (info.downloadProgress !== undefined) {
+      renderDownloadProgress(info.downloadProgress);
+    }
+  } catch (e: any) {
+    console.error('Failed to poll status', e);
+    updateStatusUI({ status: 'error', message: e?.message });
+  }
 }
 
 async function init(): Promise<void> {
@@ -520,21 +788,25 @@ async function init(): Promise<void> {
     windowApi.onDownloadProgress(handleProgressUpdate);
   }
 
+  // Register real-time log ingestion stream
   if (windowApi.onLog) {
-    const handleLogUpdate = (log: LogEntry) => {
-      if (!logViewer) return;
-      if (logViewer.textContent?.includes('Initializing console stream...') || logViewer.textContent?.includes('[Console cleared]')) {
-        logViewer.innerHTML = '';
+    windowApi.onLog((log: LogEntry) => {
+      handleIncomingLog(log);
+    });
+  }
+
+  // Hydrate initial log buffer from main process
+  if (windowApi.getStructuredLogs) {
+    try {
+      const initialLogs = await windowApi.getStructuredLogs({ tail: 200 });
+      if (initialLogs && initialLogs.length > 0) {
+        logBuffer = initialLogs;
+        updateBadgeCounts();
+        renderLogStream();
       }
-      const timestamp = new Date().toLocaleTimeString();
-      const raw = `[${timestamp}] [${log.service}] ${log.text}`;
-      const lineHtml = formatLogLine(raw);
-      logViewer.insertAdjacentHTML('beforeend', lineHtml);
-      if (chkAutoscroll && chkAutoscroll.checked && logContainer) {
-        logContainer.scrollTop = logContainer.scrollHeight;
-      }
-    };
-    windowApi.onLog(handleLogUpdate);
+    } catch {
+      // fallback
+    }
   }
 
   if (windowApi.onStatusChange) {
@@ -582,35 +854,102 @@ async function init(): Promise<void> {
   btnCopyGateway?.addEventListener('click', () => copyUrlToClipboard(currentGatewayUrl, btnCopyGateway));
   btnCopyUrl?.addEventListener('click', () => copyUrlToClipboard(currentGatewayUrl, btnCopyUrl));
 
-  const selectLogTab = async (serviceName: string) => {
-    currentSelectedService = serviceName;
+  const selectLogTab = (serviceCategory: string) => {
+    activeServiceFilter = serviceCategory;
     switchTab('tab-logs');
     if (logTabs) {
-      const tabToActivate = logTabs.querySelector(`.log-tab[data-service="${serviceName}"]`) as HTMLElement | null;
-      if (tabToActivate) {
-        logTabs.querySelectorAll('.log-tab').forEach(t => t.classList.remove('active'));
-        tabToActivate.classList.add('active');
-      }
+      logTabs.querySelectorAll('.log-tab').forEach(t => {
+        const isMatch = t.getAttribute('data-service') === serviceCategory;
+        if (isMatch) t.classList.add('active');
+        else t.classList.remove('active');
+      });
     }
-    await fetchLogs();
+    renderLogStream();
   };
 
-  layerEventHorizon?.addEventListener('click', () => selectLogTab('nginx'));
-  layerHeadlessCore?.addEventListener('click', () => selectLogTab('wordpress'));
-  layerLampStack?.addEventListener('click', () => selectLogTab('avahi'));
+  layerEventHorizon?.addEventListener('click', () => selectLogTab('gateway'));
+  layerHeadlessCore?.addEventListener('click', () => selectLogTab('core'));
+  layerLampStack?.addEventListener('click', () => selectLogTab('network'));
   localMachinePill?.addEventListener('click', () => selectLogTab('all'));
 
+  // Log Service Category Tabs
   if (logTabs) {
     logTabs.querySelectorAll<HTMLButtonElement>('.log-tab').forEach(btn => {
-      btn.addEventListener('click', async () => {
+      btn.addEventListener('click', () => {
         const service = btn.getAttribute('data-service') || 'all';
-        currentSelectedService = service;
+        activeServiceFilter = service;
         logTabs.querySelectorAll('.log-tab').forEach(t => t.classList.remove('active'));
         btn.classList.add('active');
-        await fetchLogs();
+        renderLogStream();
       });
     });
   }
+
+  // Log Level Filter Buttons
+  if (levelFilters) {
+    levelFilters.querySelectorAll<HTMLButtonElement>('.level-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const level = btn.getAttribute('data-level') || 'all';
+        activeLevelFilter = level;
+        levelFilters.querySelectorAll('.level-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderLogStream();
+      });
+    });
+  }
+
+  // Search Input Handlers
+  if (inputLogSearch) {
+    inputLogSearch.addEventListener('input', () => {
+      searchFilterQuery = inputLogSearch.value;
+      if (searchFilterQuery.length > 0) {
+        btnClearSearch?.classList.remove('hidden');
+      } else {
+        btnClearSearch?.classList.add('hidden');
+      }
+      renderLogStream();
+    });
+
+    btnClearSearch?.addEventListener('click', () => {
+      inputLogSearch.value = '';
+      searchFilterQuery = '';
+      btnClearSearch.classList.add('hidden');
+      renderLogStream();
+      inputLogSearch.focus();
+    });
+  }
+
+  // Copy Logs Action
+  btnCopyLogs?.addEventListener('click', async () => {
+    const filtered = logBuffer.filter(entryMatchesFilters);
+    const plainText = filtered.map(e => `${formatLogTimestamp(e.timestamp)} [${e.service.toUpperCase()}] [${(e.level || 'info').toUpperCase()}] ${e.text}`).join('\n');
+    await copyUrlToClipboard(plainText, btnCopyLogs);
+  });
+
+  // Export Logs Action
+  btnExportLogs?.addEventListener('click', () => {
+    const filtered = logBuffer.filter(entryMatchesFilters);
+    const plainText = filtered.map(e => `${formatLogTimestamp(e.timestamp)} [${e.service.toUpperCase()}] [${(e.level || 'info').toUpperCase()}] ${e.text}`).join('\n');
+    const blob = new Blob([plainText], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `youmeos-microverse-logs-${Date.now()}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  });
+
+  // Clear Logs Action
+  btnClearLogs?.addEventListener('click', async () => {
+    logBuffer = [];
+    try {
+      await windowApi.clearLogs?.();
+    } catch {}
+    updateBadgeCounts();
+    renderLogStream();
+  });
 
   let pollTimer: NodeJS.Timeout | null = null;
   const scheduleNextPoll = () => {
@@ -681,13 +1020,30 @@ async function init(): Promise<void> {
     const prevText = labelSpan ? labelSpan.textContent : btnUpdatePlugins.textContent;
     if (labelSpan) labelSpan.textContent = 'Updating...';
     try {
-      if (logViewer) logViewer.innerHTML = formatLogLine('[Composer] Fetching latest YouMeOS plugin updates...');
+      handleIncomingLog({
+        service: 'setup',
+        text: 'Fetching latest YouMeOS plugin updates via Composer...',
+        level: 'info',
+        timestamp: Date.now()
+      });
       const result = await windowApi.updatePlugins();
       const raw = (result?.stdout || result?.stderr || JSON.stringify(result));
-      const formatted = raw.split('\n').filter((l: string) => Boolean(l.trim())).map(formatLogLine).join('');
-      if (logViewer) logViewer.innerHTML += formatted;
+      const lines = raw.split('\n').filter((l: string) => Boolean(l.trim()));
+      for (const line of lines) {
+        handleIncomingLog({
+          service: 'setup',
+          text: line,
+          level: line.toLowerCase().includes('error') ? 'error' : 'info',
+          timestamp: Date.now()
+        });
+      }
     } catch (e: any) {
-      if (logViewer) logViewer.innerHTML += formatLogLine(`[Composer Error] ${e?.message || e}`);
+      handleIncomingLog({
+        service: 'setup',
+        text: `Composer Update Error: ${e?.message || e}`,
+        level: 'error',
+        timestamp: Date.now()
+      });
     } finally {
       btnUpdatePlugins.disabled = false;
       if (labelSpan) labelSpan.textContent = prevText || 'Update';
@@ -707,11 +1063,6 @@ async function init(): Promise<void> {
     }
   };
   engineSelector?.addEventListener('change', engineChangeHandler);
-
-  const clearLogsHandler = () => {
-    if (logViewer) logViewer.innerHTML = formatLogLine('[Console cleared]');
-  };
-  btnClearLogs?.addEventListener('click', clearLogsHandler);
 }
 
 init();

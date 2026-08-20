@@ -5,17 +5,23 @@
     auto_https off
 }
 
-:{$PORT:80}, http://my.youmeos.com:{$PORT:80}, http://youmeos.localhost:{$PORT:80}, http://youmeos.local:{$PORT:80}, http://localhost:{$PORT:80}, http://127.0.0.1:{$PORT:80} {
-    # Define the document root passed via environment variable
+# HTTPS Gateway
+https://my.youmeos.com:{$HTTPS_PORT:443}, https://my.umeos.com:{$HTTPS_PORT:443}, https://youmeos.localhost:{$HTTPS_PORT:443}, https://localhost:{$HTTPS_PORT:443}, :{$HTTPS_PORT:443} {
+    tls {$TLS_CERT} {$TLS_KEY}
     root * {$WP_ROOT}
-
-    # Enable compression
     encode zstd br gzip
-
-    # Execute PHP files
     php_server
+    log {
+        format json
+        output stdout
+    }
+}
 
-    # Logging config (JSON format for easy parsing)
+# HTTP Gateway
+:{$PORT:80}, http://my.youmeos.com:{$PORT:80}, http://youmeos.localhost:{$PORT:80}, http://youmeos.local:{$PORT:80}, http://localhost:{$PORT:80}, http://127.0.0.1:{$PORT:80} {
+    root * {$WP_ROOT}
+    encode zstd br gzip
+    php_server
     log {
         format json
         output stdout

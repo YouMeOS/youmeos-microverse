@@ -14,24 +14,40 @@ import { setupDockerEnvironment } from './docker-setup';
 
 const execFileAsync = promisify(execFile);
 
-const KNOWN_SERVICES: Record<string, { displayName: string; role: string; defaultPorts: string[]; isRequired?: boolean }> = {
+const KNOWN_SERVICES: Record<
+  string,
+  {
+    displayName: string;
+    role: string;
+    defaultPorts: string[];
+    isRequired?: boolean;
+    category?: string;
+    specs?: string[];
+  }
+> = {
   nginx: {
     displayName: 'Web Gateway (Nginx)',
     role: 'Reverse Proxy & SSL Gateway',
     defaultPorts: ['80', '443'],
-    isRequired: true
+    isRequired: true,
+    category: 'Edge Routing & SSL',
+    specs: ['HTTP/2 · TLS 1.3', 'Reverse Proxy', 'SSL Offloader']
   },
   wordpress: {
     displayName: 'Core Engine (WordPress & SQLite)',
     role: 'PHP 8.3 FPM & Unified SQLite Store',
     defaultPorts: ['9000'],
-    isRequired: true
+    isRequired: true,
+    category: 'Application Kernel',
+    specs: ['PHP 8.3 FPM', 'SQLite VFS Engine', 'REST & GraphQL']
   },
   avahi: {
     displayName: 'Local Node Discovery',
     role: 'ZeroConf Network Mesh (youmeos.local)',
     defaultPorts: ['5353'],
-    isRequired: false
+    isRequired: false,
+    category: 'Local Mesh & Discovery',
+    specs: ['mDNS / DNS-SD', 'ZeroConf', 'Peer Broadcast']
   }
 };
 
@@ -62,6 +78,34 @@ export class DockerEngine extends BaseEngine {
     return execFileAsync('docker', baseArgs);
   }
 
+  private parseDockerLogLine(raw: string): { service: string; text: string; level: 'info' | 'warn' | 'error' | 'debug' } {
+    let service = 'gateway';
+    let text = raw;
+
+    const prefixMatch = raw.match(/^([a-zA-Z0-9_\-]+?)(?:[-_]\d+)?\s*\|\s*(.*)$/);
+    if (prefixMatch) {
+      const rawService = prefixMatch[1].toLowerCase();
+      text = prefixMatch[2];
+      if (rawService.includes('nginx')) service = 'gateway';
+      else if (rawService.includes('wordpress')) service = 'core';
+      else if (rawService.includes('avahi')) service = 'network';
+      else if (rawService.includes('mariadb')) service = 'core';
+      else service = rawService;
+    }
+
+    const lower = text.toLowerCase();
+    let level: 'info' | 'warn' | 'error' | 'debug' = 'info';
+    if (lower.includes('error') || lower.includes('fatal') || lower.includes('emerg') || lower.includes('failed')) {
+      level = 'error';
+    } else if (lower.includes('warn') || lower.includes('warning') || lower.includes('notice')) {
+      level = 'warn';
+    } else if (lower.includes('debug')) {
+      level = 'debug';
+    }
+
+    return { service, text, level };
+  }
+
   private startLogsFollower(): void {
     this.stopLogsFollower();
 
@@ -71,14 +115,16 @@ export class DockerEngine extends BaseEngine {
     this.logsProcess.stdout?.on('data', (data) => {
       const lines = data.toString().trim().split('\n').filter(Boolean);
       for (const line of lines) {
-        this.pushLog('docker', line);
+        const parsed = this.parseDockerLogLine(line);
+        this.pushLog(parsed.service, parsed.text, parsed.level);
       }
     });
 
     this.logsProcess.stderr?.on('data', (data) => {
       const lines = data.toString().trim().split('\n').filter(Boolean);
       for (const line of lines) {
-        this.pushLog('docker', line, 'warn');
+        const parsed = this.parseDockerLogLine(line);
+        this.pushLog(parsed.service, parsed.text, parsed.level === 'info' ? 'warn' : parsed.level);
       }
     });
 
@@ -92,6 +138,30 @@ export class DockerEngine extends BaseEngine {
       try { this.logsProcess.kill('SIGTERM'); } catch {}
       this.logsProcess = null;
     }
+  }
+
+  private runComposeStream(args: string[], onLine?: (line: string, isErr: boolean) => void): Promise<number> {
+    return new Promise((resolve, reject) => {
+      const baseArgs = ['compose', '-f', this.composePath, '--project-directory', this.projectDir, ...args];
+      const proc = spawn('docker', baseArgs);
+
+      proc.stdout?.on('data', (data) => {
+        const lines = data.toString().trim().split('\n').filter(Boolean);
+        for (const line of lines) {
+          onLine?.(line, false);
+        }
+      });
+
+      proc.stderr?.on('data', (data) => {
+        const lines = data.toString().trim().split('\n').filter(Boolean);
+        for (const line of lines) {
+          onLine?.(line, true);
+        }
+      });
+
+      proc.on('error', (err) => reject(err));
+      proc.on('exit', (code) => resolve(code ?? 0));
+    });
   }
 
   async isAvailable(): Promise<boolean> {
@@ -132,8 +202,12 @@ export class DockerEngine extends BaseEngine {
     this.currentDownloadProgress = null;
     this.progressCallback?.(null);
 
-    this.pushLog('docker', 'Starting Docker cluster containers with unified SQLite...');
-    await this.runCompose(['up', '-d']);
+    this.pushLog('gateway', 'Starting Docker cluster containers...');
+    await this.runComposeStream(['up', '-d'], (line, isErr) => {
+      const parsed = this.parseDockerLogLine(line);
+      this.pushLog(parsed.service, parsed.text, isErr ? 'warn' : 'info');
+    });
+
     this.isStarting = false;
     this.startLogsFollower();
     this.notifyStatus();
@@ -141,15 +215,21 @@ export class DockerEngine extends BaseEngine {
 
   async stop(): Promise<void> {
     this.stopLogsFollower();
-    this.pushLog('docker', 'Stopping Docker cluster containers...');
-    await this.runCompose(['down']);
+    this.pushLog('gateway', 'Stopping Docker cluster containers...');
+    await this.runComposeStream(['down'], (line, isErr) => {
+      const parsed = this.parseDockerLogLine(line);
+      this.pushLog(parsed.service, parsed.text, isErr ? 'warn' : 'info');
+    });
     this.notifyStatus();
   }
 
   async restart(): Promise<void> {
     this.stopLogsFollower();
-    this.pushLog('docker', 'Restarting Docker cluster...');
-    await this.runCompose(['restart']);
+    this.pushLog('gateway', 'Restarting Docker cluster...');
+    await this.runComposeStream(['restart'], (line, isErr) => {
+      const parsed = this.parseDockerLogLine(line);
+      this.pushLog(parsed.service, parsed.text, isErr ? 'warn' : 'info');
+    });
     this.startLogsFollower();
     this.notifyStatus();
   }
@@ -160,7 +240,9 @@ export class DockerEngine extends BaseEngine {
       displayName: meta.displayName,
       role: meta.role,
       status,
-      ports: meta.defaultPorts
+      ports: meta.defaultPorts,
+      category: meta.category,
+      specs: meta.specs
     }));
   }
 
@@ -242,11 +324,12 @@ export class DockerEngine extends BaseEngine {
 
           let ports: string[] = [];
           if (Array.isArray(item.Publishers)) {
-            ports = item.Publishers
+            const rawPorts = item.Publishers
               .filter((p: any) => p.PublishedPort > 0)
               .map((p: any) => `${p.PublishedPort}->${p.TargetPort}`);
+            ports = Array.from(new Set(rawPorts));
           }
-          if (ports.length === 0 && meta.defaultPorts.length > 0) {
+          if (ports.length === 0 && meta.defaultPorts && meta.defaultPorts.length > 0) {
             ports = meta.defaultPorts;
           }
 
@@ -257,7 +340,9 @@ export class DockerEngine extends BaseEngine {
             status: serviceStatus,
             ports,
             health: item.Health || undefined,
-            uptime: item.Status || undefined
+            uptime: item.Status || undefined,
+            category: meta.category,
+            specs: meta.specs
           });
         } catch {
           // ignore malformed lines
@@ -271,7 +356,9 @@ export class DockerEngine extends BaseEngine {
           displayName: meta.displayName,
           role: meta.role,
           status: 'stopped',
-          ports: meta.defaultPorts
+          ports: meta.defaultPorts,
+          category: meta.category,
+          specs: meta.specs
         };
       });
 

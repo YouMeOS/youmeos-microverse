@@ -2,7 +2,6 @@ import { spawn, ChildProcess } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 import http from 'http';
-import net from 'net';
 import { BaseEngine } from './base';
 import {
   EngineStatusInfo,
@@ -63,21 +62,6 @@ export class EmbeddedEngine extends BaseEngine {
     });
   }
 
-  private testPortBindable(port: number): Promise<boolean> {
-    return new Promise((resolve) => {
-      const tester = net.createServer();
-      tester.once('error', () => resolve(false));
-      tester.once('listening', () => {
-        tester.close(() => resolve(true));
-      });
-      try {
-        tester.listen(port, '0.0.0.0');
-      } catch {
-        resolve(false);
-      }
-    });
-  }
-
   async start(): Promise<void> {
     if (this.serverProcess || this.isSettingUp || this.currentStatus === 'starting') {
       return;
@@ -112,25 +96,25 @@ export class EmbeddedEngine extends BaseEngine {
     this.currentDownloadProgress = null;
     this.progressCallback?.(null);
 
-    if (await this.testPortBindable(80)) {
-      this.activePort = 80;
-    } else if (await this.testPortBindable(8080)) {
-      this.activePort = 8080;
-    } else if (await this.testPortBindable(8081)) {
-      this.activePort = 8081;
-    }
+    this.activePort = 80;
 
     const caddyfilePath = this.resolveCaddyfilePath();
     const wpCoreDir = path.join(this.projectDir, 'data', 'embedded', 'wp-core');
 
-    this.pushLog('frankenphp', `Starting FrankenPHP native engine on port ${this.activePort} (Gateway: my.youmeos.com)...`);
+    const certPath = path.join(this.projectDir, 'docker', 'nginx', 'certs', 'cert.pem');
+    const keyPath = path.join(this.projectDir, 'docker', 'nginx', 'certs', 'key.pem');
+    const hasCerts = fs.existsSync(certPath) && fs.existsSync(keyPath);
+
+    this.pushLog('frankenphp', `Starting FrankenPHP native engine on ports 80/443 (Gateway: https://my.youmeos.com)...`);
 
     try {
       this.serverProcess = spawn(frankenPath, ['run', '--config', caddyfilePath], {
         env: {
           ...process.env,
           WP_ROOT: wpCoreDir,
-          PORT: this.activePort.toString()
+          PORT: this.activePort.toString(),
+          TLS_CERT: hasCerts ? certPath : 'internal',
+          TLS_KEY: hasCerts ? keyPath : ''
         }
       });
 
@@ -141,9 +125,10 @@ export class EmbeddedEngine extends BaseEngine {
             const parsed = JSON.parse(line);
             const msg = parsed.msg || parsed.message || JSON.stringify(parsed);
             const level = parsed.level === 'error' ? 'error' : (parsed.level === 'warn' ? 'warn' : 'info');
-            this.pushLog('php-server', msg, level);
+            const service = (parsed.logger && parsed.logger.includes('http')) ? 'gateway' : 'core';
+            this.pushLog(service, msg, level);
           } catch {
-            this.pushLog('php-server', line);
+            this.pushLog('core', line, 'info');
           }
         }
       });
@@ -155,10 +140,13 @@ export class EmbeddedEngine extends BaseEngine {
             const parsed = JSON.parse(line);
             const msg = parsed.msg || parsed.message || JSON.stringify(parsed);
             const level = parsed.level === 'error' ? 'error' : 'warn';
-            this.pushLog('php-server', msg, level);
+            const service = (parsed.logger && parsed.logger.includes('http')) ? 'gateway' : 'core';
+            this.pushLog(service, msg, level);
           } catch {
-            const isErr = line.toLowerCase().includes('error') || line.toLowerCase().includes('fatal') || line.toLowerCase().includes('permission denied');
-            this.pushLog('php-server', line, isErr ? 'error' : 'info');
+            const isErr = line.toLowerCase().includes('error') || line.toLowerCase().includes('fatal') || line.toLowerCase().includes('permission denied') || line.toLowerCase().includes('bind:');
+            const isWarn = line.toLowerCase().includes('warn');
+            const level = isErr ? 'error' : (isWarn ? 'warn' : 'info');
+            this.pushLog('core', line, level);
             if (isErr && !this.lastErrorMessage) {
               this.lastErrorMessage = line;
             }
@@ -167,7 +155,7 @@ export class EmbeddedEngine extends BaseEngine {
       });
 
       this.serverProcess.on('exit', (code, signal) => {
-        this.pushLog('frankenphp', `Process exited with code ${code ?? signal}`, code === 0 ? 'info' : 'warn');
+        this.pushLog('gateway', `Process exited with code ${code ?? signal}`, code === 0 ? 'info' : 'warn');
         this.serverProcess = null;
         if (this.currentStatus !== 'stopping' && this.currentStatus !== 'stopped') {
           this.currentStatus = code === 0 ? 'stopped' : 'error';
@@ -181,7 +169,7 @@ export class EmbeddedEngine extends BaseEngine {
       });
 
       this.serverProcess.on('error', (err) => {
-        this.pushLog('frankenphp', `Spawn error: ${err.message}`, 'error');
+        this.pushLog('gateway', `Spawn error: ${err.message}`, 'error');
         this.currentStatus = 'error';
         this.lastErrorMessage = err.message;
         this.serverProcess = null;
@@ -291,32 +279,37 @@ export class EmbeddedEngine extends BaseEngine {
         displayName: 'Native Web & PHP Server',
         role: 'FrankenPHP Isolated Runtime & Gateway',
         status: serverState,
-        ports: [`${this.activePort}`],
-        health: isRunning ? 'healthy' : (isStarting ? 'starting' : undefined)
+        ports: ['80', '443'],
+        health: isRunning ? 'healthy' : (isStarting ? 'starting' : undefined),
+        category: 'Edge Gateway & PHP 8.3',
+        specs: ['FrankenPHP 1.2', 'Caddy Engine', 'HTTP/2 & TLS 1.3']
       },
       {
         name: 'sqlite-store',
         displayName: 'SQLite Database Store',
         role: 'Encrypted Single-File Database Sandbox',
         status: isRunning ? 'running' : (isStarting ? 'starting' : 'stopped'),
-        ports: ['Native']
+        ports: ['Native VFS'],
+        category: 'Persistent Storage',
+        specs: ['SQLite 3 Sandbox', 'Zero Latency', 'Auto-Vacuum']
       },
       {
         name: 'local-network',
         displayName: 'Private Node Network (mDNS)',
         role: 'Zero-Telemetry Loopback Mesh',
         status: isRunning ? 'running' : (isStarting ? 'starting' : 'stopped'),
-        ports: ['Localhost']
+        ports: ['5353 / Loopback'],
+        category: 'Network Mesh',
+        specs: ['Localhost Mesh', 'Zero-Telemetry', 'mDNS Broadcast']
       }
     ];
 
-    const portSuffix = this.activePort === 80 ? '' : `:${this.activePort}`;
-    const primaryUrl = `http://my.youmeos.com${portSuffix}`;
+    const primaryUrl = 'https://my.youmeos.com';
     const gateways: GatewayEndpoint[] = [
       { label: 'my.youmeos.com', url: primaryUrl, isPrimary: true },
-      { label: 'youmeos.localhost', url: `http://youmeos.localhost${portSuffix}` },
-      { label: 'youmeos.local', url: `http://youmeos.local${portSuffix}` },
-      { label: 'localhost', url: `http://localhost${portSuffix}` }
+      { label: 'youmeos.localhost', url: 'https://youmeos.localhost' },
+      { label: 'youmeos.local', url: 'http://youmeos.local' },
+      { label: 'localhost', url: 'https://localhost' }
     ];
 
     return {
