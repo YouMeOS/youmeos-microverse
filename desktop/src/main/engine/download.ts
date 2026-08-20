@@ -20,9 +20,8 @@ export function downloadFile(
 ): Promise<void> {
   return new Promise((resolve, reject) => {
     const isHttps = url.startsWith('https:');
-    const httpClient = isHttps ? https : http;
 
-    httpClient.get(url, (response) => {
+    const handleResponse = (response: http.IncomingMessage) => {
       const isRedirect = response.statusCode === 301 ||
         response.statusCode === 302 ||
         response.statusCode === 307 ||
@@ -87,12 +86,17 @@ export function downloadFile(
       response.pipe(fileStream);
       fileStream.on('finish', handleStreamFinish);
       fileStream.on('error', handleStreamError);
-    }).on('error', (err) => {
+    };
+
+    const handleReqError = (err: Error) => {
       if (fs.existsSync(dest)) {
         try { fs.unlinkSync(dest); } catch {}
       }
       reject(err);
-    });
+    };
+
+    const req = isHttps ? https.get(url, handleResponse) : http.get(url, handleResponse);
+    req.on('error', handleReqError);
   });
 }
 
