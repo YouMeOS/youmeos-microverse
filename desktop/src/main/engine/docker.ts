@@ -54,9 +54,9 @@ const KNOWN_SERVICES: Record<
 
 const DOCKER_GATEWAYS: GatewayEndpoint[] = [
   { label: 'my.youmeos.com', url: 'https://my.youmeos.com', isPrimary: true },
-  { label: 'youmeos.localhost', url: 'https://youmeos.localhost' },
+  { label: 'youmeos.localhost', url: 'http://youmeos.localhost' },
   { label: 'youmeos.local', url: 'http://youmeos.local' },
-  { label: 'localhost', url: 'https://localhost' }
+  { label: 'localhost', url: 'http://localhost' }
 ];
 
 export class DockerEngine extends BaseEngine {

@@ -358,9 +358,9 @@ export class EmbeddedEngine extends BaseEngine {
     const primaryUrl = 'https://my.youmeos.com';
     const gateways: GatewayEndpoint[] = [
       { label: 'my.youmeos.com', url: primaryUrl, isPrimary: true },
-      { label: 'youmeos.localhost', url: 'https://youmeos.localhost' },
+      { label: 'youmeos.localhost', url: 'http://youmeos.localhost' },
       { label: 'youmeos.local', url: 'http://youmeos.local' },
-      { label: 'localhost', url: 'https://localhost' }
+      { label: 'localhost', url: 'http://localhost' }
     ];
 
     return {

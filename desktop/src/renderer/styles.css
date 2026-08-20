@@ -1443,83 +1443,108 @@ body {
 
 /* Mechanical Tape Deck Transport & Aux Controls */
 .tape-deck-panel {
-  padding: 6px 12px;
+  padding: 8px 14px;
 }
 
 .tape-deck-chassis {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
 .tape-deck-transport {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .deck-key {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 12px;
+  justify-content: center;
+  gap: 8px;
+  padding: 7px 16px;
+  min-height: 34px;
   border-radius: var(--radius-sm);
-  font-size: 0.74rem;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
   font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
   cursor: pointer;
-  border: 1px solid var(--border-glass);
-  background: rgba(20, 28, 48, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(180deg, rgba(28, 38, 62, 0.9) 0%, rgba(16, 22, 38, 0.95) 100%);
   color: var(--text-primary);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 2px 4px rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
-  transition: all 0.2s ease;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.deck-key .deck-icon {
+  flex-shrink: 0;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.4));
 }
 
 .deck-key:hover:not(:disabled) {
-  background: rgba(30, 42, 70, 0.95);
+  background: linear-gradient(180deg, rgba(38, 52, 84, 0.95) 0%, rgba(20, 28, 50, 0.98) 100%);
   border-color: var(--border-glass-bright);
-  box-shadow: 0 0 10px var(--accent-cyan-glow);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 3px 8px rgba(0, 0, 0, 0.5), 0 0 10px var(--accent-cyan-glow);
   transform: translateY(-1px);
 }
 
-.deck-key:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
+.deck-key:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.6), 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
-.deck-key-start.is-active,
+.deck-key:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.deck-key-start.is-active {
+  background: linear-gradient(180deg, rgba(16, 56, 32, 0.95) 0%, rgba(10, 34, 20, 0.98) 100%);
+  border-color: var(--status-running);
+  color: #4ade80;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), inset 0 0 8px rgba(74, 222, 128, 0.2), 0 0 12px var(--status-running-glow);
+  transform: translateY(1px);
+}
+
 .deck-key-start:not(:disabled):hover {
   border-color: var(--status-running);
   color: #4ade80;
-  box-shadow: 0 0 10px var(--status-running-glow);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 12px var(--status-running-glow);
 }
 
-.deck-key-stop.is-active,
+.deck-key-stop.is-active {
+  background: linear-gradient(180deg, rgba(56, 18, 22, 0.95) 0%, rgba(32, 10, 14, 0.98) 100%);
+  border-color: var(--status-stopped);
+  color: #f87171;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), inset 0 0 8px rgba(248, 113, 113, 0.2), 0 0 12px var(--status-stopped-glow);
+  transform: translateY(1px);
+}
+
 .deck-key-stop:not(:disabled):hover {
   border-color: var(--status-stopped);
   color: #f87171;
-  box-shadow: 0 0 10px var(--status-stopped-glow);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 12px var(--status-stopped-glow);
 }
 
 .deck-key-restart:not(:disabled):hover {
   border-color: var(--status-transitioning);
   color: #fde047;
-  box-shadow: 0 0 10px var(--status-transitioning-glow);
-}
-
-.deck-led-indicator {
-  width: 5px;
-  height: 5px;
-  border-radius: 50%;
-  background: currentColor;
-  box-shadow: 0 0 4px currentColor;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 12px var(--status-transitioning-glow);
 }
 
 .deck-separator {
   width: 1px;
-  height: 20px;
-  background: var(--border-glass-subtle);
+  height: 26px;
+  background: linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.15) 50%, transparent 100%);
+  margin: 0 4px;
 }
 
 .tape-deck-aux {
@@ -1529,16 +1554,19 @@ body {
 }
 
 .deck-key-aux {
-  padding: 4px 10px;
-  font-size: 0.70rem;
-  background: rgba(255, 255, 255, 0.04);
+  padding: 6px 12px;
+  min-height: 32px;
+  font-size: 0.72rem;
+  background: linear-gradient(180deg, rgba(22, 30, 48, 0.75) 0%, rgba(14, 20, 34, 0.85) 100%);
+  border-color: rgba(255, 255, 255, 0.08);
 }
 
 .deck-key-logs.is-active {
-  background: rgba(98, 201, 255, 0.2);
-  border-color: var(--border-glass-bright);
+  background: linear-gradient(180deg, rgba(20, 48, 76, 0.9) 0%, rgba(12, 30, 52, 0.95) 100%);
+  border-color: var(--accent-cyan);
   color: var(--accent-cyan);
-  box-shadow: 0 0 10px var(--accent-cyan-glow);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 0 12px var(--accent-cyan-glow);
+  transform: translateY(1px);
 }
 
 .deck-key.is-updating {

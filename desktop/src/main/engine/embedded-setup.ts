@@ -14,20 +14,13 @@ const WORDPRESS_CORE_URL = 'https://wordpress.org/latest.zip';
 export const DEFAULT_CADDYFILE = `{
 	# FrankenPHP Options
 	frankenphp
-	order php_server before file_server
+	auto_https disable_redirects
 	http_port {$PORT:80}
 	https_port {$HTTPS_PORT:443}
-	auto_https off
-	admin off
-	pki {
-		ca local {
-			skip_install_trust
-		}
-	}
 }
 
 # HTTPS Gateway
-https://my.youmeos.com:{$HTTPS_PORT:443}, https://my.umeos.com:{$HTTPS_PORT:443}, https://youmeos.localhost:{$HTTPS_PORT:443}, https://localhost:{$HTTPS_PORT:443}, :{$HTTPS_PORT:443} {
+https://my.youmeos.com:{$HTTPS_PORT:443}, https://my.umeos.com:{$HTTPS_PORT:443} {
 	tls {$TLS_CERT:internal} {$TLS_KEY}
 	root * {$WP_ROOT}
 	encode zstd br gzip
