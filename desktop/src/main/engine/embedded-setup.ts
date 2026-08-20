@@ -17,16 +17,16 @@ function getFrankenPhpUrl(): string {
 
   if (platform === 'darwin') {
     return arch === 'arm64'
-      ? 'https://github.com/dunglas/frankenphp/releases/latest/download/frankenphp-mac-aarch64'
-      : 'https://github.com/dunglas/frankenphp/releases/latest/download/frankenphp-mac-x86_64';
+      ? 'https://github.com/php/frankenphp/releases/latest/download/frankenphp-mac-arm64'
+      : 'https://github.com/php/frankenphp/releases/latest/download/frankenphp-mac-x86_64';
   }
   if (platform === 'linux') {
     return arch === 'arm64'
-      ? 'https://github.com/dunglas/frankenphp/releases/latest/download/frankenphp-linux-aarch64'
-      : 'https://github.com/dunglas/frankenphp/releases/latest/download/frankenphp-linux-x86_64';
+      ? 'https://github.com/php/frankenphp/releases/latest/download/frankenphp-linux-aarch64'
+      : 'https://github.com/php/frankenphp/releases/latest/download/frankenphp-linux-x86_64';
   }
   if (platform === 'win32') {
-    return 'https://github.com/dunglas/frankenphp/releases/latest/download/frankenphp-windows-x86_64.exe';
+    return 'https://github.com/php/frankenphp/releases/latest/download/frankenphp-windows-x86_64.zip';
   }
 
   throw new Error(`Unsupported OS: ${platform}`);
@@ -54,7 +54,24 @@ function ensureSymlink(sourcePath: string, targetPath: string): void {
     }
   }
 
-  fs.symlinkSync(sourcePath, targetPath, 'junction');
+  const isDirectory = fs.statSync(sourcePath).isDirectory();
+  if (process.platform === 'win32') {
+    if (isDirectory) {
+      fs.symlinkSync(sourcePath, targetPath, 'junction');
+    } else {
+      try {
+        fs.symlinkSync(sourcePath, targetPath, 'file');
+      } catch {
+        try {
+          fs.linkSync(sourcePath, targetPath);
+        } catch {
+          fs.copyFileSync(sourcePath, targetPath);
+        }
+      }
+    }
+  } else {
+    fs.symlinkSync(sourcePath, targetPath, isDirectory ? 'dir' : 'file');
+  }
 }
 
 export async function setupEmbeddedEnvironment(
@@ -92,35 +109,46 @@ export async function setupEmbeddedEnvironment(
 
   // 1. Download FrankenPHP binary if missing
   if (!fs.existsSync(frankenPath)) {
-    onProgress('Downloading FrankenPHP binary...');
     const url = getFrankenPhpUrl();
-    const handleFrankenProgress = (loaded: number, total: number, speed: number) => {
-      const percent = total > 0 ? Math.min(100, Math.round((loaded / total) * 100)) : 0;
-      const detail = total > 0 ? `${formatBytes(loaded)} / ${formatBytes(total)}` : formatBytes(loaded);
+    if (process.platform === 'win32') {
+      const frankenZipPath = path.join(embeddedDir, 'frankenphp.zip');
+      await downloadAndExtractZip(
+        url,
+        frankenZipPath,
+        binDir,
+        'FrankenPHP binary',
+        onProgress,
+        onDownloadProgress
+      );
+      onProgress('FrankenPHP binary extracted.');
+    } else {
+      onProgress('Downloading FrankenPHP binary...');
+      const handleFrankenProgress = (loaded: number, total: number, speed: number) => {
+        const percent = total > 0 ? Math.min(100, Math.round((loaded / total) * 100)) : 0;
+        const detail = total > 0 ? `${formatBytes(loaded)} / ${formatBytes(total)}` : formatBytes(loaded);
+        onDownloadProgress?.({
+          item: 'FrankenPHP binary',
+          loaded,
+          total,
+          percent,
+          speed,
+          detail,
+          stage: 'downloading'
+        });
+      };
+
+      await downloadFile(url, frankenPath, handleFrankenProgress);
+      fs.chmodSync(frankenPath, 0o755);
+      onProgress('FrankenPHP downloaded and made executable.');
       onDownloadProgress?.({
         item: 'FrankenPHP binary',
-        loaded,
-        total,
-        percent,
-        speed,
-        detail,
-        stage: 'downloading'
+        loaded: 1,
+        total: 1,
+        percent: 100,
+        speed: 0,
+        stage: 'complete'
       });
-    };
-
-    await downloadFile(url, frankenPath, handleFrankenProgress);
-    if (process.platform !== 'win32') {
-      fs.chmodSync(frankenPath, 0o755);
     }
-    onProgress('FrankenPHP downloaded and made executable.');
-    onDownloadProgress?.({
-      item: 'FrankenPHP binary',
-      loaded: 1,
-      total: 1,
-      percent: 100,
-      speed: 0,
-      stage: 'complete'
-    });
   }
 
   // 2. Download WordPress Core if missing

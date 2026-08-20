@@ -84,6 +84,6 @@ pnpm package
 ```
 
 Outputs platform installers via `electron-builder`:
-- **Windows**: `.exe` (NSIS)
+- **Windows**: `.exe` (NSIS Wizard), `.msi` (Windows Installer)
 - **Mac**: `.dmg`
 - **Linux**: `.AppImage`, `.deb`

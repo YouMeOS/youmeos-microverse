@@ -51,6 +51,7 @@ jobs:
           name: installers-${{ matrix.os }}
           path: |
             desktop/out/*.exe
+            desktop/out/*.msi
             desktop/out/*.dmg
             desktop/out/*.AppImage
             desktop/out/*.deb
