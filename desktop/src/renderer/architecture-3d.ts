@@ -2,20 +2,24 @@ import * as THREE from 'three';
 
 export interface Architecture3DOptions {
   containerHorizon: HTMLElement | null;
+  containerCompass?: HTMLElement | null;
   containerCore: HTMLElement | null;
   containerBedrock: HTMLElement | null;
 }
 
 export class Architecture3DManager {
   private horizonRenderer: THREE.WebGLRenderer | null = null;
+  private compassRenderer: THREE.WebGLRenderer | null = null;
   private coreRenderer: THREE.WebGLRenderer | null = null;
   private bedrockRenderer: THREE.WebGLRenderer | null = null;
 
   private horizonScene: THREE.Scene = new THREE.Scene();
+  private compassScene: THREE.Scene = new THREE.Scene();
   private coreScene: THREE.Scene = new THREE.Scene();
   private bedrockScene: THREE.Scene = new THREE.Scene();
 
   private horizonCamera: THREE.PerspectiveCamera | null = null;
+  private compassCamera: THREE.PerspectiveCamera | null = null;
   private coreCamera: THREE.PerspectiveCamera | null = null;
   private bedrockCamera: THREE.PerspectiveCamera | null = null;
 
@@ -31,6 +35,12 @@ export class Architecture3DManager {
   private satOrbitInclinations: number[] = [0.1, -0.15, 0.2, -0.05, 0.12];
   private satAngles: number[] = [0, 1.2, 2.4, 3.6, 4.8];
 
+  // My COMPASS elements
+  private compassGroup: THREE.Group = new THREE.Group();
+  private compassOuterRing: THREE.Mesh | null = null;
+  private compassInnerRing: THREE.Mesh | null = null;
+  private compassSparkStar: THREE.Group = new THREE.Group();
+
   // Core elements
   private coreGroup: THREE.Group = new THREE.Group();
   private goldenCube: THREE.Mesh | null = null;
@@ -40,6 +50,7 @@ export class Architecture3DManager {
   private bedrockGroup: THREE.Group = new THREE.Group();
   private bedrockSlab: THREE.Mesh | null = null;
   private bedrockEdges: THREE.LineSegments | null = null;
+  private bedrockMeshNodes: THREE.Mesh[] = [];
 
   private isRunning: boolean = false;
   private animFrameId: number | null = null;
@@ -50,6 +61,7 @@ export class Architecture3DManager {
 
   constructor(private options: Architecture3DOptions) {
     this.initHorizon();
+    this.initCompass();
     this.initCore();
     this.initBedrock();
     this.setupListeners();
@@ -61,8 +73,8 @@ export class Architecture3DManager {
     if (!container) return;
 
     container.innerHTML = '';
-    const width = container.clientWidth || 185;
-    const height = container.clientHeight || 110;
+    const width = container.clientWidth || 180;
+    const height = container.clientHeight || 95;
 
     this.horizonRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     this.horizonRenderer.setSize(width, height);
@@ -81,7 +93,7 @@ export class Architecture3DManager {
     this.horizonGroup = new THREE.Group();
     this.horizonScene.add(this.horizonGroup);
 
-    // 1. True 3D Wireframe Hypercube (Bounding Cage)
+    // 1. True 3D Wireframe Hypercube
     const cubeSize = 3.6;
     const cubeGeo = new THREE.BoxGeometry(cubeSize, cubeSize, cubeSize);
     const edgesGeo = new THREE.EdgesGeometry(cubeGeo);
@@ -95,7 +107,7 @@ export class Architecture3DManager {
     this.horizonGroup.add(wireframeCube);
 
     // Corner vertex spheres
-    const cornerSphereGeo = new THREE.SphereGeometry(0.09, 8, 8);
+    const cornerSphereGeo = new THREE.SphereGeometry(0.08, 8, 8);
     const cornerSphereMat = new THREE.MeshBasicMaterial({ color: 0x62c9ff });
     const half = cubeSize / 2;
     const corners = [
@@ -137,7 +149,7 @@ export class Architecture3DManager {
     const satColors = [0xffd599, 0x62c9ff, 0xffffff, 0xffd599, 0x62c9ff];
     this.satMeshes = [];
     for (let i = 0; i < 5; i++) {
-      const satGeo = new THREE.SphereGeometry(0.14, 12, 12);
+      const satGeo = new THREE.SphereGeometry(0.13, 12, 12);
       const satMat = new THREE.MeshBasicMaterial({ color: satColors[i] });
       const satMesh = new THREE.Mesh(satGeo, satMat);
       this.constellationGroup.add(satMesh);
@@ -145,7 +157,7 @@ export class Architecture3DManager {
     }
 
     // Dynamic constellation lines
-    const linePositions = new Float32Array(5 * 2 * 3 + 5 * 2 * 3); // 5 connecting + 5 to center
+    const linePositions = new Float32Array(5 * 2 * 3 + 5 * 2 * 3);
     const lineGeo = new THREE.BufferGeometry();
     lineGeo.setAttribute('position', new THREE.BufferAttribute(linePositions, 3));
     const lineMat = new THREE.LineBasicMaterial({
@@ -173,13 +185,92 @@ export class Architecture3DManager {
     this.horizonGroup.add(beaconLine);
   }
 
+  private initCompass(): void {
+    const container = this.options.containerCompass;
+    if (!container) return;
+
+    container.innerHTML = '';
+    const width = container.clientWidth || 180;
+    const height = container.clientHeight || 95;
+
+    this.compassRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    this.compassRenderer.setSize(width, height);
+    this.compassRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    container.appendChild(this.compassRenderer.domElement);
+
+    this.compassCamera = new THREE.PerspectiveCamera(38, width / height, 0.1, 100);
+    this.compassCamera.position.set(7, 6, 8);
+    this.compassCamera.lookAt(0, 0, 0);
+
+    const ambientLight = new THREE.AmbientLight(0x62c9ff, 1.2);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 2.0);
+    dirLight.position.set(5, 8, 6);
+    this.compassScene.add(ambientLight, dirLight);
+
+    this.compassGroup = new THREE.Group();
+    this.compassScene.add(this.compassGroup);
+
+    // Outer Gyro Gimbal Ring
+    const outerRingGeo = new THREE.TorusGeometry(2.2, 0.05, 12, 48);
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0x62c9ff, transparent: true, opacity: 0.85 });
+    this.compassOuterRing = new THREE.Mesh(outerRingGeo, ringMat);
+    this.compassOuterRing.rotation.x = Math.PI / 2;
+    this.compassGroup.add(this.compassOuterRing);
+
+    // Inner Gimbal Ring
+    const innerRingGeo = new THREE.TorusGeometry(1.6, 0.04, 12, 36);
+    const innerRingMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.65 });
+    this.compassInnerRing = new THREE.Mesh(innerRingGeo, innerRingMat);
+    this.compassGroup.add(this.compassInnerRing);
+
+    // Central Compass 4-point Diamond Spark Star
+    this.compassSparkStar = new THREE.Group();
+    const needleMatCyan = new THREE.MeshStandardMaterial({ color: 0x62c9ff, roughness: 0.2, metalness: 0.8 });
+    const needleMatGold = new THREE.MeshStandardMaterial({ color: 0xffd599, roughness: 0.2, metalness: 0.8 });
+
+    // North needle
+    const northCone = new THREE.ConeGeometry(0.35, 1.4, 4);
+    const northMesh = new THREE.Mesh(northCone, needleMatCyan);
+    northMesh.position.y = 0.7;
+    this.compassSparkStar.add(northMesh);
+
+    // South needle
+    const southCone = new THREE.ConeGeometry(0.35, 1.4, 4);
+    const southMesh = new THREE.Mesh(southCone, needleMatGold);
+    southMesh.position.y = -0.7;
+    southMesh.rotation.z = Math.PI;
+    this.compassSparkStar.add(southMesh);
+
+    // East / West needles
+    const eastCone = new THREE.ConeGeometry(0.28, 1.0, 4);
+    const eastMesh = new THREE.Mesh(eastCone, needleMatCyan);
+    eastMesh.position.x = 0.5;
+    eastMesh.rotation.z = -Math.PI / 2;
+    this.compassSparkStar.add(eastMesh);
+
+    const westCone = new THREE.ConeGeometry(0.28, 1.0, 4);
+    const westMesh = new THREE.Mesh(westCone, needleMatCyan);
+    westMesh.position.x = -0.5;
+    westMesh.rotation.z = Math.PI / 2;
+    this.compassSparkStar.add(westMesh);
+
+    // Central Core Sphere
+    const centerSphere = new THREE.Mesh(
+      new THREE.SphereGeometry(0.25, 16, 16),
+      new THREE.MeshBasicMaterial({ color: 0xffffff })
+    );
+    this.compassSparkStar.add(centerSphere);
+
+    this.compassGroup.add(this.compassSparkStar);
+  }
+
   private initCore(): void {
     const container = this.options.containerCore;
     if (!container) return;
 
     container.innerHTML = '';
-    const width = container.clientWidth || 185;
-    const height = container.clientHeight || 110;
+    const width = container.clientWidth || 180;
+    const height = container.clientHeight || 95;
 
     this.coreRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     this.coreRenderer.setSize(width, height);
@@ -200,8 +291,8 @@ export class Architecture3DManager {
     this.coreGroup = new THREE.Group();
     this.coreScene.add(this.coreGroup);
 
-    // Solid 3D Golden Cube (Reference Slide)
-    const size = 3.2;
+    // Solid 3D Golden Cube
+    const size = 3.0;
     const cubeGeo = new THREE.BoxGeometry(size, size, size);
     const cubeMat = new THREE.MeshStandardMaterial({
       color: 0xd49b56,
@@ -229,8 +320,8 @@ export class Architecture3DManager {
     if (!container) return;
 
     container.innerHTML = '';
-    const width = container.clientWidth || 185;
-    const height = container.clientHeight || 110;
+    const width = container.clientWidth || 180;
+    const height = container.clientHeight || 95;
 
     this.bedrockRenderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     this.bedrockRenderer.setSize(width, height);
@@ -249,7 +340,7 @@ export class Architecture3DManager {
     this.bedrockGroup = new THREE.Group();
     this.bedrockScene.add(this.bedrockGroup);
 
-    // 3D Flat Foundation Slab (Reference Slide)
+    // 3D Foundation Slab
     const slabGeo = new THREE.BoxGeometry(4.2, 0.7, 4.2);
     const slabMat = new THREE.MeshStandardMaterial({
       color: 0x0e1726,
@@ -270,6 +361,16 @@ export class Architecture3DManager {
     });
     this.bedrockEdges = new THREE.LineSegments(edgesGeo, edgesMat);
     this.bedrockGroup.add(this.bedrockEdges);
+
+    // Orbiting ZeroConf Node Mesh points
+    this.bedrockMeshNodes = [];
+    const nodeGeo = new THREE.SphereGeometry(0.12, 8, 8);
+    const nodeMat = new THREE.MeshBasicMaterial({ color: 0x62c9ff });
+    for (let i = 0; i < 4; i++) {
+      const node = new THREE.Mesh(nodeGeo, nodeMat);
+      this.bedrockGroup.add(node);
+      this.bedrockMeshNodes.push(node);
+    }
   }
 
   private setupListeners(): void {
@@ -282,9 +383,7 @@ export class Architecture3DManager {
     window.addEventListener('mousemove', handleMouseMove);
 
     const handleResize = () => {
-      this.resizeRenderer(this.horizonRenderer, this.horizonCamera, this.options.containerHorizon);
-      this.resizeRenderer(this.coreRenderer, this.coreCamera, this.options.containerCore);
-      this.resizeRenderer(this.bedrockRenderer, this.bedrockCamera, this.options.containerBedrock);
+      this.resize();
     };
     window.addEventListener('resize', handleResize);
   }
@@ -292,11 +391,11 @@ export class Architecture3DManager {
   private resizeRenderer(
     renderer: THREE.WebGLRenderer | null,
     camera: THREE.PerspectiveCamera | null,
-    container: HTMLElement | null
+    container: HTMLElement | null | undefined
   ): void {
     if (!renderer || !camera || !container) return;
-    const w = container.clientWidth || 185;
-    const h = container.clientHeight || 110;
+    const w = container.clientWidth || 180;
+    const h = container.clientHeight || 95;
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
     renderer.setSize(w, h);
@@ -304,6 +403,7 @@ export class Architecture3DManager {
 
   public resize(): void {
     this.resizeRenderer(this.horizonRenderer, this.horizonCamera, this.options.containerHorizon);
+    this.resizeRenderer(this.compassRenderer, this.compassCamera, this.options.containerCompass);
     this.resizeRenderer(this.coreRenderer, this.coreCamera, this.options.containerCore);
     this.resizeRenderer(this.bedrockRenderer, this.bedrockCamera, this.options.containerBedrock);
   }
@@ -316,11 +416,9 @@ export class Architecture3DManager {
     this.animFrameId = requestAnimationFrame(this.animate);
     const time = performance.now() * 0.001;
 
-    // Smooth mouse parallax interpolation
     this.mouseX += (this.targetRotX - this.mouseX) * 0.05;
     this.mouseY += (this.targetRotY - this.mouseY) * 0.05;
 
-    // Base subtle isometric orientation
     const baseRotY = Math.PI / 4;
     const baseRotX = Math.atan(1 / Math.sqrt(2)) * 0.85;
 
@@ -329,13 +427,11 @@ export class Architecture3DManager {
       this.horizonGroup.rotation.y = baseRotY + this.mouseY;
       this.horizonGroup.rotation.x = baseRotX + this.mouseX;
 
-      // Sun pulsing
       if (this.sunGlowMesh) {
         const pulse = 1 + Math.sin(time * 3) * (this.isRunning ? 0.25 : 0.12);
         this.sunGlowMesh.scale.set(pulse, pulse, pulse);
       }
 
-      // Orbiting satellites calculation
       const speedMultiplier = this.isRunning ? 2.2 : 0.8;
       const positions: THREE.Vector3[] = [];
 
@@ -354,12 +450,10 @@ export class Architecture3DManager {
         positions.push(mesh.position);
       }
 
-      // Update dynamic constellation connecting lines
       if (this.satLines) {
         const posAttr = this.satLines.geometry.getAttribute('position') as THREE.BufferAttribute;
         let idx = 0;
 
-        // Connect each satellite to next
         for (let i = 0; i < positions.length; i++) {
           const p1 = positions[i];
           const p2 = positions[(i + 1) % positions.length];
@@ -368,7 +462,6 @@ export class Architecture3DManager {
           posAttr.setXYZ(idx++, p2.x, p2.y, p2.z);
         }
 
-        // Connect each satellite to central sun
         for (let i = 0; i < positions.length; i++) {
           const p = positions[i];
           posAttr.setXYZ(idx++, p.x, p.y, p.z);
@@ -381,19 +474,47 @@ export class Architecture3DManager {
       this.horizonRenderer.render(this.horizonScene, this.horizonCamera);
     }
 
-    // 2. Core Animation
+    // 2. My COMPASS Animation
+    if (this.compassRenderer && this.compassCamera) {
+      this.compassGroup.rotation.y = baseRotY + this.mouseY;
+      this.compassGroup.rotation.x = baseRotX + this.mouseX;
+
+      if (this.compassOuterRing) {
+        this.compassOuterRing.rotation.z = time * 0.4;
+      }
+      if (this.compassInnerRing) {
+        this.compassInnerRing.rotation.y = time * 0.8;
+        this.compassInnerRing.rotation.x = time * 0.5;
+      }
+      if (this.compassSparkStar) {
+        this.compassSparkStar.rotation.z = -time * 0.6;
+        const sparkScale = 1 + Math.sin(time * 2.5) * 0.08;
+        this.compassSparkStar.scale.set(sparkScale, sparkScale, sparkScale);
+      }
+
+      this.compassRenderer.render(this.compassScene, this.compassCamera);
+    }
+
+    // 3. Core Animation
     if (this.coreRenderer && this.coreCamera) {
       this.coreGroup.rotation.y = baseRotY + this.mouseY + (this.isRunning ? time * 0.15 : 0);
       this.coreGroup.rotation.x = baseRotX + this.mouseX;
-      this.coreGroup.position.y = Math.sin(time * 1.6) * 0.15; // Gentle 3D floating
+      this.coreGroup.position.y = Math.sin(time * 1.6) * 0.15;
 
       this.coreRenderer.render(this.coreScene, this.coreCamera);
     }
 
-    // 3. Bedrock Animation
+    // 4. Bedrock Animation
     if (this.bedrockRenderer && this.bedrockCamera) {
       this.bedrockGroup.rotation.y = baseRotY + this.mouseY * 0.5;
       this.bedrockGroup.rotation.x = baseRotX + this.mouseX * 0.5;
+
+      for (let i = 0; i < this.bedrockMeshNodes.length; i++) {
+        const node = this.bedrockMeshNodes[i];
+        const angle = time * 0.9 + (i * Math.PI) / 2;
+        const radius = 2.6;
+        node.position.set(Math.cos(angle) * radius, 0.6 + Math.sin(time * 2 + i) * 0.15, Math.sin(angle) * radius);
+      }
 
       this.bedrockRenderer.render(this.bedrockScene, this.bedrockCamera);
     }
@@ -404,6 +525,7 @@ export class Architecture3DManager {
       cancelAnimationFrame(this.animFrameId);
     }
     this.horizonRenderer?.dispose();
+    this.compassRenderer?.dispose();
     this.coreRenderer?.dispose();
     this.bedrockRenderer?.dispose();
   }

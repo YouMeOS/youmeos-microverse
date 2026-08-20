@@ -6,6 +6,7 @@ import type {
   LogFilterOptions
 } from '../main/engine/types';
 import { Architecture3DManager } from './architecture-3d';
+import { initSmokeCanvas, type SmokeCanvasEngine } from './smoke-canvas';
 
 interface DesktopApi {
   start: () => Promise<void>;
@@ -43,6 +44,7 @@ const btnStop = document.getElementById('btn-stop') as HTMLButtonElement | null;
 const btnRestart = document.getElementById('btn-restart') as HTMLButtonElement | null;
 const btnOpenBrowser = document.getElementById('btn-open-browser') as HTMLButtonElement | null;
 const btnUpdatePlugins = document.getElementById('btn-update-plugins') as HTMLButtonElement | null;
+const btnToggleLogs = document.getElementById('btn-toggle-logs') as HTMLButtonElement | null;
 
 // Tab Elements
 const tabTriggers = document.querySelectorAll<HTMLButtonElement>('.tabs-trigger');
@@ -52,6 +54,10 @@ const tabContents = document.querySelectorAll<HTMLElement>('.tab-content');
 const statusPillEventHorizon = document.getElementById('status-pill-event-horizon') as HTMLElement | null;
 const dotEventHorizon = document.getElementById('dot-event-horizon') as HTMLElement | null;
 const labelEventHorizon = document.getElementById('label-event-horizon') as HTMLElement | null;
+
+const statusPillCompass = document.getElementById('status-pill-compass') as HTMLElement | null;
+const dotCompass = document.getElementById('dot-compass') as HTMLElement | null;
+const labelCompass = document.getElementById('label-compass') as HTMLElement | null;
 
 const statusPillCore = document.getElementById('status-pill-core') as HTMLElement | null;
 const dotCore = document.getElementById('dot-core') as HTMLElement | null;
@@ -63,6 +69,7 @@ const labelPlatform = document.getElementById('label-platform') as HTMLElement |
 const platformLayerSubtitle = document.getElementById('platform-layer-subtitle') as HTMLElement | null;
 
 const layerEventHorizon = document.getElementById('layer-event-horizon') as HTMLElement | null;
+const layerCompass = document.getElementById('layer-compass') as HTMLElement | null;
 const layerHeadlessCore = document.getElementById('layer-headless-core') as HTMLElement | null;
 const layerLampStack = document.getElementById('layer-lamp-stack') as HTMLElement | null;
 const localMachinePill = document.getElementById('local-machine-pill') as HTMLElement | null;
@@ -72,6 +79,10 @@ const localMachineErrorText = document.getElementById('local-machine-error-text'
 // Services Grid Elements
 const servicesGrid = document.getElementById('services-grid') as HTMLElement | null;
 const servicesCount = document.getElementById('services-count') as HTMLElement | null;
+
+// Quake Console Drawer Elements
+const quakeConsoleDrawer = document.getElementById('quake-console-drawer') as HTMLElement | null;
+const btnCloseQuake = document.getElementById('btn-close-quake') as HTMLButtonElement | null;
 
 // Console Log Elements
 const logViewer = document.getElementById('log-viewer') as HTMLElement | null;
@@ -109,6 +120,7 @@ let currentGatewayUrl = 'https://my.youmeos.com';
 let isActionPending = false;
 let hideDownloadTimer: NodeJS.Timeout | null = null;
 let architecture3D: Architecture3DManager | null = null;
+let smokeCanvas: SmokeCanvasEngine | null = null;
 
 // Log Stream State
 let logBuffer: LogEntry[] = [];
@@ -281,6 +293,39 @@ function handleIncomingLog(entry: LogEntry): void {
   }
 }
 
+// Quake Console Drawer Controllers
+function toggleQuakeConsole(forceOpen?: boolean): void {
+  if (!quakeConsoleDrawer) return;
+
+  const isCurrentlyOpen = !quakeConsoleDrawer.classList.contains('hidden');
+  const shouldOpen = forceOpen !== undefined ? forceOpen : !isCurrentlyOpen;
+
+  if (shouldOpen) {
+    quakeConsoleDrawer.classList.remove('hidden');
+    btnToggleLogs?.classList.add('is-active');
+    setTimeout(() => {
+      inputLogSearch?.focus();
+      renderLogStream();
+    }, 50);
+  } else {
+    quakeConsoleDrawer.classList.add('hidden');
+    btnToggleLogs?.classList.remove('is-active');
+  }
+}
+
+function openQuakeConsoleWithFilter(serviceCategory: string): void {
+  activeServiceFilter = serviceCategory;
+  toggleQuakeConsole(true);
+  if (logTabs) {
+    logTabs.querySelectorAll('.log-tab').forEach(t => {
+      const isMatch = t.getAttribute('data-service') === serviceCategory;
+      if (isMatch) t.classList.add('active');
+      else t.classList.remove('active');
+    });
+  }
+  renderLogStream();
+}
+
 function applyLayerStatus(
   card: HTMLElement | null,
   pill: HTMLElement | null,
@@ -291,7 +336,7 @@ function applyLayerStatus(
   if (!pill || !dot || !label) return;
 
   if (!service) {
-    pill.className = 'layer-status-pill stopped';
+    pill.className = 'tier-status-pill stopped';
     dot.className = 'dot stopped';
     label.textContent = 'Offline';
     card?.classList.remove('is-running');
@@ -304,7 +349,7 @@ function applyLayerStatus(
   const statusClass = isRunning ? 'running' : (isStarting ? 'transitioning' : (isError ? 'error' : 'stopped'));
   const statusLabel = isRunning ? 'Online' : (isStarting ? 'Starting' : (isError ? 'Error' : 'Offline'));
 
-  pill.className = `layer-status-pill ${statusClass}`;
+  pill.className = `tier-status-pill ${statusClass}`;
   dot.className = `dot ${statusClass}`;
   label.textContent = statusLabel;
 
@@ -331,6 +376,7 @@ function renderModelView(services: ServiceInfo[], engineType?: string): void {
   );
 
   applyLayerStatus(layerEventHorizon, statusPillEventHorizon, dotEventHorizon, labelEventHorizon, nginxService);
+  applyLayerStatus(layerCompass, statusPillCompass, dotCompass, labelCompass, wpService || nginxService);
   applyLayerStatus(layerHeadlessCore, statusPillCore, dotCore, labelCore, wpService || nginxService);
 
   const platformService = avahiService || dbService || nginxService;
@@ -547,9 +593,7 @@ function renderServices(services: ServiceInfo[]): void {
       if (action === 'open-gateway' && target) {
         windowApi.openUrl(target);
       } else if (action === 'filter-logs' && target) {
-        switchTab('tab-logs');
-        const filterBtn = document.querySelector(`.log-filter-btn[data-service="${target}"]`) as HTMLElement;
-        filterBtn?.click();
+        openQuakeConsoleWithFilter(target);
       }
     });
   });
@@ -757,13 +801,19 @@ async function pollStatus(): Promise<void> {
 }
 
 async function init(): Promise<void> {
+  // Initialize Smoke Canvas Background
+  smokeCanvas = initSmokeCanvas('microverse-smoke-canvas');
+
+  // Initialize 3D Architecture Visualizations
   const containerHorizon = document.getElementById('canvas-container-horizon');
+  const containerCompass = document.getElementById('canvas-container-compass');
   const containerCore = document.getElementById('canvas-container-core');
   const containerBedrock = document.getElementById('canvas-container-bedrock');
 
-  if (containerHorizon || containerCore || containerBedrock) {
+  if (containerHorizon || containerCompass || containerCore || containerBedrock) {
     architecture3D = new Architecture3DManager({
       containerHorizon,
+      containerCompass,
       containerCore,
       containerBedrock
     });
@@ -820,15 +870,42 @@ async function init(): Promise<void> {
     windowApi.onStatusChange(handleStatusUpdate);
   }
 
+  // Overall status pill toggles Quake console
   overallStatusPill?.addEventListener('click', () => {
-    switchTab('tab-logs');
+    toggleQuakeConsole();
   });
 
+  // Tab Triggers
   tabTriggers.forEach(btn => {
     btn.addEventListener('click', () => {
       const targetTab = btn.getAttribute('data-tab');
       if (targetTab) switchTab(targetTab);
     });
+  });
+
+  // Quake Console Toggle Keyboard Shortcut (Tilde / Backtick / Escape)
+  window.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key === '`' || e.key === '~') {
+      const activeEl = document.activeElement;
+      const isInput = activeEl instanceof HTMLInputElement || activeEl instanceof HTMLTextAreaElement;
+      if (!isInput || activeEl === inputLogSearch) {
+        e.preventDefault();
+        toggleQuakeConsole();
+      }
+    } else if (e.key === 'Escape') {
+      if (quakeConsoleDrawer && !quakeConsoleDrawer.classList.contains('hidden')) {
+        e.preventDefault();
+        toggleQuakeConsole(false);
+      }
+    }
+  });
+
+  btnToggleLogs?.addEventListener('click', () => {
+    toggleQuakeConsole();
+  });
+
+  btnCloseQuake?.addEventListener('click', () => {
+    toggleQuakeConsole(false);
   });
 
   const copyUrlToClipboard = async (url: string, btn: HTMLElement | null) => {
@@ -852,23 +929,12 @@ async function init(): Promise<void> {
 
   btnCopyGateway?.addEventListener('click', () => copyUrlToClipboard(currentGatewayUrl, btnCopyGateway));
 
-  const selectLogTab = (serviceCategory: string) => {
-    activeServiceFilter = serviceCategory;
-    switchTab('tab-logs');
-    if (logTabs) {
-      logTabs.querySelectorAll('.log-tab').forEach(t => {
-        const isMatch = t.getAttribute('data-service') === serviceCategory;
-        if (isMatch) t.classList.add('active');
-        else t.classList.remove('active');
-      });
-    }
-    renderLogStream();
-  };
-
-  layerEventHorizon?.addEventListener('click', () => selectLogTab('gateway'));
-  layerHeadlessCore?.addEventListener('click', () => selectLogTab('core'));
-  layerLampStack?.addEventListener('click', () => selectLogTab('network'));
-  localMachinePill?.addEventListener('click', () => selectLogTab('all'));
+  // Layer Click Handlers filter Quake logs
+  layerEventHorizon?.addEventListener('click', () => openQuakeConsoleWithFilter('gateway'));
+  layerCompass?.addEventListener('click', () => openQuakeConsoleWithFilter('core'));
+  layerHeadlessCore?.addEventListener('click', () => openQuakeConsoleWithFilter('core'));
+  layerLampStack?.addEventListener('click', () => openQuakeConsoleWithFilter('network'));
+  localMachinePill?.addEventListener('click', () => openQuakeConsoleWithFilter('all'));
 
   // Log Service Category Tabs
   if (logTabs) {
@@ -1019,7 +1085,7 @@ async function init(): Promise<void> {
     const prevText = labelSpan ? labelSpan.textContent : btnUpdatePlugins.textContent;
     if (labelSpan) labelSpan.textContent = 'Updating...';
     try {
-      selectLogTab('setup');
+      openQuakeConsoleWithFilter('setup');
       const result = await windowApi.updatePlugins();
       const output = [result?.stdout, result?.stderr].filter(Boolean).join('\n');
       const lines = output.split('\n').filter((l: string) => Boolean(l.trim()));
@@ -1044,7 +1110,7 @@ async function init(): Promise<void> {
     } finally {
       btnUpdatePlugins.disabled = false;
       btnUpdatePlugins.classList.remove('is-updating');
-      if (labelSpan) labelSpan.textContent = prevText || 'Update Plugins';
+      if (labelSpan) labelSpan.textContent = prevText || 'Update';
       await pollStatus();
     }
   };

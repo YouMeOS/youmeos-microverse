@@ -19,6 +19,328 @@
 </head>
 
 <body>
+  <!-- Generative Liquid Smoke Background Canvas -->
+  <canvas
+    id="microverse-smoke-canvas"
+    class="smoke-canvas-bg"
+  ></canvas>
+
+  <!-- Quake / Guake Style Dropdown Console Drawer (Toggled with ` or ~) -->
+  <div
+    id="quake-console-drawer"
+    class="quake-console-overlay hidden"
+  >
+    <div class="quake-console-panel glass-panel">
+      <!-- Quake Terminal Titlebar -->
+      <div class="quake-titlebar">
+        <div class="quake-title-left">
+          <svg
+            class="quake-term-icon"
+            viewBox="0 0 24 24"
+            width="14"
+            height="14"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polyline points="4 17 10 11 4 5" />
+            <line
+              x1="12"
+              y1="19"
+              x2="20"
+              y2="19"
+            />
+          </svg>
+          <span class="quake-title">Console Terminal HUD</span>
+          <span class="quake-shortcut-badge">Press ` or ~ to toggle</span>
+        </div>
+        <div class="quake-title-right">
+          <span
+            id="quake-stream-status"
+            class="log-stream-status"
+          ><span class="pulse-dot"></span> Live Stream</span>
+          <span
+            id="log-metrics-counter"
+            class="log-metrics-counter"
+          >0 entries</span>
+          <button
+            id="btn-close-quake"
+            class="quake-close-btn"
+            title="Close Terminal (Esc or `)"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="14"
+              height="14"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <line
+                x1="18"
+                y1="6"
+                x2="6"
+                y2="18"
+              />
+              <line
+                x1="6"
+                y1="6"
+                x2="18"
+                y2="18"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Primary Service Category Tabs -->
+      <div class="logs-header">
+        <div
+          class="log-service-tabs"
+          id="log-tabs"
+        >
+          <button
+            class="log-tab active"
+            data-service="all"
+          >
+            All Logs <span
+              class="tab-badge"
+              id="badge-count-all"
+            >0</span>
+          </button>
+          <button
+            class="log-tab"
+            data-service="gateway"
+          >
+            Gateway <span
+              class="tab-badge"
+              id="badge-count-gateway"
+            >0</span>
+          </button>
+          <button
+            class="log-tab"
+            data-service="core"
+          >
+            Core Engine <span
+              class="tab-badge"
+              id="badge-count-core"
+            >0</span>
+          </button>
+          <button
+            class="log-tab"
+            data-service="network"
+          >
+            Network <span
+              class="tab-badge"
+              id="badge-count-network"
+            >0</span>
+          </button>
+          <button
+            class="log-tab"
+            data-service="setup"
+          >
+            Setup & System <span
+              class="tab-badge"
+              id="badge-count-setup"
+            >0</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Secondary Toolbar: Levels, Search, Actions -->
+      <div class="logs-toolbar">
+        <div
+          class="log-level-filters"
+          id="level-filters"
+        >
+          <button
+            class="level-btn active"
+            data-level="all"
+          >All</button>
+          <button
+            class="level-btn level-btn-error"
+            data-level="error"
+          >
+            Errors <span
+              class="level-badge badge-error"
+              id="badge-error-count"
+            >0</span>
+          </button>
+          <button
+            class="level-btn level-btn-warn"
+            data-level="warn"
+          >
+            Warnings <span
+              class="level-badge badge-warn"
+              id="badge-warn-count"
+            >0</span>
+          </button>
+          <button
+            class="level-btn level-btn-info"
+            data-level="info"
+          >Info</button>
+        </div>
+
+        <div class="log-search-wrapper">
+          <svg
+            class="search-icon"
+            viewBox="0 0 24 24"
+            width="12"
+            height="12"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle
+              cx="11"
+              cy="11"
+              r="8"
+            />
+            <line
+              x1="21"
+              y1="21"
+              x2="16.65"
+              y2="16.65"
+            />
+          </svg>
+          <input
+            type="text"
+            id="input-log-search"
+            placeholder="Filter logs (text / regex)..."
+            spellcheck="false"
+            autocomplete="off"
+          >
+          <button
+            id="btn-clear-search"
+            class="btn-clear-search hidden"
+            title="Clear search"
+          >&times;</button>
+        </div>
+
+        <div class="logs-actions">
+          <label
+            class="autoscroll-toggle"
+            title="Keep stream pinned to bottom"
+          >
+            <input
+              type="checkbox"
+              id="chk-autoscroll"
+              checked
+            >
+            <span>Autoscroll</span>
+          </label>
+          <button
+            id="btn-copy-logs"
+            class="btn-icon"
+            title="Copy filtered logs to clipboard"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="12"
+              height="12"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect
+                x="9"
+                y="9"
+                width="13"
+                height="13"
+                rx="2"
+                ry="2"
+              />
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+            </svg>
+          </button>
+          <button
+            id="btn-export-logs"
+            class="btn-icon"
+            title="Export logs as file"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="12"
+              height="12"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line
+                x1="12"
+                y1="15"
+                x2="12"
+                y2="3"
+              />
+            </svg>
+          </button>
+          <button
+            id="btn-clear-logs"
+            class="btn-icon"
+            title="Clear log buffer"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="12"
+              height="12"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="3 6 5 6 21 6" />
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Log Stream Container -->
+      <div
+        id="log-container"
+        class="logs-body"
+      >
+        <div
+          id="log-viewer"
+          class="log-stream"
+        >
+          <div class="log-line-entry log-system-entry">
+            <span class="log-time">[Init]</span>
+            <span class="log-tag log-tag-gateway">SYSTEM</span>
+            <span class="log-text">Microverse Real-Time Stream Initialized. Press ` or ~ to toggle HUD.</span>
+          </div>
+        </div>
+        <div
+          id="log-empty-state"
+          class="log-empty-state hidden"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            width="28"
+            height="28"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <circle
+              cx="11"
+              cy="11"
+              r="8"
+            />
+            <line
+              x1="21"
+              y1="21"
+              x2="16.65"
+              y2="16.65"
+            />
+          </svg>
+          <span>No log entries match the selected filters</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="app-layout">
     <!-- Header Bar -->
     <header class="app-header">
@@ -75,6 +397,7 @@
           id="overall-status-pill"
           class="badge badge-status stopped"
           role="status"
+          title="Click to toggle Quake Console"
         >
           <span
             id="status-dot"
@@ -188,7 +511,7 @@
       </div>
     </section>
 
-    <!-- Navigation Tabs -->
+    <!-- Navigation Tabs: System Architecture & Services -->
     <section class="tabs-container">
       <div
         class="tabs-list glass-panel"
@@ -260,64 +583,33 @@
               y2="18"
             />
           </svg>
-          Services
+          Services Matrix
           <span
             id="services-count"
             class="tab-badge"
           >0 / 0</span>
         </button>
-
-        <button
-          class="tabs-trigger"
-          id="tab-btn-logs"
-          role="tab"
-          aria-selected="false"
-          data-tab="tab-logs"
-        >
-          <svg
-            viewBox="0 0 24 24"
-            width="13"
-            height="13"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-          >
-            <polyline points="4 17 10 11 4 5" />
-            <line
-              x1="12"
-              y1="19"
-              x2="20"
-              y2="19"
-            />
-          </svg>
-          Console Logs
-        </button>
       </div>
 
-      <!-- Tab: System Architecture (Layered Model) -->
+      <!-- Tab: Visual Architecture Stack (Frameless, Pristine 3D Matrix) -->
       <section
         class="tab-content"
         id="tab-model"
       >
         <div
-          class="system-model-view"
+          class="visual-architecture-stack"
           id="system-model-view"
         >
-          <!-- Layer 1: Event Horizon -->
+          <!-- Layer 1: YouMeOS Portal -->
           <div
-            class="model-layer-card glass-panel"
+            class="visual-stack-tier"
             id="layer-event-horizon"
           >
-            <div class="layer-accent-glow glow-cyan"></div>
-            <div class="layer-body">
-              <div class="layer-header">
-                <div class="layer-identity">
-                  <span class="layer-badge">Front-End Interface</span>
-                  <h3 class="layer-title">YouMeOS Portal</h3>
-                  <p class="layer-subtitle">3D Rendering Engine & Vue 3 Micro-Frontends</p>
-                </div>
+            <div class="tier-identity-col">
+              <div class="tier-badge-row">
+                <span class="tier-badge cyan-badge">Front-End Interface</span>
                 <div
-                  class="layer-status-pill stopped"
+                  class="tier-status-pill stopped"
                   id="status-pill-event-horizon"
                 >
                   <span
@@ -327,33 +619,63 @@
                   <span id="label-event-horizon">Offline</span>
                 </div>
               </div>
-              <div class="layer-specs">
-                <span class="spec-tag">Vue 3 + Vuetify</span>
-                <span class="spec-tag">Atomic Design</span>
-                <span class="spec-tag">Spatial Canvas</span>
+              <h2 class="tier-title">YouMeOS Portal</h2>
+              <p class="tier-subtitle">3D Rendering Engine & Vue 3 Micro-Frontends</p>
+              <div class="tier-meta-tags">
+                <span class="tier-tag">Vue 3 + Vuetify</span>
+                <span class="tier-tag">Spatial Canvas</span>
+                <span class="tier-tag highlight">Port 80 / 443</span>
               </div>
             </div>
             <div
-              class="layer-graphic"
+              class="tier-viewport"
               id="canvas-container-horizon"
             ></div>
           </div>
 
-          <!-- Layer 2: Headless Core -->
+          <!-- Layer 2: My COMPASS -->
           <div
-            class="model-layer-card glass-panel"
+            class="visual-stack-tier"
+            id="layer-compass"
+          >
+            <div class="tier-identity-col">
+              <div class="tier-badge-row">
+                <span class="tier-badge neon-badge">Systems Command & Sparks</span>
+                <div
+                  class="tier-status-pill stopped"
+                  id="status-pill-compass"
+                >
+                  <span
+                    class="dot stopped"
+                    id="dot-compass"
+                  ></span>
+                  <span id="label-compass">Offline</span>
+                </div>
+              </div>
+              <h2 class="tier-title neon-title">My COMPASS</h2>
+              <p class="tier-subtitle">True North Navigator, Spark Suite & XP Gamification</p>
+              <div class="tier-meta-tags">
+                <span class="tier-tag">Micro-Apps</span>
+                <span class="tier-tag">Sparks Engine</span>
+                <span class="tier-tag">Glassmorphic Shell</span>
+              </div>
+            </div>
+            <div
+              class="tier-viewport"
+              id="canvas-container-compass"
+            ></div>
+          </div>
+
+          <!-- Layer 3: Headless Core & SQLite -->
+          <div
+            class="visual-stack-tier"
             id="layer-headless-core"
           >
-            <div class="layer-accent-glow glow-purple"></div>
-            <div class="layer-body">
-              <div class="layer-header">
-                <div class="layer-identity">
-                  <span class="layer-badge">Application Kernel</span>
-                  <h3 class="layer-title serif-gold">Headless Core</h3>
-                  <p class="layer-subtitle">WordPress Engine, REST & GraphQL APIs</p>
-                </div>
+            <div class="tier-identity-col">
+              <div class="tier-badge-row">
+                <span class="tier-badge gold-badge">Application Kernel</span>
                 <div
-                  class="layer-status-pill stopped"
+                  class="tier-status-pill stopped"
                   id="status-pill-core"
                 >
                   <span
@@ -363,39 +685,30 @@
                   <span id="label-core">Offline</span>
                 </div>
               </div>
-              <div class="layer-specs">
-                <span class="spec-tag">Headless Kernel</span>
-                <span class="spec-tag">REST & GraphQL</span>
-                <span class="spec-tag">JWT Auth</span>
+              <h2 class="tier-title serif-gold">Headless Core</h2>
+              <p class="tier-subtitle">WordPress Engine, REST & GraphQL APIs, SQLite Store</p>
+              <div class="tier-meta-tags">
+                <span class="tier-tag">PHP 8.3 FPM</span>
+                <span class="tier-tag">SQLite VFS</span>
+                <span class="tier-tag">JWT Auth</span>
               </div>
             </div>
             <div
-              class="layer-graphic"
+              class="tier-viewport"
               id="canvas-container-core"
             ></div>
           </div>
 
-          <!-- Layer 3: Infrastructure Platform -->
+          <!-- Layer 4: Blackbox Bedrock & Node Mesh -->
           <div
-            class="model-layer-card glass-panel"
+            class="visual-stack-tier"
             id="layer-lamp-stack"
           >
-            <div class="layer-accent-glow glow-blue"></div>
-            <div class="layer-body">
-              <div class="layer-header">
-                <div class="layer-identity">
-                  <span class="layer-badge">Infrastructure Platform</span>
-                  <h3
-                    class="layer-title"
-                    id="platform-layer-title"
-                  >Blackbox Bedrock</h3>
-                  <p
-                    class="layer-subtitle"
-                    id="platform-layer-subtitle"
-                  >Isolated Gateway, PHP 8.3 & ZeroConf Mesh</p>
-                </div>
+            <div class="tier-identity-col">
+              <div class="tier-badge-row">
+                <span class="tier-badge blue-badge">Infrastructure Platform</span>
                 <div
-                  class="layer-status-pill stopped"
+                  class="tier-status-pill stopped"
                   id="status-pill-platform"
                 >
                   <span
@@ -405,30 +718,35 @@
                   <span id="label-platform">Offline</span>
                 </div>
               </div>
-              <div class="layer-specs">
+              <h2
+                class="tier-title"
+                id="platform-layer-title"
+              >Blackbox Bedrock</h2>
+              <p
+                class="tier-subtitle"
+                id="platform-layer-subtitle"
+              >Isolated Gateway, FrankenPHP Native & ZeroConf Mesh</p>
+              <div class="tier-meta-tags">
                 <span
-                  class="spec-tag"
+                  class="tier-tag"
                   id="spec-runtime"
-                >PHP 8.3 / FrankenPHP</span>
+                >FrankenPHP / PHP 8.3</span>
                 <span
-                  class="spec-tag"
+                  class="tier-tag"
                   id="spec-gateway"
                 >Gateway Proxy</span>
-                <span
-                  class="spec-tag"
-                  id="spec-db"
-                >SQLite Store</span>
+                <span class="tier-tag">ZeroConf mDNS</span>
               </div>
             </div>
             <div
-              class="layer-graphic"
+              class="tier-viewport"
               id="canvas-container-bedrock"
             ></div>
           </div>
 
           <!-- Local Host Substrate Row -->
           <div class="local-substrate-row">
-            <span class="substrate-label">Local Host Environment:</span>
+            <span class="substrate-label">Local Host Substrate:</span>
             <div
               class="substrate-pill"
               id="local-machine-pill"
@@ -474,7 +792,7 @@
         </div>
       </section>
 
-      <!-- Tab: Individual Services Grid -->
+      <!-- Tab: Granular Services Grid -->
       <section
         class="tab-content hidden"
         id="tab-services"
@@ -484,270 +802,6 @@
           class="services-grid"
         >
           <!-- Populated dynamically -->
-        </div>
-      </section>
-
-      <!-- Tab: Real-Time Console Logs -->
-      <section
-        class="tab-content hidden"
-        id="tab-logs"
-      >
-        <div class="logs-wrapper glass-panel">
-          <!-- Primary Service Category Tabs -->
-          <div class="logs-header">
-            <div
-              class="log-service-tabs"
-              id="log-tabs"
-            >
-              <button
-                class="log-tab active"
-                data-service="all"
-              >
-                All Logs <span
-                  class="tab-badge"
-                  id="badge-count-all"
-                >0</span>
-              </button>
-              <button
-                class="log-tab"
-                data-service="gateway"
-              >
-                Gateway <span
-                  class="tab-badge"
-                  id="badge-count-gateway"
-                >0</span>
-              </button>
-              <button
-                class="log-tab"
-                data-service="core"
-              >
-                Core Engine <span
-                  class="tab-badge"
-                  id="badge-count-core"
-                >0</span>
-              </button>
-              <button
-                class="log-tab"
-                data-service="network"
-              >
-                Network <span
-                  class="tab-badge"
-                  id="badge-count-network"
-                >0</span>
-              </button>
-              <button
-                class="log-tab"
-                data-service="setup"
-              >
-                Setup & System <span
-                  class="tab-badge"
-                  id="badge-count-setup"
-                >0</span>
-              </button>
-            </div>
-            <div class="logs-status-bar">
-              <span
-                id="log-metrics-counter"
-                class="log-metrics-counter"
-              >0 entries</span>
-              <span
-                id="log-stream-status"
-                class="log-stream-status"
-              ><span class="pulse-dot"></span> Live Stream</span>
-            </div>
-          </div>
-
-          <!-- Secondary Toolbar: Levels, Search, Actions -->
-          <div class="logs-toolbar">
-            <div
-              class="log-level-filters"
-              id="level-filters"
-            >
-              <button
-                class="level-btn active"
-                data-level="all"
-              >All</button>
-              <button
-                class="level-btn level-btn-error"
-                data-level="error"
-              >
-                Errors <span
-                  class="level-badge badge-error"
-                  id="badge-error-count"
-                >0</span>
-              </button>
-              <button
-                class="level-btn level-btn-warn"
-                data-level="warn"
-              >
-                Warnings <span
-                  class="level-badge badge-warn"
-                  id="badge-warn-count"
-                >0</span>
-              </button>
-              <button
-                class="level-btn level-btn-info"
-                data-level="info"
-              >Info</button>
-            </div>
-
-            <div class="log-search-wrapper">
-              <svg
-                class="search-icon"
-                viewBox="0 0 24 24"
-                width="12"
-                height="12"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <circle
-                  cx="11"
-                  cy="11"
-                  r="8"
-                />
-                <line
-                  x1="21"
-                  y1="21"
-                  x2="16.65"
-                  y2="16.65"
-                />
-              </svg>
-              <input
-                type="text"
-                id="input-log-search"
-                placeholder="Filter logs (text / regex)..."
-                spellcheck="false"
-                autocomplete="off"
-              >
-              <button
-                id="btn-clear-search"
-                class="btn-clear-search hidden"
-                title="Clear search"
-              >&times;</button>
-            </div>
-
-            <div class="logs-actions">
-              <label
-                class="autoscroll-toggle"
-                title="Keep stream pinned to bottom"
-              >
-                <input
-                  type="checkbox"
-                  id="chk-autoscroll"
-                  checked
-                >
-                <span>Autoscroll</span>
-              </label>
-              <button
-                id="btn-copy-logs"
-                class="btn-icon"
-                title="Copy filtered logs to clipboard"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  width="12"
-                  height="12"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <rect
-                    x="9"
-                    y="9"
-                    width="13"
-                    height="13"
-                    rx="2"
-                    ry="2"
-                  />
-                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
-                </svg>
-              </button>
-              <button
-                id="btn-export-logs"
-                class="btn-icon"
-                title="Export logs as file"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  width="12"
-                  height="12"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line
-                    x1="12"
-                    y1="15"
-                    x2="12"
-                    y2="3"
-                  />
-                </svg>
-              </button>
-              <button
-                id="btn-clear-logs"
-                class="btn-icon"
-                title="Clear log buffer"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  width="12"
-                  height="12"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                >
-                  <polyline points="3 6 5 6 21 6" />
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-                </svg>
-              </button>
-            </div>
-          </div>
-
-          <!-- Log Stream Container -->
-          <div
-            id="log-container"
-            class="logs-body"
-          >
-            <div
-              id="log-viewer"
-              class="log-stream"
-            >
-              <div class="log-line-entry log-system-entry">
-                <span class="log-time">[Init]</span>
-                <span class="log-tag log-tag-gateway">SYSTEM</span>
-                <span class="log-text">Microverse Real-Time Stream Initialized.</span>
-              </div>
-            </div>
-            <div
-              id="log-empty-state"
-              class="log-empty-state hidden"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                width="28"
-                height="28"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-              >
-                <circle
-                  cx="11"
-                  cy="11"
-                  r="8"
-                />
-                <line
-                  x1="21"
-                  y1="21"
-                  x2="16.65"
-                  y2="16.65"
-                />
-              </svg>
-              <span>No log entries match the selected filters</span>
-            </div>
-          </div>
         </div>
       </section>
     </section>
@@ -917,7 +971,33 @@
                 y2="3"
               />
             </svg>
-            <span class="deck-label">Update Plugins</span>
+            <span class="deck-label">Update</span>
+          </button>
+
+          <!-- Quake Console Toggle -->
+          <button
+            id="btn-toggle-logs"
+            class="deck-key deck-key-aux deck-key-logs"
+            title="Toggle Quake Console Terminal (` or ~)"
+          >
+            <svg
+              class="deck-icon"
+              viewBox="0 0 24 24"
+              width="13"
+              height="13"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polyline points="4 17 10 11 4 5" />
+              <line
+                x1="12"
+                y1="19"
+                x2="20"
+                y2="19"
+              />
+            </svg>
+            <span class="deck-label">Logs [~]</span>
           </button>
         </div>
       </div>
