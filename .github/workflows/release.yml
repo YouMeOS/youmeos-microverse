@@ -4,13 +4,15 @@ on:
   push:
     branches:
       - main
+    tags:
+      - 'v*'
   workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  build-and-release:
+  build:
     strategy:
       fail-fast: false
       matrix:
@@ -39,8 +41,51 @@ jobs:
         working-directory: desktop
         run: pnpm run build
 
-      - name: Package and publish release
+      - name: Package installers
         working-directory: desktop
-        run: pnpm exec electron-builder --publish always
+        run: pnpm exec electron-builder --publish never
+
+      - name: Upload installer artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: installers-${{ matrix.os }}
+          path: |
+            desktop/out/*.exe
+            desktop/out/*.dmg
+            desktop/out/*.AppImage
+            desktop/out/*.deb
+            desktop/out/*.zip
+            desktop/out/*.blockmap
+            desktop/out/latest*.yml
+          if-no-files-found: warn
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Read package version
+        id: pkg
+        run: |
+          VERSION=$(node -p "require('./desktop/package.json').version")
+          echo "version=v${VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+          merge-multiple: true
+
+      - name: Create or update GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || steps.pkg.outputs.version }}
+          name: ${{ github.ref_type == 'tag' && github.ref_name || steps.pkg.outputs.version }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: release-artifacts/*
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

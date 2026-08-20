@@ -9,6 +9,14 @@ extraResources:
     to: docker
     filter:
       - "**/*"
+  - from: ../blackbox
+    to: blackbox
+    filter:
+      - "**/*"
+  - from: ../scripts
+    to: scripts
+    filter:
+      - "**/*"
 publish:
   provider: github
 mac:

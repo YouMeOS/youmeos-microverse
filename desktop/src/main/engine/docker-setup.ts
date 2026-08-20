@@ -24,8 +24,28 @@ function ensureWritableRecursive(dir: string): void {
 export async function setupDockerEnvironment(
   projectDir: string,
   onProgress: SimpleLogCallback,
-  onDownloadProgress?: ProgressCallback
+  onDownloadProgress?: ProgressCallback,
+  resourcesDir?: string
 ): Promise<void> {
+  if (resourcesDir && resourcesDir !== projectDir) {
+    const filesToCopy = ['docker-compose.yml', '.env.example'];
+    for (const f of filesToCopy) {
+      const src = path.join(resourcesDir, f);
+      const dest = path.join(projectDir, f);
+      if (fs.existsSync(src) && !fs.existsSync(dest)) {
+        try { fs.copyFileSync(src, dest); } catch {}
+      }
+    }
+    const dirsToCopy = ['docker', 'blackbox'];
+    for (const d of dirsToCopy) {
+      const src = path.join(resourcesDir, d);
+      const dest = path.join(projectDir, d);
+      if (fs.existsSync(src) && !fs.existsSync(dest)) {
+        try { fs.cpSync(src, dest, { recursive: true, errorOnExist: false }); } catch {}
+      }
+    }
+  }
+
   const hostWpDir = path.join(projectDir, 'blackbox');
   const pluginsDir = path.join(hostWpDir, 'plugins');
   const dbDest = path.join(hostWpDir, 'db.php');

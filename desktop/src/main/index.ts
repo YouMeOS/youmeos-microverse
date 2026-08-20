@@ -119,7 +119,9 @@ const readyHandler = async () => {
   ipcMain.handle('app:version', () => app.getVersion());
 
   ipcMain.handle('engine:update-plugins', async () => {
-    const scriptPath = path.join(__dirname, '..', '..', '..', 'scripts', 'update-plugins.sh');
+    const isProduction = app.isPackaged || process.env.NODE_ENV === 'production';
+    const scriptsDir = isProduction ? path.join(process.resourcesPath, 'scripts') : path.join(__dirname, '..', '..', '..', 'scripts');
+    const scriptPath = path.join(scriptsDir, 'update-plugins.sh');
     return execFileAsync('bash', [scriptPath]);
   });
 

@@ -60,7 +60,8 @@ function ensureSymlink(sourcePath: string, targetPath: string): void {
 export async function setupEmbeddedEnvironment(
   projectDir: string,
   onProgress: SimpleLogCallback,
-  onDownloadProgress?: ProgressCallback
+  onDownloadProgress?: ProgressCallback,
+  resourcesDir?: string
 ): Promise<string> {
   const dataDir = path.join(projectDir, 'data');
   const binDir = path.join(dataDir, 'bin');
@@ -70,6 +71,21 @@ export async function setupEmbeddedEnvironment(
 
   if (!fs.existsSync(binDir)) fs.mkdirSync(binDir, { recursive: true });
   if (!fs.existsSync(embeddedDir)) fs.mkdirSync(embeddedDir, { recursive: true });
+
+  const hostWpDir = path.join(projectDir, 'blackbox');
+  if (!fs.existsSync(hostWpDir)) {
+    fs.mkdirSync(hostWpDir, { recursive: true });
+  }
+
+  if (resourcesDir && resourcesDir !== projectDir) {
+    const bundledBlackbox = path.join(resourcesDir, 'blackbox');
+    if (fs.existsSync(bundledBlackbox)) {
+      try {
+        fs.cpSync(bundledBlackbox, hostWpDir, { recursive: true, errorOnExist: false });
+        onProgress('Initialized blackbox workspace from bundled resources.');
+      } catch {}
+    }
+  }
 
   const frankenBinaryName = process.platform === 'win32' ? 'frankenphp.exe' : 'frankenphp';
   const frankenPath = path.join(binDir, frankenBinaryName);
@@ -163,7 +179,6 @@ export async function setupEmbeddedEnvironment(
   }
 
   // 4. Setup wp-config.php for SQLite pointing to shared blackbox/ database
-  const hostWpDir = path.join(projectDir, 'blackbox');
   const sharedDb = path.join(hostWpDir, 'database.sqlite');
   const oldDb = path.join(embeddedDir, 'database.sqlite');
   if (fs.existsSync(oldDb) && !fs.existsSync(sharedDb)) {

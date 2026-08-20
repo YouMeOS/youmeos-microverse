@@ -1,3 +1,4 @@
+import { app } from 'electron';
 import { execFile, spawn, ChildProcess } from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
@@ -63,13 +64,15 @@ export class DockerEngine extends BaseEngine {
   private logsProcess: ChildProcess | null = null;
   private composePath: string;
   private projectDir: string;
+  private resourcesDir: string;
   private isSettingUp = false;
   private isStarting = false;
 
   constructor() {
     super();
-    const isProduction = process.env.NODE_ENV === 'production' || __dirname.includes('app.asar');
-    this.projectDir = isProduction ? process.resourcesPath : path.join(__dirname, '..', '..', '..', '..');
+    const isProduction = app?.isPackaged ?? (process.env.NODE_ENV === 'production' || __dirname.includes('app.asar'));
+    this.projectDir = isProduction ? app.getPath('userData') : path.join(__dirname, '..', '..', '..', '..');
+    this.resourcesDir = isProduction ? process.resourcesPath : path.join(__dirname, '..', '..', '..', '..');
     this.composePath = path.join(this.projectDir, 'docker-compose.yml');
   }
 
@@ -187,7 +190,7 @@ export class DockerEngine extends BaseEngine {
         this.progressCallback?.(prog);
       };
 
-      await setupDockerEnvironment(this.projectDir, handleLog, handleProgress);
+      await setupDockerEnvironment(this.projectDir, handleLog, handleProgress, this.resourcesDir);
     } catch (e: any) {
       this.isSettingUp = false;
       this.isStarting = false;

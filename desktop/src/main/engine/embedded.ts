@@ -1,3 +1,4 @@
+import { app } from 'electron';
 import { spawn, ChildProcess } from 'child_process';
 import path from 'path';
 import fs from 'fs';
@@ -18,6 +19,7 @@ export class EmbeddedEngine extends BaseEngine {
   private serverProcess: ChildProcess | null = null;
   private activePort = 80;
   private projectDir: string;
+  private resourcesDir: string;
   private isSettingUp = false;
   private currentStatus: EngineStatus = 'stopped';
   private lastErrorMessage?: string;
@@ -25,8 +27,9 @@ export class EmbeddedEngine extends BaseEngine {
 
   constructor() {
     super();
-    const isProduction = process.env.NODE_ENV === 'production' || __dirname.includes('app.asar');
-    this.projectDir = isProduction ? process.resourcesPath : path.join(__dirname, '..', '..', '..', '..');
+    const isProduction = app?.isPackaged ?? (process.env.NODE_ENV === 'production' || __dirname.includes('app.asar'));
+    this.projectDir = isProduction ? app.getPath('userData') : path.join(__dirname, '..', '..', '..', '..');
+    this.resourcesDir = isProduction ? process.resourcesPath : path.join(__dirname, '..', '..', '..', '..');
   }
 
   async isAvailable(): Promise<boolean> {
@@ -37,6 +40,9 @@ export class EmbeddedEngine extends BaseEngine {
     const candidates = [
       path.join(__dirname, 'Caddyfile'),
       path.join(__dirname, '..', 'engine', 'Caddyfile'),
+      path.join(this.resourcesDir, 'desktop', 'dist', 'main', 'engine', 'Caddyfile'),
+      path.join(this.resourcesDir, 'Caddyfile'),
+      path.join(this.projectDir, 'Caddyfile'),
       path.join(__dirname, '..', '..', 'src', 'main', 'engine', 'Caddyfile'),
       path.join(this.projectDir, 'desktop', 'src', 'main', 'engine', 'Caddyfile')
     ];
@@ -80,7 +86,7 @@ export class EmbeddedEngine extends BaseEngine {
         this.progressCallback?.(prog);
       };
 
-      frankenPath = await setupEmbeddedEnvironment(this.projectDir, handleLog, handleProgress);
+      frankenPath = await setupEmbeddedEnvironment(this.projectDir, handleLog, handleProgress, this.resourcesDir);
     } catch (e: any) {
       this.isSettingUp = false;
       this.currentStatus = 'error';
@@ -103,7 +109,11 @@ export class EmbeddedEngine extends BaseEngine {
 
     const certPath = path.join(this.projectDir, 'docker', 'nginx', 'certs', 'cert.pem');
     const keyPath = path.join(this.projectDir, 'docker', 'nginx', 'certs', 'key.pem');
-    const hasCerts = fs.existsSync(certPath) && fs.existsSync(keyPath);
+    const resCertPath = path.join(this.resourcesDir, 'docker', 'nginx', 'certs', 'cert.pem');
+    const resKeyPath = path.join(this.resourcesDir, 'docker', 'nginx', 'certs', 'key.pem');
+    const hasCerts = (fs.existsSync(certPath) && fs.existsSync(keyPath)) || (fs.existsSync(resCertPath) && fs.existsSync(resKeyPath));
+    const activeCert = fs.existsSync(certPath) ? certPath : (fs.existsSync(resCertPath) ? resCertPath : 'internal');
+    const activeKey = fs.existsSync(keyPath) ? keyPath : (fs.existsSync(resKeyPath) ? resKeyPath : '');
 
     this.pushLog('frankenphp', `Starting FrankenPHP native engine on ports 80/443 (Gateway: https://my.youmeos.com)...`);
 
@@ -113,8 +123,8 @@ export class EmbeddedEngine extends BaseEngine {
           ...process.env,
           WP_ROOT: wpCoreDir,
           PORT: this.activePort.toString(),
-          TLS_CERT: hasCerts ? certPath : 'internal',
-          TLS_KEY: hasCerts ? keyPath : ''
+          TLS_CERT: hasCerts ? activeCert : 'internal',
+          TLS_KEY: hasCerts ? activeKey : ''
         }
       });
 
