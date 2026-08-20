@@ -1,5 +1,7 @@
 import { app, BrowserWindow, ipcMain, shell, Tray } from 'electron';
 import path from 'path';
+
+process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 import { EngineManager } from './engine/manager';
@@ -34,10 +36,10 @@ function isTrustedLocalHost(hostname: string): boolean {
 
 async function createWindow(): Promise<void> {
   mainWindow = new BrowserWindow({
-    width: 680,
-    height: 820,
-    minWidth: 540,
-    minHeight: 640,
+    width: 830,
+    height: 860,
+    minWidth: 680,
+    minHeight: 700,
     resizable: true,
     title: 'My YouMeOS Microverse',
     backgroundColor: '#0a0d14',
@@ -144,6 +146,25 @@ const readyHandler = async () => {
     }
   };
   app.on('activate', activateHandler);
+
+  const autostartEmbeddedEngine = async () => {
+    try {
+      const statusInfo = await engineManager.status();
+      const isStopped = statusInfo.status === 'stopped' || statusInfo.status === 'error';
+      const isNotEmbedded = engineManager.currentType !== 'embedded';
+
+      if (isStopped) {
+        if (isNotEmbedded) {
+          await engineManager.setEngineType('embedded');
+        }
+        await engineManager.start();
+      }
+    } catch (err) {
+      console.error('Failed to autostart embedded engine on launch:', err);
+    }
+  };
+
+  autostartEmbeddedEngine();
 };
 
 app.whenReady().then(readyHandler);

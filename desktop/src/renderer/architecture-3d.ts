@@ -74,6 +74,15 @@ export class Architecture3DManager {
   private parallaxX: number = 0;
   private parallaxY: number = 0;
 
+  // Side Panel State & Dynamic Viewport Framing
+  private isSidePanelOpen: boolean = false;
+  private targetStackX: number = 0.0;
+  private currentStackX: number = 0.0;
+  private targetStackScale: number = 1.0;
+  private currentStackScale: number = 1.0;
+  private targetCameraDist: number = 16.0;
+  private currentCameraDist: number = 16.0;
+
   // Layer Height Offsets (Optimized vertical separation)
   private readonly Y_PORTAL = 3.9;
   private readonly Y_COMPASS = 2.6;
@@ -112,7 +121,9 @@ export class Architecture3DManager {
     container.appendChild(this.renderer.domElement);
 
     this.camera = new THREE.PerspectiveCamera(36, width / height, 0.1, 100);
-    this.camera.position.set(0, 0.7, 15.2);
+    this.updateViewportTargets();
+    this.currentCameraDist = this.targetCameraDist;
+    this.camera.position.set(0, 0.35, this.currentCameraDist);
     this.camera.lookAt(0, 0.35, 0);
 
     // Global Lighting
@@ -591,6 +602,27 @@ export class Architecture3DManager {
     });
   }
 
+  public setSidePanelOpen(open: boolean): void {
+    this.isSidePanelOpen = open;
+    this.updateViewportTargets();
+  }
+
+  private updateViewportTargets(): void {
+    const aspect = this.camera?.aspect || 1.0;
+    const baseDist = 16.0;
+    const aspectScale = aspect < 1.05 ? 1.05 / Math.max(0.65, aspect) : 1.0;
+
+    if (this.isSidePanelOpen) {
+      this.targetStackX = -1.65;
+      this.targetStackScale = 0.82;
+      this.targetCameraDist = baseDist * aspectScale * 1.05;
+    } else {
+      this.targetStackX = 0.0;
+      this.targetStackScale = 1.0;
+      this.targetCameraDist = baseDist * aspectScale;
+    }
+  }
+
   public resize(): void {
     const container = this.options.container;
     if (!this.renderer || !this.camera || !container) return;
@@ -598,6 +630,7 @@ export class Architecture3DManager {
     const w = container.clientWidth || 480;
     const h = container.clientHeight || 520;
     this.camera.aspect = w / h;
+    this.updateViewportTargets();
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(w, h);
   }
@@ -611,6 +644,19 @@ export class Architecture3DManager {
     
     if (this.isRunning) {
       this.activeTime += delta;
+    }
+
+    // Smooth Glide & Scale when side panel opens/closes
+    this.currentStackX += (this.targetStackX - this.currentStackX) * 0.08;
+    this.currentStackScale += (this.targetStackScale - this.currentStackScale) * 0.08;
+    this.currentCameraDist += (this.targetCameraDist - this.currentCameraDist) * 0.08;
+
+    this.stackGroup.position.x = this.currentStackX;
+    this.stackGroup.scale.set(this.currentStackScale, this.currentStackScale, this.currentStackScale);
+
+    if (this.camera) {
+      this.camera.position.set(0, 0.35, this.currentCameraDist);
+      this.camera.lookAt(0, 0.35, 0);
     }
 
     // Smooth Spring Rotation towards target + parallax
