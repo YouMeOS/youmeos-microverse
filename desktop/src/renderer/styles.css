@@ -475,28 +475,30 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  padding: 8px 12px 10px;
+  justify-content: stretch;
+  padding: 6px 12px 8px;
   overflow: hidden;
-  gap: 8px;
+  gap: 10px;
 }
 
 .model-layer-card {
+  flex: 1;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 14px;
+  padding: 12px 18px;
   position: relative;
   overflow: hidden;
   cursor: pointer;
   transition: all 0.2s ease;
-  gap: 12px;
+  gap: 16px;
+  min-height: 100px;
 }
 
 .model-layer-card:hover {
   border-color: var(--border-glass-bright);
-  box-shadow: 0 0 12px var(--accent-cyan-glow);
+  box-shadow: 0 0 14px var(--accent-cyan-glow);
   transform: translateY(-1px);
 }
 
@@ -505,21 +507,25 @@ body {
   min-width: 0;
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  gap: 5px;
 }
 
 .layer-graphic {
-  width: 140px;
-  height: 68px;
+  width: 185px;
+  height: 110px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  position: relative;
 }
 
-.layer-svg {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
+.layer-graphic canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+  pointer-events: none;
 }
 
 .serif-gold {
@@ -566,20 +572,23 @@ body {
 .layer-badge {
   font-size: 0.62rem;
   text-transform: uppercase;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.8px;
   color: var(--accent-cyan);
   font-weight: 700;
+  opacity: 0.9;
 }
 
 .layer-title {
-  font-size: 0.86rem;
+  font-size: 0.95rem;
   font-weight: 700;
   color: #fff;
+  line-height: 1.2;
 }
 
 .layer-subtitle {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   color: var(--text-secondary);
+  margin-top: 1px;
 }
 
 .layer-status-pill {
@@ -617,31 +626,56 @@ body {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-top: 6px;
+  margin-top: 3px;
   flex-wrap: wrap;
 }
 
 .spec-tag {
   font-size: 0.65rem;
   font-family: var(--font-mono);
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-glass-subtle);
-  padding: 1px 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 1px 7px;
   border-radius: 4px;
   color: var(--text-secondary);
 }
 
 
 /* Constellation & Spark Animations */
+@keyframes orbitRotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.constellation-orbit {
+  transform-box: view-box;
+  transform-origin: 100px 64px;
+}
+
+/* When the server is online or on card hover, rotate the constellation around the central sun */
+.model-layer-card.is-running .constellation-orbit,
+.model-layer-card:hover .constellation-orbit {
+  animation: orbitRotate 20s infinite linear;
+}
+
+.sat-node {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
 @keyframes nodePulse {
   0%, 100% {
     transform: scale(1);
     opacity: 0.85;
   }
   50% {
-    transform: scale(1.3);
+    transform: scale(1.2);
     opacity: 1;
-    filter: drop-shadow(0 0 6px #62c9ff);
+    filter: drop-shadow(0 0 4px #62c9ff);
   }
 }
 
@@ -657,9 +691,9 @@ body {
     transform: scale(1);
   }
   50% {
+    transform: scale(1.35);
     opacity: 1;
-    transform: scale(1.4);
-    filter: drop-shadow(0 0 6px #ffffff);
+    filter: drop-shadow(0 0 8px #ffffff);
   }
 }
 

@@ -28,6 +28,31 @@ function getFrankenPhpUrl(): string {
   throw new Error(`Unsupported OS: ${platform}`);
 }
 
+function ensureSymlink(sourcePath: string, targetPath: string): void {
+  const targetStat = fs.lstatSync(targetPath, { throwIfNoEntry: false });
+  const hasExistingTarget = targetStat !== undefined;
+
+  if (hasExistingTarget) {
+    const isSymlink = targetStat.isSymbolicLink();
+    if (isSymlink) {
+      try {
+        const currentLink = fs.readlinkSync(targetPath);
+        const resolvedCurrent = path.resolve(path.dirname(targetPath), currentLink);
+        const resolvedSource = path.resolve(sourcePath);
+        const isMatchingTarget = resolvedCurrent === resolvedSource;
+        if (isMatchingTarget) {
+          return;
+        }
+      } catch {}
+      fs.unlinkSync(targetPath);
+    } else {
+      fs.rmSync(targetPath, { recursive: true, force: true });
+    }
+  }
+
+  fs.symlinkSync(sourcePath, targetPath, 'junction');
+}
+
 export async function setupEmbeddedEnvironment(
   projectDir: string,
   onProgress: SimpleLogCallback,
@@ -197,23 +222,48 @@ require_once ABSPATH . 'wp-settings.php';
     const hostDir = path.join(hostWpDir, dir);
     const targetDir = path.join(wpContentDir, dir);
 
-    if (!fs.existsSync(hostDir)) fs.mkdirSync(hostDir, { recursive: true });
+    const hasHostDir = fs.existsSync(hostDir);
+    if (!hasHostDir) {
+      fs.mkdirSync(hostDir, { recursive: true });
+    }
 
-    if (dir === 'mu-plugins' || dir === 'uploads' || dir === 'themes') {
-      if (fs.existsSync(targetDir) && !fs.lstatSync(targetDir).isSymbolicLink()) {
-        fs.rmSync(targetDir, { recursive: true, force: true });
-      }
-      if (!fs.existsSync(targetDir)) {
-        fs.symlinkSync(hostDir, targetDir, 'junction');
-      }
+    const isDirectSymlinkDir = dir === 'mu-plugins' || dir === 'uploads' || dir === 'themes';
+    if (isDirectSymlinkDir) {
+      ensureSymlink(hostDir, targetDir);
     } else if (dir === 'plugins') {
-      const hostPlugins = fs.readdirSync(hostDir);
-      for (const p of hostPlugins) {
-        const hpPath = path.join(hostDir, p);
-        const tpPath = path.join(targetDir, p);
-        if (!fs.existsSync(tpPath)) {
-          fs.symlinkSync(hpPath, tpPath, 'junction');
+      const hasTargetDir = fs.existsSync(targetDir);
+      if (!hasTargetDir) {
+        fs.mkdirSync(targetDir, { recursive: true });
+      }
+
+      const existingPluginEntries = fs.readdirSync(targetDir);
+      for (const entry of existingPluginEntries) {
+        const tpPath = path.join(targetDir, entry);
+        const entryStat = fs.lstatSync(tpPath, { throwIfNoEntry: false });
+        const isSymlink = entryStat?.isSymbolicLink() ?? false;
+        if (isSymlink) {
+          try {
+            const currentLink = fs.readlinkSync(tpPath);
+            const resolvedTarget = path.resolve(path.dirname(tpPath), currentLink);
+            const isMissingTarget = !fs.existsSync(resolvedTarget);
+            if (isMissingTarget) {
+              fs.unlinkSync(tpPath);
+            }
+          } catch {
+            fs.unlinkSync(tpPath);
+          }
         }
+      }
+
+      const hostPlugins = fs.readdirSync(hostDir);
+      for (const pluginName of hostPlugins) {
+        const isIndexFile = pluginName === 'index.php';
+        if (isIndexFile) {
+          continue;
+        }
+        const hpPath = path.join(hostDir, pluginName);
+        const tpPath = path.join(targetDir, pluginName);
+        ensureSymlink(hpPath, tpPath);
       }
     }
   }

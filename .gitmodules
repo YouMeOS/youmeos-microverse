@@ -1,3 +1,6 @@
 [submodule "docs"]
 	path = docs
 	url = git@github.com:YouMeOS/youmeos-microverse.wiki.git
+[submodule "blackbox/mu-plugins/blackbox-bedrock"]
+	path = blackbox/mu-plugins/blackbox-bedrock
+	url = git@github.com:HalloftheGods/blackbox-bedrock.git

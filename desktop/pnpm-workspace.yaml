@@ -1,2 +1,4 @@
 allowBuilds:
   electron: true
+minimumReleaseAgeExclude:
+  - vite@8.2.2

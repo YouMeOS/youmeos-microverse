@@ -4,6 +4,7 @@ import type {
   EngineStatusInfo,
   LogEntry
 } from '../main/engine/types';
+import { Architecture3DManager } from './architecture-3d';
 
 interface DesktopApi {
   start: () => Promise<void>;
@@ -90,8 +91,10 @@ let currentGatewayUrl = 'https://my.youmeos.com';
 let isActionPending = false;
 let hideDownloadTimer: NodeJS.Timeout | null = null;
 let lastLogText = '';
+let architecture3D: Architecture3DManager | null = null;
 
 function applyLayerStatus(
+  card: HTMLElement | null,
   pill: HTMLElement | null,
   dot: HTMLElement | null,
   label: HTMLElement | null,
@@ -103,6 +106,7 @@ function applyLayerStatus(
     pill.className = 'layer-status-pill stopped';
     dot.className = 'dot stopped';
     label.textContent = 'Offline';
+    card?.classList.remove('is-running');
     return;
   }
 
@@ -115,6 +119,12 @@ function applyLayerStatus(
   pill.className = `layer-status-pill ${statusClass}`;
   dot.className = `dot ${statusClass}`;
   label.textContent = statusLabel;
+
+  if (isRunning) {
+    card?.classList.add('is-running');
+  } else {
+    card?.classList.remove('is-running');
+  }
 }
 
 function renderModelView(services: ServiceInfo[], engineType?: string): void {
@@ -132,8 +142,8 @@ function renderModelView(services: ServiceInfo[], engineType?: string): void {
     s.name.includes('avahi') || s.name.includes('network') || s.name.includes('mdns')
   );
 
-  applyLayerStatus(statusPillEventHorizon, dotEventHorizon, labelEventHorizon, nginxService);
-  applyLayerStatus(statusPillCore, dotCore, labelCore, wpService || nginxService);
+  applyLayerStatus(layerEventHorizon, statusPillEventHorizon, dotEventHorizon, labelEventHorizon, nginxService);
+  applyLayerStatus(layerHeadlessCore, statusPillCore, dotCore, labelCore, wpService || nginxService);
 
   const platformService = avahiService || dbService || nginxService;
   if (platformLayerSubtitle) {
@@ -142,7 +152,7 @@ function renderModelView(services: ServiceInfo[], engineType?: string): void {
       ? 'Isolated Gateway, PHP 8.3 FPM & Docker Network'
       : 'Isolated Gateway, FrankenPHP Native & ZeroConf Mesh';
   }
-  applyLayerStatus(statusPillPlatform, dotPlatform, labelPlatform, platformService);
+  applyLayerStatus(layerLampStack, statusPillPlatform, dotPlatform, labelPlatform, platformService);
 
   const isAnyError = serviceList.some(s => s.status === 'error');
   if (localMachinePill) {
@@ -200,6 +210,8 @@ function updateStatusUI(info: Partial<EngineStatusInfo>): void {
   const isStopped = status === 'stopped';
   const isTransitioning = status === 'starting' || status === 'stopping';
   const isError = status === 'error';
+
+  architecture3D?.setRunning(isRunning);
 
   if (overallStatusPill && statusDot && statusText) {
     overallStatusPill.className = `badge badge-status ${status}`;
@@ -468,6 +480,9 @@ function switchTab(targetTabId: string): void {
     const isTarget = content.id === targetTabId;
     if (isTarget) {
       content.classList.remove('hidden');
+      if (targetTabId === 'tab-model') {
+        setTimeout(() => architecture3D?.resize(), 50);
+      }
     } else {
       content.classList.add('hidden');
     }
@@ -475,6 +490,18 @@ function switchTab(targetTabId: string): void {
 }
 
 async function init(): Promise<void> {
+  const containerHorizon = document.getElementById('canvas-container-horizon');
+  const containerCore = document.getElementById('canvas-container-core');
+  const containerBedrock = document.getElementById('canvas-container-bedrock');
+
+  if (containerHorizon || containerCore || containerBedrock) {
+    architecture3D = new Architecture3DManager({
+      containerHorizon,
+      containerCore,
+      containerBedrock
+    });
+  }
+
   if (versionTag && windowApi.getVersion) {
     try {
       const ver = await windowApi.getVersion();
