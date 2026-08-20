@@ -12,7 +12,7 @@
       "type": "package",
       "package": {
         "name": "hallofthegods/xophz-compass",
-        "version": "26.8.20.480",
+        "version": "26.8.20.501",
         "type": "wordpress-plugin",
         "dist": {
           "url": "https://github.com/HalloftheGods/xophz-compass/archive/refs/heads/main.zip",
@@ -24,7 +24,7 @@
       "type": "package",
       "package": {
         "name": "hallofthegods/xophz-compass-event-horizon",
-        "version": "26.8.20.480",
+        "version": "26.8.20.501",
         "type": "wordpress-plugin",
         "dist": {
           "url": "https://github.com/HalloftheGods/xophz-compass-event-horizon/archive/refs/heads/main.zip",
