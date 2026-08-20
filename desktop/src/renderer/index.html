@@ -141,7 +141,7 @@
               </div>
             </div>
             <div class="layer-graphic">
-              <svg viewBox="0 0 200 95" class="layer-svg" aria-label="Event Horizon Spatial Youniverse">
+              <svg viewBox="0 0 200 140" class="layer-svg" aria-label="Event Horizon Spatial Youniverse">
                 <defs>
                   <filter id="eh-glow" x="-50%" y="-50%" width="200%" height="200%">
                     <feGaussianBlur stdDeviation="2.5" result="blur" />
@@ -151,18 +151,18 @@
                     </feMerge>
                   </filter>
                   <radialGradient id="eh-outer-disk-grad" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stop-color="#62c9ff" stop-opacity="0.18" />
-                    <stop offset="60%" stop-color="#62c9ff" stop-opacity="0.06" />
+                    <stop offset="0%" stop-color="#62c9ff" stop-opacity="0.22" />
+                    <stop offset="60%" stop-color="#62c9ff" stop-opacity="0.08" />
                     <stop offset="100%" stop-color="#62c9ff" stop-opacity="0" />
                   </radialGradient>
                   <radialGradient id="eh-mid-disk-grad" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stop-color="#ffffff" stop-opacity="0.22" />
-                    <stop offset="70%" stop-color="#ffe0b2" stop-opacity="0.08" />
+                    <stop offset="0%" stop-color="#ffffff" stop-opacity="0.25" />
+                    <stop offset="70%" stop-color="#ffe0b2" stop-opacity="0.1" />
                     <stop offset="100%" stop-color="#ffd599" stop-opacity="0" />
                   </radialGradient>
                   <radialGradient id="eh-inner-disk-grad" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stop-color="#62c9ff" stop-opacity="0.35" />
-                    <stop offset="80%" stop-color="#62c9ff" stop-opacity="0.1" />
+                    <stop offset="0%" stop-color="#62c9ff" stop-opacity="0.4" />
+                    <stop offset="80%" stop-color="#62c9ff" stop-opacity="0.12" />
                     <stop offset="100%" stop-color="#62c9ff" stop-opacity="0" />
                   </radialGradient>
                   <linearGradient id="eh-axis-grad" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -173,73 +173,79 @@
                 </defs>
 
                 <!-- 3D Spatial Bounding Cage (Back Faces & Grid) -->
-                <g stroke="#62c9ff" stroke-width="0.75" stroke-opacity="0.35">
-                  <line x1="100" y1="6" x2="35" y2="38" stroke-dasharray="3 2" />
-                  <line x1="100" y1="6" x2="165" y2="38" stroke-dasharray="3 2" />
-                  <line x1="100" y1="6" x2="100" y2="26" stroke-dasharray="2 2" />
-                  <line x1="100" y1="26" x2="35" y2="58" stroke-dasharray="3 2" />
-                  <line x1="100" y1="26" x2="165" y2="58" stroke-dasharray="3 2" />
+                <g stroke="#62c9ff" stroke-width="0.8" stroke-opacity="0.3">
+                  <line x1="100" y1="14" x2="40" y2="44" stroke-dasharray="3 2" />
+                  <line x1="100" y1="14" x2="160" y2="44" stroke-dasharray="3 2" />
+                  <line x1="100" y1="14" x2="100" y2="66" stroke-dasharray="2 2" />
+                  <line x1="100" y1="66" x2="40" y2="96" stroke-dasharray="3 2" />
+                  <line x1="100" y1="66" x2="160" y2="96" stroke-dasharray="3 2" />
                 </g>
 
-                <!-- Isometric Sub-Grid Lines -->
+                <!-- Isometric Equatorial Sub-Grid Lines -->
                 <g stroke="#62c9ff" stroke-width="0.5" stroke-opacity="0.18">
-                  <line x1="67.5" y1="22" x2="132.5" y2="54" />
-                  <line x1="132.5" y1="22" x2="67.5" y2="54" />
-                  <line x1="67.5" y1="42" x2="132.5" y2="74" />
-                  <line x1="132.5" y1="42" x2="67.5" y2="74" />
+                  <line x1="70" y1="55" x2="130" y2="85" />
+                  <line x1="130" y1="55" x2="70" y2="85" />
                 </g>
 
-                <!-- Concentric 3D Event Horizon Discs -->
-                <ellipse cx="100" cy="48" rx="65" ry="32" fill="url(#eh-outer-disk-grad)" stroke="#62c9ff" stroke-width="0.8" stroke-opacity="0.45" stroke-dasharray="4 3" />
-                <ellipse cx="100" cy="48" rx="44" ry="21.5" fill="url(#eh-mid-disk-grad)" stroke="#ffd599" stroke-width="0.9" stroke-opacity="0.55" />
-                <ellipse cx="100" cy="48" rx="22" ry="11" fill="url(#eh-inner-disk-grad)" stroke="#62c9ff" stroke-width="1.2" stroke-opacity="0.85" />
+                <!-- Concentric 3D Event Horizon Galaxy Discs -->
+                <ellipse cx="100" cy="70" rx="55" ry="24" fill="url(#eh-outer-disk-grad)" stroke="#62c9ff" stroke-width="0.9" stroke-opacity="0.45" stroke-dasharray="4 3" />
+                <ellipse cx="100" cy="70" rx="38" ry="16" fill="url(#eh-mid-disk-grad)" stroke="#ffd599" stroke-width="1.0" stroke-opacity="0.6" />
+                <ellipse cx="100" cy="70" rx="20" ry="8.5" fill="url(#eh-inner-disk-grad)" stroke="#62c9ff" stroke-width="1.3" stroke-opacity="0.85" />
 
                 <!-- Vertical Singularity Axis Beacon -->
-                <line x1="100" y1="6" x2="100" y2="90" stroke="url(#eh-axis-grad)" stroke-width="1.2" />
+                <line x1="100" y1="14" x2="100" y2="126" stroke="url(#eh-axis-grad)" stroke-width="1.4" />
 
                 <!-- Constellation Network Vector Lines -->
                 <g stroke="rgba(255, 224, 178, 0.45)" stroke-width="1">
-                  <line x1="56" y1="48" x2="74" y2="34" />
-                  <line x1="74" y1="34" x2="100" y2="37" />
-                  <line x1="100" y1="37" x2="100" y2="48" />
-                  <line x1="100" y1="48" x2="100" y2="59" />
-                  <line x1="100" y1="59" x2="126" y2="62" />
-                  <line x1="126" y1="62" x2="144" y2="48" />
-                  <line x1="56" y1="48" x2="100" y2="48" />
-                  <line x1="100" y1="48" x2="144" y2="48" />
+                  <line x1="55" y1="70" x2="75" y2="52" />
+                  <line x1="75" y1="52" x2="100" y2="56" />
+                  <line x1="100" y1="56" x2="100" y2="70" />
+                  <line x1="100" y1="70" x2="100" y2="84" />
+                  <line x1="100" y1="84" x2="125" y2="88" />
+                  <line x1="125" y1="88" x2="145" y2="70" />
+                  <line x1="55" y1="70" x2="100" y2="70" />
+                  <line x1="100" y1="70" x2="145" y2="70" />
                 </g>
 
-                <!-- 3D Spatial Bounding Cage (Front Struts & Top/Bottom Rings) -->
-                <g stroke="#62c9ff" stroke-width="1.1" stroke-opacity="0.85">
-                  <line x1="35" y1="38" x2="100" y2="70" />
-                  <line x1="165" y1="38" x2="100" y2="70" />
-                  <line x1="35" y1="38" x2="35" y2="58" />
-                  <line x1="165" y1="38" x2="165" y2="58" />
-                  <line x1="100" y1="70" x2="100" y2="90" />
-                  <line x1="35" y1="58" x2="100" y2="90" />
-                  <line x1="165" y1="58" x2="100" y2="90" />
+                <!-- 3D Spatial Bounding Cage (Front Struts) -->
+                <g stroke="#62c9ff" stroke-width="1.2" stroke-opacity="0.9">
+                  <line x1="40" y1="44" x2="100" y2="74" />
+                  <line x1="160" y1="44" x2="100" y2="74" />
+                  <line x1="40" y1="44" x2="40" y2="96" />
+                  <line x1="160" y1="44" x2="160" y2="96" />
+                  <line x1="100" y1="74" x2="100" y2="126" stroke-width="1.4" />
+                  <line x1="40" y1="96" x2="100" y2="126" />
+                  <line x1="160" y1="96" x2="100" y2="126" />
                 </g>
+
+                <!-- Corner Vertex Nodes -->
+                <circle cx="40" cy="44" r="1.8" fill="#62c9ff" />
+                <circle cx="160" cy="44" r="1.8" fill="#62c9ff" />
+                <circle cx="100" cy="74" r="2" fill="#62c9ff" />
+                <circle cx="40" cy="96" r="1.8" fill="#62c9ff" />
+                <circle cx="160" cy="96" r="1.8" fill="#62c9ff" />
+                <circle cx="100" cy="126" r="2" fill="#62c9ff" />
 
                 <!-- Floating 3D Stardust & Depth Particles -->
-                <circle cx="72" cy="20" r="1.2" fill="#62c9ff" opacity="0.6" />
-                <circle cx="128" cy="18" r="1.4" fill="#ffffff" opacity="0.75" class="node-pulse" />
-                <circle cx="115" cy="76" r="1.2" fill="#ffd599" opacity="0.6" />
-                <circle cx="65" cy="68" r="1.3" fill="#62c9ff" opacity="0.55" />
-                <circle cx="148" cy="66" r="1.1" fill="#ffffff" opacity="0.5" />
-                <circle cx="90" cy="28" r="1" fill="#ffffff" opacity="0.75" />
+                <circle cx="68" cy="30" r="1.3" fill="#62c9ff" opacity="0.6" />
+                <circle cx="132" cy="28" r="1.4" fill="#ffffff" opacity="0.75" class="node-pulse" />
+                <circle cx="120" cy="112" r="1.2" fill="#ffd599" opacity="0.6" />
+                <circle cx="62" cy="104" r="1.3" fill="#62c9ff" opacity="0.55" />
+                <circle cx="145" cy="100" r="1.1" fill="#ffffff" opacity="0.5" />
+                <circle cx="85" cy="42" r="1" fill="#ffffff" opacity="0.75" />
 
                 <!-- Orbiting Constellation Celestial Nodes -->
-                <circle cx="35" cy="48" r="2.2" fill="#ffd599" stroke="#fff8e7" stroke-width="0.8" opacity="0.8" />
-                <circle cx="56" cy="48" r="3.2" fill="#ffd599" stroke="#fff8e7" stroke-width="1.2" filter="url(#eh-glow)" />
-                <circle cx="74" cy="34" r="2.4" fill="#62c9ff" stroke="#ffffff" stroke-width="1" opacity="0.85" />
-                <circle cx="100" cy="59" r="3" fill="#ffffff" stroke="#62c9ff" stroke-width="1.2" filter="url(#eh-glow)" class="node-pulse" />
-                <circle cx="126" cy="62" r="3.2" fill="#ffffff" stroke="#62c9ff" stroke-width="1.5" filter="url(#eh-glow)" class="node-pulse" />
-                <circle cx="144" cy="48" r="3.2" fill="#ffd599" stroke="#fff8e7" stroke-width="1.2" filter="url(#eh-glow)" class="node-pulse" />
-                <circle cx="165" cy="48" r="2.2" fill="#62c9ff" stroke="#ffffff" stroke-width="0.8" opacity="0.8" />
+                <circle cx="40" cy="70" r="2.4" fill="#ffd599" stroke="#fff8e7" stroke-width="0.8" opacity="0.85" />
+                <circle cx="55" cy="70" r="3.2" fill="#ffd599" stroke="#fff8e7" stroke-width="1.2" filter="url(#eh-glow)" />
+                <circle cx="75" cy="52" r="2.6" fill="#62c9ff" stroke="#ffffff" stroke-width="1" opacity="0.9" />
+                <circle cx="100" cy="84" r="3.2" fill="#ffffff" stroke="#62c9ff" stroke-width="1.3" filter="url(#eh-glow)" class="node-pulse" />
+                <circle cx="125" cy="88" r="3.4" fill="#ffffff" stroke="#62c9ff" stroke-width="1.5" filter="url(#eh-glow)" class="node-pulse" />
+                <circle cx="145" cy="70" r="3.2" fill="#ffd599" stroke="#fff8e7" stroke-width="1.2" filter="url(#eh-glow)" class="node-pulse" />
+                <circle cx="160" cy="70" r="2.4" fill="#62c9ff" stroke="#ffffff" stroke-width="0.8" opacity="0.85" />
 
                 <!-- Central Singularity Core -->
-                <circle cx="100" cy="48" r="7" fill="#62c9ff" opacity="0.35" filter="url(#eh-glow)" />
-                <circle cx="100" cy="48" r="4.2" fill="#ffffff" stroke="#ffd599" stroke-width="1.2" filter="url(#eh-glow)" class="core-spark" />
+                <circle cx="100" cy="70" r="8" fill="#62c9ff" opacity="0.35" filter="url(#eh-glow)" />
+                <circle cx="100" cy="70" r="4.5" fill="#ffffff" stroke="#ffd599" stroke-width="1.4" filter="url(#eh-glow)" class="core-spark" />
               </svg>
             </div>
           </div>
@@ -266,7 +272,7 @@
               </div>
             </div>
             <div class="layer-graphic">
-              <svg viewBox="0 0 200 95" class="layer-svg" aria-label="Headless Core Isometric Cube">
+              <svg viewBox="0 0 200 140" class="layer-svg" aria-label="Headless Core Isometric Cube">
                 <defs>
                   <linearGradient id="cube-top-grad" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stop-color="#ffe0b2" />
@@ -284,10 +290,13 @@
                     <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#ffd599" flood-opacity="0.4" />
                   </filter>
                 </defs>
-                <polygon points="35,38 100,70 100,90 35,58" fill="url(#cube-left-grad)" stroke="#ffd599" stroke-width="0.8" stroke-opacity="0.6" />
-                <polygon points="100,70 165,38 165,58 100,90" fill="url(#cube-right-grad)" stroke="#ffd599" stroke-width="0.8" stroke-opacity="0.6" />
-                <polygon points="100,6 165,38 100,70 35,38" fill="url(#cube-top-grad)" stroke="#ffffff" stroke-width="1.2" stroke-opacity="0.9" filter="url(#cube-glow)" />
-                <circle cx="115" cy="34" r="3" fill="#ffffff" class="core-spark" />
+                <polygon points="42,45 100,74 100,124 42,95" fill="url(#cube-left-grad)" stroke="#ffd599" stroke-width="0.8" stroke-opacity="0.6" />
+                <polygon points="100,74 158,45 158,95 100,124" fill="url(#cube-right-grad)" stroke="#ffd599" stroke-width="0.8" stroke-opacity="0.6" />
+                <polygon points="100,16 158,45 100,74 42,45" fill="url(#cube-top-grad)" stroke="#ffffff" stroke-width="1.2" stroke-opacity="0.9" filter="url(#cube-glow)" />
+                <line x1="71" y1="30.5" x2="129" y2="59.5" stroke="#ffe0b2" stroke-width="0.8" stroke-opacity="0.45" stroke-dasharray="3 2" />
+                <line x1="129" y1="30.5" x2="71" y2="59.5" stroke="#ffe0b2" stroke-width="0.8" stroke-opacity="0.45" stroke-dasharray="3 2" />
+                <line x1="100" y1="74" x2="100" y2="124" stroke="#ffffff" stroke-width="1.1" stroke-opacity="0.7" />
+                <circle cx="114" cy="42" r="3.5" fill="#ffffff" stroke="#ffd599" stroke-width="1.2" filter="url(#cube-glow)" class="core-spark" />
               </svg>
             </div>
           </div>
@@ -314,7 +323,7 @@
               </div>
             </div>
             <div class="layer-graphic">
-              <svg viewBox="0 0 200 95" class="layer-svg" aria-label="Platform Stack Isometric Slab">
+              <svg viewBox="0 0 200 140" class="layer-svg" aria-label="Platform Stack Isometric Slab">
                 <defs>
                   <linearGradient id="slab-top-grad" x1="0%" y1="0%" x2="100%" y2="100%">
                     <stop offset="0%" stop-color="#24334a" />
@@ -329,11 +338,13 @@
                     <stop offset="100%" stop-color="#0a101b" />
                   </linearGradient>
                 </defs>
-                <polygon points="35,44 100,76 100,88 35,56" fill="url(#slab-left-grad)" stroke="#62c9ff" stroke-width="0.8" stroke-opacity="0.5" />
-                <polygon points="100,76 165,44 165,56 100,88" fill="url(#slab-right-grad)" stroke="#62c9ff" stroke-width="0.8" stroke-opacity="0.5" />
-                <polygon points="100,12 165,44 100,76 35,44" fill="url(#slab-top-grad)" stroke="#62c9ff" stroke-width="1.2" stroke-opacity="0.85" />
-                <line x1="67.5" y1="28" x2="132.5" y2="60" stroke="#62c9ff" stroke-width="0.6" stroke-opacity="0.4" stroke-dasharray="2 2" />
-                <line x1="132.5" y1="28" x2="67.5" y2="60" stroke="#62c9ff" stroke-width="0.6" stroke-opacity="0.4" stroke-dasharray="2 2" />
+                <polygon points="42,53 100,82 100,118 42,89" fill="url(#slab-left-grad)" stroke="#62c9ff" stroke-width="0.8" stroke-opacity="0.5" />
+                <polygon points="100,82 158,53 158,89 100,118" fill="url(#slab-right-grad)" stroke="#62c9ff" stroke-width="0.8" stroke-opacity="0.5" />
+                <polygon points="100,24 158,53 100,82 42,53" fill="url(#slab-top-grad)" stroke="#62c9ff" stroke-width="1.2" stroke-opacity="0.85" />
+                <line x1="71" y1="38.5" x2="129" y2="67.5" stroke="#62c9ff" stroke-width="0.7" stroke-opacity="0.45" stroke-dasharray="2 2" />
+                <line x1="129" y1="38.5" x2="71" y2="67.5" stroke="#62c9ff" stroke-width="0.7" stroke-opacity="0.45" stroke-dasharray="2 2" />
+                <line x1="100" y1="82" x2="100" y2="118" stroke="#62c9ff" stroke-width="1.1" stroke-opacity="0.65" />
+                <circle cx="100" cy="53" r="2.5" fill="#62c9ff" opacity="0.8" class="node-pulse" />
               </svg>
             </div>
           </div>
