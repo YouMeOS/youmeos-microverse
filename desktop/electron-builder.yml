@@ -1,0 +1,21 @@
+appId: com.youmeos.microverse
+productName: My YouMeOS Microverse
+directories:
+  output: out
+extraResources:
+  - from: ../docker-compose.yml
+    to: docker-compose.yml
+  - from: ../docker
+    to: docker
+    filter:
+      - "**/*"
+publish:
+  provider: github
+mac:
+  target: dmg
+win:
+  target: nsis
+linux:
+  target:
+    - AppImage
+    - deb

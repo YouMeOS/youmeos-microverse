@@ -1,0 +1,16 @@
+name: Auto Version
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  get-version:
+    if: "!contains(github.event.head_commit.message, '[skip ci]')"
+    uses: HalloftheGods/.github/.github/workflows/calculate-version.yml@main
+
+  update-plugin:
+    needs: get-version
+    uses: HalloftheGods/.github/.github/workflows/wp-plugin-update.yml@main
+    with:
+      version_string: ${{ needs.get-version.outputs.version_string }}

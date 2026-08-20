@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:;">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouMeOS Microverse Control Matrix</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Header Bar -->
+    <header class="app-header">
+      <div class="brand">
+        <div class="brand-badge">
+          <svg class="brand-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/>
+            <path d="M2 12h20"/>
+          </svg>
+        </div>
+        <div class="brand-meta">
+          <h1 class="brand-title">YouMeOS</h1>
+          <span class="brand-subtitle">Microverse Matrix</span>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <div class="engine-select-wrapper">
+          <select id="engine-selector" class="engine-select" title="Switch Microverse Engine">
+            <option value="embedded">Native Embedded</option>
+            <option value="docker">Docker Cluster</option>
+          </select>
+          <svg class="select-chevron" viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </div>
+
+        <div id="overall-status-pill" class="badge badge-status stopped" role="status">
+          <span id="status-dot" class="dot stopped"></span>
+          <span id="status-text">Stopped</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- Primary Gateway Card -->
+    <section class="gateway-card glass-panel">
+      <div class="gateway-main-row">
+        <div class="gateway-left">
+          <span class="gateway-tag">Gateway</span>
+          <a href="#" id="link-gateway" class="gateway-link-btn" title="Open Primary Gateway in browser">
+            https://my.youmeos.com
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3"/>
+            </svg>
+          </a>
+          <button id="btn-copy-gateway" class="btn-copy-url" title="Copy Gateway URL">
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="gateway-right">
+          <div class="trust-badge-pill" title="End-to-end local sandbox with zero outbound telemetry">
+            <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <polyline points="9 12 11 14 15 10"/>
+            </svg>
+            <span>Private Local Sandbox</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="gateway-endpoints-row" id="gateway-endpoints-row">
+        <span class="endpoints-label">Gateways:</span>
+        <div class="endpoint-chips" id="endpoint-chips">
+          <a href="#" class="endpoint-chip is-primary" data-url="https://my.youmeos.com">my.youmeos.com</a>
+          <a href="#" class="endpoint-chip" data-url="https://youmeos.localhost">youmeos.localhost</a>
+          <a href="#" class="endpoint-chip" data-url="http://youmeos.local">youmeos.local</a>
+          <a href="#" class="endpoint-chip" data-url="https://localhost">localhost</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs -->
+    <section class="tabs-container">
+      <div class="tabs-list glass-panel" role="tablist">
+        <button class="tabs-trigger active" id="tab-btn-model" role="tab" aria-selected="true" data-tab="tab-model">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+            <polyline points="2 17 12 22 22 17"/>
+            <polyline points="2 12 12 17 22 12"/>
+          </svg>
+          System Architecture
+        </button>
+
+        <button class="tabs-trigger" id="tab-btn-services" role="tab" aria-selected="false" data-tab="tab-services">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="2" width="20" height="8" rx="2" ry="2"/>
+            <rect x="2" y="14" width="20" height="8" rx="2" ry="2"/>
+            <line x1="6" y1="6" x2="6.01" y2="6"/>
+            <line x1="6" y1="18" x2="6.01" y2="18"/>
+          </svg>
+          Services
+          <span id="services-count" class="tab-badge">0 / 0</span>
+        </button>
+
+        <button class="tabs-trigger" id="tab-btn-logs" role="tab" aria-selected="false" data-tab="tab-logs">
+          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="4 17 10 11 4 5"/>
+            <line x1="12" y1="19" x2="20" y2="19"/>
+          </svg>
+          Console Logs
+        </button>
+      </div>
+
+      <!-- Tab: System Architecture (Layered Model) -->
+      <section class="tab-content" id="tab-model">
+        <div class="system-model-view" id="system-model-view">
+          <!-- Layer 1: Event Horizon -->
+          <div class="model-layer-card glass-panel" id="layer-event-horizon">
+            <div class="layer-accent-glow glow-cyan"></div>
+            <div class="layer-body">
+              <div class="layer-header">
+                <div class="layer-identity">
+                  <span class="layer-badge">Front-End Interface</span>
+                  <h3 class="layer-title">Event Horizon Portal</h3>
+                  <p class="layer-subtitle">3D Rendering Engine & Vue 3 Micro-Frontends</p>
+                </div>
+                <div class="layer-status-pill stopped" id="status-pill-event-horizon">
+                  <span class="dot stopped" id="dot-event-horizon"></span>
+                  <span id="label-event-horizon">Offline</span>
+                </div>
+              </div>
+              <div class="layer-specs">
+                <span class="spec-tag">Vue 3 + Vuetify</span>
+                <span class="spec-tag">Atomic Design</span>
+                <span class="spec-tag">Spatial Canvas</span>
+              </div>
+            </div>
+            <div class="layer-graphic">
+              <svg viewBox="0 0 200 95" class="layer-svg" aria-label="Event Horizon Spatial Youniverse">
+                <defs>
+                  <filter id="eh-glow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur stdDeviation="2.5" result="blur" />
+                    <feMerge>
+                      <feMergeNode in="blur" />
+                      <feMergeNode in="SourceGraphic" />
+                    </feMerge>
+                  </filter>
+                  <radialGradient id="eh-outer-disk-grad" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#62c9ff" stop-opacity="0.18" />
+                    <stop offset="60%" stop-color="#62c9ff" stop-opacity="0.06" />
+                    <stop offset="100%" stop-color="#62c9ff" stop-opacity="0" />
+                  </radialGradient>
+                  <radialGradient id="eh-mid-disk-grad" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#ffffff" stop-opacity="0.22" />
+                    <stop offset="70%" stop-color="#ffe0b2" stop-opacity="0.08" />
+                    <stop offset="100%" stop-color="#ffd599" stop-opacity="0" />
+                  </radialGradient>
+                  <radialGradient id="eh-inner-disk-grad" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="#62c9ff" stop-opacity="0.35" />
+                    <stop offset="80%" stop-color="#62c9ff" stop-opacity="0.1" />
+                    <stop offset="100%" stop-color="#62c9ff" stop-opacity="0" />
+                  </radialGradient>
+                  <linearGradient id="eh-axis-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#62c9ff" stop-opacity="0.2" />
+                    <stop offset="50%" stop-color="#62c9ff" stop-opacity="0.9" />
+                    <stop offset="100%" stop-color="#ffd599" stop-opacity="0.8" />
+                  </linearGradient>
+                </defs>
+
+                <!-- 3D Spatial Bounding Cage (Back Faces & Grid) -->
+                <g stroke="#62c9ff" stroke-width="0.75" stroke-opacity="0.35">
+                  <line x1="100" y1="6" x2="35" y2="38" stroke-dasharray="3 2" />
+                  <line x1="100" y1="6" x2="165" y2="38" stroke-dasharray="3 2" />
+                  <line x1="100" y1="6" x2="100" y2="26" stroke-dasharray="2 2" />
+                  <line x1="100" y1="26" x2="35" y2="58" stroke-dasharray="3 2" />
+                  <line x1="100" y1="26" x2="165" y2="58" stroke-dasharray="3 2" />
+                </g>
+
+                <!-- Isometric Sub-Grid Lines -->
+                <g stroke="#62c9ff" stroke-width="0.5" stroke-opacity="0.18">
+                  <line x1="67.5" y1="22" x2="132.5" y2="54" />
+                  <line x1="132.5" y1="22" x2="67.5" y2="54" />
+                  <line x1="67.5" y1="42" x2="132.5" y2="74" />
+                  <line x1="132.5" y1="42" x2="67.5" y2="74" />
+                </g>
+
+                <!-- Concentric 3D Event Horizon Discs -->
+                <ellipse cx="100" cy="48" rx="65" ry="32" fill="url(#eh-outer-disk-grad)" stroke="#62c9ff" stroke-width="0.8" stroke-opacity="0.45" stroke-dasharray="4 3" />
+                <ellipse cx="100" cy="48" rx="44" ry="21.5" fill="url(#eh-mid-disk-grad)" stroke="#ffd599" stroke-width="0.9" stroke-opacity="0.55" />
+                <ellipse cx="100" cy="48" rx="22" ry="11" fill="url(#eh-inner-disk-grad)" stroke="#62c9ff" stroke-width="1.2" stroke-opacity="0.85" />
+
+                <!-- Vertical Singularity Axis Beacon -->
+                <line x1="100" y1="6" x2="100" y2="90" stroke="url(#eh-axis-grad)" stroke-width="1.2" />
+
+                <!-- Constellation Network Vector Lines -->
+                <g stroke="rgba(255, 224, 178, 0.45)" stroke-width="1">
+                  <line x1="56" y1="48" x2="74" y2="34" />
+                  <line x1="74" y1="34" x2="100" y2="37" />
+                  <line x1="100" y1="37" x2="100" y2="48" />
+                  <line x1="100" y1="48" x2="100" y2="59" />
+                  <line x1="100" y1="59" x2="126" y2="62" />
+                  <line x1="126" y1="62" x2="144" y2="48" />
+                  <line x1="56" y1="48" x2="100" y2="48" />
+                  <line x1="100" y1="48" x2="144" y2="48" />
+                </g>
+
+                <!-- 3D Spatial Bounding Cage (Front Struts & Top/Bottom Rings) -->
+                <g stroke="#62c9ff" stroke-width="1.1" stroke-opacity="0.85">
+                  <line x1="35" y1="38" x2="100" y2="70" />
+                  <line x1="165" y1="38" x2="100" y2="70" />
+                  <line x1="35" y1="38" x2="35" y2="58" />
+                  <line x1="165" y1="38" x2="165" y2="58" />
+                  <line x1="100" y1="70" x2="100" y2="90" />
+                  <line x1="35" y1="58" x2="100" y2="90" />
+                  <line x1="165" y1="58" x2="100" y2="90" />
+                </g>
+
+                <!-- Floating 3D Stardust & Depth Particles -->
+                <circle cx="72" cy="20" r="1.2" fill="#62c9ff" opacity="0.6" />
+                <circle cx="128" cy="18" r="1.4" fill="#ffffff" opacity="0.75" class="node-pulse" />
+                <circle cx="115" cy="76" r="1.2" fill="#ffd599" opacity="0.6" />
+                <circle cx="65" cy="68" r="1.3" fill="#62c9ff" opacity="0.55" />
+                <circle cx="148" cy="66" r="1.1" fill="#ffffff" opacity="0.5" />
+                <circle cx="90" cy="28" r="1" fill="#ffffff" opacity="0.75" />
+
+                <!-- Orbiting Constellation Celestial Nodes -->
+                <circle cx="35" cy="48" r="2.2" fill="#ffd599" stroke="#fff8e7" stroke-width="0.8" opacity="0.8" />
+                <circle cx="56" cy="48" r="3.2" fill="#ffd599" stroke="#fff8e7" stroke-width="1.2" filter="url(#eh-glow)" />
+                <circle cx="74" cy="34" r="2.4" fill="#62c9ff" stroke="#ffffff" stroke-width="1" opacity="0.85" />
+                <circle cx="100" cy="59" r="3" fill="#ffffff" stroke="#62c9ff" stroke-width="1.2" filter="url(#eh-glow)" class="node-pulse" />
+                <circle cx="126" cy="62" r="3.2" fill="#ffffff" stroke="#62c9ff" stroke-width="1.5" filter="url(#eh-glow)" class="node-pulse" />
+                <circle cx="144" cy="48" r="3.2" fill="#ffd599" stroke="#fff8e7" stroke-width="1.2" filter="url(#eh-glow)" class="node-pulse" />
+                <circle cx="165" cy="48" r="2.2" fill="#62c9ff" stroke="#ffffff" stroke-width="0.8" opacity="0.8" />
+
+                <!-- Central Singularity Core -->
+                <circle cx="100" cy="48" r="7" fill="#62c9ff" opacity="0.35" filter="url(#eh-glow)" />
+                <circle cx="100" cy="48" r="4.2" fill="#ffffff" stroke="#ffd599" stroke-width="1.2" filter="url(#eh-glow)" class="core-spark" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Layer 2: Headless Core -->
+          <div class="model-layer-card glass-panel" id="layer-headless-core">
+            <div class="layer-accent-glow glow-purple"></div>
+            <div class="layer-body">
+              <div class="layer-header">
+                <div class="layer-identity">
+                  <span class="layer-badge">Application Kernel</span>
+                  <h3 class="layer-title serif-gold">Headless Core</h3>
+                  <p class="layer-subtitle">WordPress Engine, REST & GraphQL APIs</p>
+                </div>
+                <div class="layer-status-pill stopped" id="status-pill-core">
+                  <span class="dot stopped" id="dot-core"></span>
+                  <span id="label-core">Offline</span>
+                </div>
+              </div>
+              <div class="layer-specs">
+                <span class="spec-tag">Headless Kernel</span>
+                <span class="spec-tag">REST & GraphQL</span>
+                <span class="spec-tag">JWT Auth</span>
+              </div>
+            </div>
+            <div class="layer-graphic">
+              <svg viewBox="0 0 200 95" class="layer-svg" aria-label="Headless Core Isometric Cube">
+                <defs>
+                  <linearGradient id="cube-top-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#ffe0b2" />
+                    <stop offset="100%" stop-color="#e8b87a" />
+                  </linearGradient>
+                  <linearGradient id="cube-left-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#bc8646" />
+                    <stop offset="100%" stop-color="#8c5a22" />
+                  </linearGradient>
+                  <linearGradient id="cube-right-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#d49b56" />
+                    <stop offset="100%" stop-color="#a66e30" />
+                  </linearGradient>
+                  <filter id="cube-glow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="0" stdDeviation="5" flood-color="#ffd599" flood-opacity="0.4" />
+                  </filter>
+                </defs>
+                <polygon points="35,38 100,70 100,90 35,58" fill="url(#cube-left-grad)" stroke="#ffd599" stroke-width="0.8" stroke-opacity="0.6" />
+                <polygon points="100,70 165,38 165,58 100,90" fill="url(#cube-right-grad)" stroke="#ffd599" stroke-width="0.8" stroke-opacity="0.6" />
+                <polygon points="100,6 165,38 100,70 35,38" fill="url(#cube-top-grad)" stroke="#ffffff" stroke-width="1.2" stroke-opacity="0.9" filter="url(#cube-glow)" />
+                <circle cx="115" cy="34" r="3" fill="#ffffff" class="core-spark" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Layer 3: Infrastructure Platform -->
+          <div class="model-layer-card glass-panel" id="layer-lamp-stack">
+            <div class="layer-accent-glow glow-blue"></div>
+            <div class="layer-body">
+              <div class="layer-header">
+                <div class="layer-identity">
+                  <span class="layer-badge">Infrastructure Platform</span>
+                  <h3 class="layer-title" id="platform-layer-title">Blackbox Bedrock</h3>
+                  <p class="layer-subtitle" id="platform-layer-subtitle">Isolated Gateway, PHP 8.3 & ZeroConf Mesh</p>
+                </div>
+                <div class="layer-status-pill stopped" id="status-pill-platform">
+                  <span class="dot stopped" id="dot-platform"></span>
+                  <span id="label-platform">Offline</span>
+                </div>
+              </div>
+              <div class="layer-specs">
+                <span class="spec-tag" id="spec-runtime">PHP 8.3 / FrankenPHP</span>
+                <span class="spec-tag" id="spec-gateway">Gateway Proxy</span>
+                <span class="spec-tag" id="spec-db">SQLite Store</span>
+              </div>
+            </div>
+            <div class="layer-graphic">
+              <svg viewBox="0 0 200 95" class="layer-svg" aria-label="Platform Stack Isometric Slab">
+                <defs>
+                  <linearGradient id="slab-top-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#24334a" />
+                    <stop offset="100%" stop-color="#121b2b" />
+                  </linearGradient>
+                  <linearGradient id="slab-left-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#0f1726" />
+                    <stop offset="100%" stop-color="#070c14" />
+                  </linearGradient>
+                  <linearGradient id="slab-right-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#182438" />
+                    <stop offset="100%" stop-color="#0a101b" />
+                  </linearGradient>
+                </defs>
+                <polygon points="35,44 100,76 100,88 35,56" fill="url(#slab-left-grad)" stroke="#62c9ff" stroke-width="0.8" stroke-opacity="0.5" />
+                <polygon points="100,76 165,44 165,56 100,88" fill="url(#slab-right-grad)" stroke="#62c9ff" stroke-width="0.8" stroke-opacity="0.5" />
+                <polygon points="100,12 165,44 100,76 35,44" fill="url(#slab-top-grad)" stroke="#62c9ff" stroke-width="1.2" stroke-opacity="0.85" />
+                <line x1="67.5" y1="28" x2="132.5" y2="60" stroke="#62c9ff" stroke-width="0.6" stroke-opacity="0.4" stroke-dasharray="2 2" />
+                <line x1="132.5" y1="28" x2="67.5" y2="60" stroke="#62c9ff" stroke-width="0.6" stroke-opacity="0.4" stroke-dasharray="2 2" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Local Host Substrate Row -->
+          <div class="local-substrate-row">
+            <span class="substrate-label">Local Host Environment:</span>
+            <div class="substrate-pill" id="local-machine-pill">
+              <span class="substrate-dot"></span>
+              <span id="local-machine-name">Localhost Node</span>
+            </div>
+          </div>
+
+          <!-- Error Alert Banner -->
+          <div id="local-machine-error" class="error-banner hidden">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span id="local-machine-error-text"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tab: Individual Services Grid -->
+      <section class="tab-content hidden" id="tab-services">
+        <div id="services-grid" class="services-grid">
+          <!-- Populated dynamically -->
+        </div>
+      </section>
+
+      <!-- Tab: Real-Time Console Logs -->
+      <section class="tab-content hidden" id="tab-logs">
+        <div class="logs-wrapper glass-panel">
+          <div class="logs-header">
+            <div class="log-service-tabs" id="log-tabs">
+              <button class="log-tab active" data-service="all">All Logs</button>
+              <button class="log-tab" data-service="nginx">Gateway</button>
+              <button class="log-tab" data-service="wordpress">Core</button>
+              <button class="log-tab" data-service="avahi">Network</button>
+            </div>
+            <div class="logs-actions">
+              <label class="autoscroll-toggle">
+                <input type="checkbox" id="chk-autoscroll" checked>
+                <span>Autoscroll</span>
+              </label>
+              <button id="btn-clear-logs" class="btn-icon" title="Clear Logs">
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div id="log-container" class="logs-body">
+            <pre id="log-viewer"><code>[Matrix] Initializing console stream...</code></pre>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- Download Progress Panel -->
+    <div id="download-panel" class="download-panel glass-panel hidden">
+      <div class="download-header">
+        <div class="download-info">
+          <span class="download-badge">Downloading</span>
+          <span id="download-title" class="download-title">FrankenPHP Binary</span>
+          <span id="download-detail" class="download-detail">0 B / 0 B</span>
+        </div>
+        <div class="download-metrics">
+          <span id="download-speed" class="download-speed">0 KB/s</span>
+          <span id="download-percent" class="download-percent">0%</span>
+        </div>
+      </div>
+      <div class="download-track">
+        <div id="download-bar" class="download-bar" style="width: 0%;"></div>
+      </div>
+    </div>
+
+    <!-- Mechanical Tape Deck Transport & Aux Controls -->
+    <section class="tape-deck-panel glass-panel">
+      <div class="tape-deck-chassis">
+        <div class="tape-deck-transport">
+          <!-- Play Key -->
+          <button id="btn-start" class="deck-key deck-key-play" title="Engage Microverse Cluster">
+            <div class="deck-led-indicator"></div>
+            <svg class="deck-icon" viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
+              <polygon points="6 4 20 12 6 20 6 4"/>
+            </svg>
+            <span class="deck-label">Play</span>
+          </button>
+
+          <!-- Stop Key -->
+          <button id="btn-stop" class="deck-key deck-key-stop" title="Disengage Microverse Cluster">
+            <div class="deck-led-indicator"></div>
+            <svg class="deck-icon" viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
+              <rect x="5" y="5" width="14" height="14" rx="2" ry="2"/>
+            </svg>
+            <span class="deck-label">Stop</span>
+          </button>
+
+          <!-- Restart Key -->
+          <button id="btn-restart" class="deck-key deck-key-restart" title="Cycle Microverse Cluster">
+            <svg class="deck-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+            </svg>
+            <span class="deck-label">Restart</span>
+          </button>
+        </div>
+
+        <div class="deck-separator"></div>
+
+        <div class="tape-deck-aux">
+          <!-- Open Gateway in Browser -->
+          <button id="btn-open-browser" class="deck-key deck-key-aux" title="Open Gateway in Web Browser">
+            <svg class="deck-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="2" y1="12" x2="22" y2="12"/>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+            </svg>
+            <span class="deck-label">Launch</span>
+          </button>
+
+          <!-- Copy Gateway URL -->
+          <button id="btn-copy-url" class="deck-key deck-key-aux" title="Copy Gateway URL to Clipboard">
+            <svg class="deck-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+            </svg>
+            <span class="deck-label">Copy</span>
+          </button>
+
+          <!-- Update Plugins -->
+          <button id="btn-update-plugins" class="deck-key deck-key-aux" title="Update YouMeOS Plugins via Composer">
+            <svg class="deck-icon" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            <span class="deck-label">Update</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer Bar -->
+    <footer class="app-footer">
+      <div class="footer-left">
+        <span class="cert-status">&#10003; Local Sandbox Ready</span>
+        <span class="footer-sep">&bull;</span>
+        <span class="ssl-status">SSL Active</span>
+      </div>
+      <span id="version-tag" class="version-tag">Microverse v1.0.0</span>
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

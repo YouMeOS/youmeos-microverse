@@ -1,0 +1,23 @@
+{
+    # FrankenPHP Options
+    frankenphp
+    order php_server before file_server
+    auto_https off
+}
+
+:{$PORT:80}, http://my.youmeos.com:{$PORT:80}, http://youmeos.localhost:{$PORT:80}, http://youmeos.local:{$PORT:80}, http://localhost:{$PORT:80}, http://127.0.0.1:{$PORT:80} {
+    # Define the document root passed via environment variable
+    root * {$WP_ROOT}
+
+    # Enable compression
+    encode zstd br gzip
+
+    # Execute PHP files
+    php_server
+
+    # Logging config (JSON format for easy parsing)
+    log {
+        format json
+        output stdout
+    }
+}

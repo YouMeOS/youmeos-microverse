@@ -1,0 +1,60 @@
+{
+  "name": "youmeos/microverse",
+  "description": "YouMeOS Microverse Single-Tenant Cluster",
+  "type": "project",
+  "license": "proprietary",
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://wpackagist.org"
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "hallofthegods/xophz-compass",
+        "version": "dev-main",
+        "type": "wordpress-plugin",
+        "dist": {
+          "url": "https://github.com/HalloftheGods/xophz-compass/archive/refs/heads/main.zip",
+          "type": "zip"
+        }
+      }
+    },
+    {
+      "type": "package",
+      "package": {
+        "name": "hallofthegods/xophz-compass-event-horizon",
+        "version": "dev-main",
+        "type": "wordpress-plugin",
+        "dist": {
+          "url": "https://github.com/HalloftheGods/xophz-compass-event-horizon/archive/refs/heads/main.zip",
+          "type": "zip"
+        }
+      }
+    }
+  ],
+  "require": {
+    "php": ">=8.1",
+    "composer/installers": "^2.2",
+    "hallofthegods/xophz-compass": "dev-main",
+    "hallofthegods/xophz-compass-event-horizon": "dev-main"
+  },
+  "extra": {
+    "installer-paths": {
+      "blackbox/mu-plugins/{$name}/": ["type:wordpress-muplugin"],
+      "blackbox/plugins/{$name}/": ["type:wordpress-plugin"],
+      "blackbox/themes/{$name}/": ["type:wordpress-theme"]
+    }
+  },
+  "scripts": {
+    "update-plugins": "composer update hallofthegods/* --with-all-dependencies",
+    "install-plugins": "composer install --no-dev --optimize-autoloader"
+  },
+  "config": {
+    "allow-plugins": {
+      "composer/installers": true
+    },
+    "preferred-install": "dist",
+    "sort-packages": true
+  }
+}

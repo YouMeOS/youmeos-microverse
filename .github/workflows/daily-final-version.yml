@@ -1,0 +1,11 @@
+name: Daily Final Version
+on:
+  schedule:
+    - cron: "59 23 * * *"
+  workflow_dispatch:
+
+jobs:
+  daily-final:
+    uses: HalloftheGods/.github/.github/workflows/daily-final-version.yml@main
+    with:
+      skip_zip: true

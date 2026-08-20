@@ -1,0 +1,29 @@
+# Environment & secrets
+.env
+.env.local
+docker/.env
+*.key
+*.pem
+*.crt
+*.ini
+docker/nginx/certs/
+certs/
+
+# Dependencies & Build artifacts
+node_modules/
+desktop/node_modules/
+vendor/
+desktop/dist/
+desktop/out/
+
+# Runtime data & sqlite stores
+data/
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+blackbox/database.sqlite*
+
+# Logs & OS artifacts
+*.log
+.DS_Store
+Thumbs.db
