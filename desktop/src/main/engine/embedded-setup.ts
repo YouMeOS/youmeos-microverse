@@ -96,6 +96,18 @@ export async function setupEmbeddedEnvironment(
         fs.rmSync(wpCoreDir, { recursive: true, force: true });
       }
       fs.renameSync(extractedWp, wpCoreDir);
+
+      // Clean default bloatware (Akismet, Hello Dolly, default themes)
+      const defaultPlugins = ['akismet', 'hello.php'];
+      for (const dp of defaultPlugins) {
+        const p = path.join(wpCoreDir, 'wp-content', 'plugins', dp);
+        if (fs.existsSync(p)) fs.rmSync(p, { recursive: true, force: true });
+      }
+      const defaultThemes = ['twentytwentythree', 'twentytwentyfour', 'twentytwentyfive'];
+      for (const dt of defaultThemes) {
+        const t = path.join(wpCoreDir, 'wp-content', 'themes', dt);
+        if (fs.existsSync(t)) fs.rmSync(t, { recursive: true, force: true });
+      }
     }
     onProgress('WordPress core extracted and configured.');
   }

@@ -23,7 +23,23 @@ data/
 *.sqlite-wal
 blackbox/database.sqlite*
 
+# WordPress & Composer Managed Packages
+blackbox/plugins/*
+!blackbox/plugins/index.php
+!blackbox/plugins/.gitkeep
+blackbox/themes/*
+!blackbox/themes/index.php
+!blackbox/themes/.gitkeep
+blackbox/mu-plugins/_token_*.php
+blackbox/upgrade/
+blackbox/upgrade-temp-backup/
+
 # Logs & OS artifacts
 *.log
 .DS_Store
 Thumbs.db
+
+blackbox/plugins/index.php
+blackbox/themes/index.php
+blackbox/index.php
+blackbox/.htaccess
