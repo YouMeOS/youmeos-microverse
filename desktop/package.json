@@ -2,6 +2,7 @@
   "name": "youmeos-microverse",
   "version": "1.0.0",
   "description": "My YouMeOS Microverse Desktop",
+  "author": "YouMeOS <contact@youmeos.com>",
   "repository": {
     "type": "git",
     "url": "https://github.com/YouMeOS/youmeos-microverse.git"

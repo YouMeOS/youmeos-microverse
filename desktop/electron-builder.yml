@@ -13,9 +13,14 @@ publish:
   provider: github
 mac:
   target: dmg
+  icon: assets/icon.png
 win:
   target: nsis
+  icon: assets/icon.png
 linux:
+  maintainer: YouMeOS <contact@youmeos.com>
+  category: Utility
+  icon: assets/icon.png
   target:
     - AppImage
     - deb
