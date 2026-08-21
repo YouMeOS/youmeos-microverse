@@ -35,7 +35,7 @@
     <div class="splash-side-body custom-scrollbar">
       <div class="telemetry-header">
         <span class="telemetry-title">Component Verification</span>
-        <span class="telemetry-score">{{ verifiedCount }} / {{ totalCount }} Verified</span>
+        <span class="verification-badge">{{ verifiedCount }} / {{ totalCount }} Verified</span>
       </div>
 
       <!-- Verification Cards List -->
@@ -43,9 +43,12 @@
         <MetricCard
           v-for="layer in stackLayers"
           :key="layer.id"
+          :layer-id="layer.id"
           :title="layer.name"
           :category="layer.category"
           :status="layer.status"
+          :is-active="layer.active"
+          :is-installed="layer.installed"
           :is-verified="layer.installed || layer.active"
           :detail="layer.details"
           :data-layer="layer.id"

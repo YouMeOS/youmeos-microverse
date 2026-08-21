@@ -1,54 +1,116 @@
 <template>
-  <div :class="['telemetry-card', { verified: isVerified, active: isActive }]" :data-layer="dataLayer">
-    <div class="telemetry-card-top">
-      <div class="telemetry-card-left">
-        <div class="telemetry-icon-box">
-          <BaseIcon :name="icon || 'cube'" :size="16" />
-        </div>
-        <div class="telemetry-name-group">
-          <span class="telemetry-name">{{ title }}</span>
-          <span class="telemetry-category">{{ category }}</span>
-        </div>
+  <div
+    :class="['telemetry-card', { 'is-running': isRunningStatus, active: isActive }]"
+    :data-layer="layerId || dataLayer"
+    @click="$emit('click')"
+    @mouseenter="$emit('mouseenter')"
+    @mouseleave="$emit('mouseleave')"
+  >
+    <div class="telemetry-card-info">
+      <div class="telemetry-card-top">
+        <span :class="['telemetry-card-tag', tagMeta.tagClass]">{{ tagMeta.tag }}</span>
+        <span class="telemetry-card-name">{{ displayTitle }}</span>
       </div>
-      <div class="telemetry-status-pill">
-        <StatusDot :status="status" />
-        <span>{{ statusText || (isVerified ? 'Active' : 'Unverified') }}</span>
-      </div>
+      <span class="telemetry-card-detail">{{ detail || 'Checking component...' }}</span>
     </div>
-    <div v-if="detail" class="telemetry-card-detail">
-      <span class="detail-label">{{ detailLabel || 'Status' }}:</span>
-      <span class="detail-val">{{ detail }}</span>
+    <div :class="['telemetry-status-pill', statusClass]">
+      <span :class="['dot', statusClass]" />
+      <span>{{ statusLabel }}</span>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import BaseIcon from '../atoms/BaseIcon.vue';
-import StatusDot from '../atoms/StatusDot.vue';
+import { computed } from 'vue';
 
-withDefaults(
+const props = withDefaults(
   defineProps<{
-    title: string;
+    title?: string;
+    layerId?: string;
     category?: string;
-    icon?: string;
+    tag?: string;
+    tagClass?: string;
     status?: string;
     statusText?: string;
     isVerified?: boolean;
     isActive?: boolean;
+    isInstalled?: boolean;
     detail?: string;
-    detailLabel?: string;
     dataLayer?: string;
   }>(),
   {
-    category: 'Kernel Layer',
-    icon: 'cube',
+    title: '',
+    layerId: '',
+    category: '',
+    tag: '',
+    tagClass: '',
     status: 'stopped',
     statusText: '',
     isVerified: false,
     isActive: false,
+    isInstalled: true,
     detail: '',
-    detailLabel: 'Status',
     dataLayer: ''
   }
 );
+
+defineEmits<{
+  (e: 'click'): void;
+  (e: 'mouseenter'): void;
+  (e: 'mouseleave'): void;
+}>();
+
+const layerTagMap: Record<string, { tag: string; tagClass: string; defaultTitle: string }> = {
+  compass: { tag: 'Systems', tagClass: 'neon-tag', defaultTitle: 'My COMPASS' },
+  portal: { tag: 'Portal', tagClass: 'cyan-tag', defaultTitle: 'Event Horizon' },
+  bedrock: { tag: 'Foundation', tagClass: 'blue-tag', defaultTitle: 'Blackbox Bedrock' },
+  core: { tag: 'Kernel', tagClass: 'gold-tag', defaultTitle: 'Headless Core' },
+  server: { tag: 'Gateway', tagClass: 'emerald-tag', defaultTitle: 'Web Server' },
+  database: { tag: 'Storage', tagClass: 'purple-tag', defaultTitle: 'SQLite Database' },
+  network: { tag: 'Mesh', tagClass: 'coral-tag', defaultTitle: 'Private Node (mDNS)' }
+};
+
+const normalizedId = computed(() => (props.layerId || props.dataLayer || '').toLowerCase());
+
+const tagMeta = computed(() => {
+  if (props.tag && props.tagClass) {
+    return { tag: props.tag, tagClass: props.tagClass };
+  }
+  const match = layerTagMap[normalizedId.value];
+  if (match) {
+    return {
+      tag: props.tag || match.tag,
+      tagClass: props.tagClass || match.tagClass
+    };
+  }
+  return {
+    tag: props.tag || props.category || 'Layer',
+    tagClass: props.tagClass || 'cyan-tag'
+  };
+});
+
+const displayTitle = computed(() => {
+  if (props.title) return props.title;
+  const match = layerTagMap[normalizedId.value];
+  return match ? match.defaultTitle : 'Stack Component';
+});
+
+const isRunningStatus = computed(() => {
+  return props.isActive || props.status === 'running';
+});
+
+const statusClass = computed(() => {
+  if (isRunningStatus.value) return 'running';
+  if (props.status === 'starting' || props.status === 'transitioning') return 'starting';
+  if (props.status === 'error' || props.isInstalled === false) return 'stopped';
+  return 'stopped';
+});
+
+const statusLabel = computed(() => {
+  if (props.statusText) return props.statusText;
+  if (isRunningStatus.value) return 'Online';
+  if (props.status === 'starting' || props.status === 'transitioning') return 'Starting';
+  if (props.isInstalled === false || props.status === 'error') return 'Missing';
+  return 'Offline';
+});
 </script>

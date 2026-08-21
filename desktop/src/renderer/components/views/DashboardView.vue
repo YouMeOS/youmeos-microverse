@@ -186,12 +186,30 @@
 
       <!-- 2. TAB: 3D MATRIX -->
       <section v-show="activeTab === 'tab-matrix'" class="tab-content tab-matrix-content">
-        <div class="dash-matrix-wrapper">
+        <div class="matrix-tab-layout">
           <div
             ref="dashCanvasContainerRef"
-            class="dash-3d-canvas-container"
+            class="dash-canvas-viewport"
             title="Click and drag to rotate 3D matrix in space"
           />
+          <div class="dash-telemetry-sidebar custom-scrollbar">
+            <MetricCard
+              v-for="layer in stackLayers"
+              :key="layer.id"
+              :layer-id="layer.id"
+              :title="layer.name"
+              :category="layer.category"
+              :status="layer.status"
+              :is-active="layer.active"
+              :is-installed="layer.installed"
+              :is-verified="layer.installed || layer.active"
+              :detail="layer.details"
+              :data-layer="layer.id"
+              @mouseenter="$emit('highlightLayer', layer.id)"
+              @mouseleave="$emit('highlightLayer', null)"
+              @click="$emit('selectLayer', layer.id)"
+            />
+          </div>
         </div>
       </section>
 
@@ -200,15 +218,18 @@
         <div class="dash-card glass-panel">
           <div class="card-header">
             <h3 class="card-title">Full Stack Component Verification</h3>
-            <span class="telemetry-score">{{ verifiedCount }} / {{ totalCount }} Active</span>
+            <span class="verification-badge">{{ verifiedCount }} / {{ totalCount }} Active</span>
           </div>
           <div class="telemetry-list">
             <MetricCard
               v-for="layer in stackLayers"
               :key="layer.id"
+              :layer-id="layer.id"
               :title="layer.name"
               :category="layer.category"
               :status="layer.status"
+              :is-active="layer.active"
+              :is-installed="layer.installed"
               :is-verified="layer.installed || layer.active"
               :detail="layer.details"
               :data-layer="layer.id"
