@@ -41,9 +41,15 @@
   },
   "extra": {
     "installer-paths": {
-      "blackbox/mu-plugins/{$name}/": ["type:wordpress-muplugin"],
-      "blackbox/plugins/{$name}/": ["type:wordpress-plugin"],
-      "blackbox/themes/{$name}/": ["type:wordpress-theme"]
+      "blackbox/mu-plugins/{$name}/": [
+        "type:wordpress-muplugin"
+      ],
+      "blackbox/plugins/{$name}/": [
+        "type:wordpress-plugin"
+      ],
+      "blackbox/themes/{$name}/": [
+        "type:wordpress-theme"
+      ]
     }
   },
   "scripts": {
