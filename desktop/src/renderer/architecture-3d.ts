@@ -21,8 +21,11 @@ export const COMPASS_TIER_COLORS: Record<string, CompassTierColorDef> = {
   quantum: { primary: 0x00f2fe, secondary: 0x0077b6, accent: 0x62c9ff, hex: '#00f2fe' },
   bronze: { primary: 0xcd7f32, secondary: 0x8b5a2b, accent: 0xffd599, hex: '#cd7f32' },
   silver: { primary: 0xc0c0c0, secondary: 0x7f8c8d, accent: 0xffffff, hex: '#c0c0c0' },
+  'silver-enhanced': { primary: 0xe5e4e2, secondary: 0x9e9e9e, accent: 0xffffff, hex: '#e5e4e2' },
   gold: { primary: 0xffd700, secondary: 0xb8860b, accent: 0xfff0a0, hex: '#ffd700' },
+  'gold-enhanced': { primary: 0xffd700, secondary: 0xb8860b, accent: 0xfff0a0, hex: '#ffd700' },
   platinum: { primary: 0xa0b2c6, secondary: 0x5c768d, accent: 0xe0e8f0, hex: '#a0b2c6' },
+  'platinum-enhanced': { primary: 0xa0b2c6, secondary: 0x5c768d, accent: 0xe0e8f0, hex: '#a0b2c6' },
   uranium: { primary: 0x3dee98, secondary: 0x059669, accent: 0x6ee7b7, hex: '#3dee98' },
   titanium: { primary: 0x00e5ff, secondary: 0x0097a7, accent: 0x80deea, hex: '#00e5ff' },
   palladium: { primary: 0xe6e6fa, secondary: 0x9370db, accent: 0xffd700, hex: '#e6e6fa' }

@@ -90,9 +90,9 @@ const tagMeta = computed(() => {
 });
 
 const displayTitle = computed(() => {
-  if (props.title) return props.title;
   const match = layerTagMap[normalizedId.value];
-  return match ? match.defaultTitle : 'Stack Component';
+  if (match) return match.defaultTitle;
+  return props.title || 'Stack Component';
 });
 
 const isRunningStatus = computed(() => {

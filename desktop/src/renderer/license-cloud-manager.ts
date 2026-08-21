@@ -45,41 +45,363 @@ export const TIER_ORDER = [
 ];
 
 export const COMPASS_PLUGINS: CompassPluginData[] = [
-  // Core Quantum / Black tier sparks & portals
-  { id: 'u-nucleos', name: 'YouMeOS Nucleos', type: 'spark', tagline: 'Personal Operating System WebTop', description: 'Sovereign desktop WebTop with 4D star navigation and detachable PWA mini-verse.', minTier: 'black' },
-  { id: 'bubblegum', name: 'Bubblegum', type: 'spark', tagline: 'Kinetic Task & Focus Engine', description: 'Streamlined task management, focus streaks, and kinetic workflow tracking.', minTier: 'black' },
-  { id: 'notepad', name: 'Alphabet Soup', type: 'spark', tagline: 'Rich Text Scratchpad', description: 'Fast markdown notes, code snippets, and persistent local scratchpad storage.', minTier: 'black' },
-  { id: 'jukebox', name: 'Beat Salad', type: 'spark', tagline: 'Audio & Web Radio Player', description: 'Integrated web radio, audio playlists, and ambient sound player for your workspace.', minTier: 'black' },
-  { id: 'enchiridion', name: 'Enchiridion', type: 'spark', tagline: 'Sacred Knowledge Manual', description: 'Interactive platform architecture documentation, cheat sheets, and handbook.', minTier: 'black' },
-  { id: 'cookie-jar', name: 'Cookie Jar', type: 'spark', tagline: 'Privacy & Session Vault', description: 'Granular cookie management, sovereign session storage, and client consent vault.', minTier: 'black' },
-  { id: 'my-compass', name: 'My COMPASS Framework', type: 'portal', tagline: 'True North Navigator & Gamification', description: 'Core framework powering XP gamification, role access, and sparks orchestration.', minTier: 'black' },
-  { id: 'event-horizon', name: 'Event Horizon', type: 'portal', tagline: '3D Spatial Canvas Engine', description: '3D WebGL spatial canvas and Vue 3 micro-frontend routing engine.', minTier: 'black' },
-  { id: 'true-north', name: 'True North', type: 'portal', tagline: 'XP Gamification & Loyalty', description: 'Gamified reward levels, quest progression, achievement badges, and loyalty streaks.', minTier: 'black' },
-  { id: 'bugnet', name: 'Bug-Catching Net', type: 'portal', tagline: 'QA Telemetry & Feedback', description: 'Instant visual issue reporting and frontend debugging feedback net.', minTier: 'black' },
-  { id: 'command-deck', name: 'Command Deck', type: 'portal', tagline: 'Operations & Products Hub', description: 'Unified business control center for managing orders, products, and platform operations.', minTier: 'black' },
+  // Core Quantum / Black tier tools (11 tools)
+  {
+    id: 'u-nucleos',
+    name: 'Personal WebTop Desktop OS',
+    type: 'spark',
+    tagline: 'YouMeOS Nucleos',
+    description: 'Sovereign browser desktop environment with 4D star navigation and detachable mini-app window management.',
+    minTier: 'black'
+  },
+  {
+    id: 'bubblegum',
+    name: 'Task & Focus Streak Engine',
+    type: 'spark',
+    tagline: 'Bubblegum Focus',
+    description: 'Streamlined task management, daily focus streaks, and kinetic workflow tracking.',
+    minTier: 'black'
+  },
+  {
+    id: 'notepad',
+    name: 'Markdown Notes & Scratchpad',
+    type: 'spark',
+    tagline: 'Alphabet Soup',
+    description: 'Fast markdown note-taking, code snippet storage, and persistent local scratchpad memo vault.',
+    minTier: 'black'
+  },
+  {
+    id: 'jukebox',
+    name: 'Audio Player & Web Radio',
+    type: 'spark',
+    tagline: 'Beat Salad',
+    description: 'Integrated streaming web radio, audio playlists, podcast feeds, and ambient workspace audio player.',
+    minTier: 'black'
+  },
+  {
+    id: 'enchiridion',
+    name: 'System Architecture & Code Snippets Handbook',
+    type: 'spark',
+    tagline: 'Enchiridion Library',
+    description: 'Interactive platform architecture documentation, developer cheat sheets, and reusable code snippets library.',
+    minTier: 'black'
+  },
+  {
+    id: 'cookie-jar',
+    name: 'Privacy, Session & Consent Vault',
+    type: 'spark',
+    tagline: 'Cookie Jar',
+    description: 'Granular cookie management, sovereign session token storage, and client privacy consent vault.',
+    minTier: 'black'
+  },
+  {
+    id: 'true-north',
+    name: 'XP Gamification & Reward Levels Engine',
+    type: 'portal',
+    tagline: 'True North XP',
+    description: 'Gamified reward levels, quest progression, achievement badges, and loyalty streaks for user engagement.',
+    minTier: 'black'
+  },
+  {
+    id: 'bugnet',
+    name: 'Visual Issue Reporter & QA Telemetry Net',
+    type: 'portal',
+    tagline: 'Bug-Catching Net',
+    description: 'Instant visual issue reporting and automatic frontend runtime JavaScript error capture net.',
+    minTier: 'black'
+  },
+  {
+    id: 'command-deck',
+    name: 'Operations & Products Management Gateway',
+    type: 'portal',
+    tagline: 'Command Deck',
+    description: 'Unified business control center for managing orders, product inventory, and platform operations.',
+    minTier: 'black'
+  },
+  {
+    id: 'event-horizon',
+    name: '3D Spatial Canvas & Dynamic Routing Engine',
+    type: 'portal',
+    tagline: 'Event Horizon',
+    description: '3D WebGL spatial universe background canvas and Vue 3 micro-frontend routing engine.',
+    minTier: 'black'
+  },
+  {
+    id: 'my-compass',
+    name: 'Core Application Framework & Navigator',
+    type: 'portal',
+    tagline: 'My COMPASS Framework',
+    description: 'Central motherboard framework powering user roles, API routing, and spark applet orchestration.',
+    minTier: 'black'
+  },
 
-  // Bronze tier additions
-  { id: 'questbook-crm', name: 'Questbook CRM', type: 'portal', tagline: 'Customer Portal & CRM', description: 'Track client milestones, customer accounts, and reward points in a unified hub.', minTier: 'bronze' },
-  { id: 'bomb-bag', name: 'Bomb Bag News Flash', type: 'portal', tagline: 'Real-Time Broadcast Engine', description: 'Instant notification broadcasts, banner flashes, and release news across your app.', minTier: 'bronze' },
+  // Bronze tier additions (2 tools)
+  {
+    id: 'questbook-crm',
+    name: 'Customer Relationship Manager (CRM)',
+    type: 'portal',
+    tagline: 'Questbook CRM',
+    description: 'Manage contacts, track customer journey milestones, link form submissions, and organize lead pipelines.',
+    minTier: 'bronze'
+  },
+  {
+    id: 'bomb-bag',
+    name: 'Email Marketing & Automated Drip Sequences',
+    type: 'portal',
+    tagline: 'Bomb Bag News Drip',
+    description: 'Create email newsletter campaigns, automated drip sequences, subscriber list segmentation, and open/click tracking.',
+    minTier: 'bronze'
+  },
 
-  // Silver tier additions
-  { id: 'xophz-magic-formula', name: 'Magic Formula', type: 'spark', tagline: 'Automation Recipe & Form Builder', description: 'Visual trigger-action recipe builder with multi-step branches and conditional logic.', minTier: 'silver' },
-  { id: 'terminal', name: 'HoloShell CLI', type: 'spark', tagline: 'Holographic Command Terminal', description: 'Direct node shell management, script execution, and diagnostic command access.', minTier: 'silver' },
-  { id: 'sys-monitor', name: 'System Monitor', type: 'spark', tagline: 'Live Node Telemetry', description: 'Real-time CPU, RAM, disk I/O, and container response time telemetry.', minTier: 'silver' },
-  { id: 'trajectory', name: 'Trajectory', type: 'portal', tagline: 'Marketing Funnels & Growth', description: 'Accelerate growth through conversion funnels, campaign tracking, and lead capture.', minTier: 'silver' },
-  { id: 'castle-walls', name: 'Castle Walls WAF', type: 'portal', tagline: 'Security & Mirror Shield', description: 'Granular firewall rules, bot-mitigation, rate-limiting, and sovereign data vaulting.', minTier: 'silver' },
-  { id: 'wizards-tower', name: "Wizard's Tower", type: 'portal', tagline: 'Dev Tools & Page Builder', description: 'Advanced theme builders, dev configs, and platform magic orchestration.', minTier: 'silver' },
+  // Silver tier additions (5 tools)
+  {
+    id: 'xophz-magic-formula',
+    name: 'Visual Form Builder & Workflow Automation',
+    type: 'spark',
+    tagline: 'Magic Formula',
+    description: 'Visual trigger-action recipe builder with multi-step branches, Forminator forms/polls/quizzes, and CRM synchronization.',
+    minTier: 'silver'
+  },
+  {
+    id: 'terminal',
+    name: 'Node Command Terminal (CLI)',
+    type: 'spark',
+    tagline: 'HoloShell CLI',
+    description: 'Direct server node shell management, script execution, diagnostic CLI access, and container commands.',
+    minTier: 'silver'
+  },
+  {
+    id: 'sys-monitor',
+    name: 'System Resource Telemetry & Performance Monitor',
+    type: 'spark',
+    tagline: 'System Monitor',
+    description: 'Real-time CPU, RAM, disk I/O, database load, and container response time telemetry graphs.',
+    minTier: 'silver'
+  },
+  {
+    id: 'trajectory',
+    name: 'Marketing Funnels & Lead Generation Magnets',
+    type: 'portal',
+    tagline: 'Trajectory & Lead Magnet',
+    description: 'Accelerate conversion growth through opt-in popups, lead capture magnets, and marketing funnels.',
+    minTier: 'silver'
+  },
+  {
+    id: 'castle-walls',
+    name: 'Web Application Firewall (WAF) & Honeypot Security',
+    type: 'portal',
+    tagline: 'Castle Walls & Mirror Shield',
+    description: 'Granular firewall rules, honeypot attack traps, bot-mitigation, IP banning, and sovereign data vaulting.',
+    minTier: 'silver'
+  },
 
-  // Gold tier additions
-  { id: 'logos', name: 'Logos Multiverse', type: 'portal', tagline: 'Sovereign Multiverse Command', description: 'Admin web management portal orchestrating multiple domain nodes and portals.', minTier: 'gold' },
-  { id: 'helios', name: 'Helios Studio', type: 'portal', tagline: 'Solar Media Studio', description: 'Publish and syndicate multimedia content, audio playlists, and visual assets.', minTier: 'gold' },
+  // Silver Enhanced tier additions (4 tools)
+  {
+    id: 'bazaar-pos',
+    name: 'Point-of-Sale (POS) & E-Commerce Storefront',
+    type: 'portal',
+    tagline: 'Bazaar POS & WooCommerce',
+    description: 'Over-the-counter retail POS checkout terminal with barcode scanning, cash tendering, and online store catalog.',
+    minTier: 'silver'
+  },
+  {
+    id: 'wizards-tower',
+    name: 'Visual Page & Custom Theme Builder Studio',
+    type: 'portal',
+    tagline: "Wizard's Tower & Magic Wand",
+    description: 'Point-and-click visual page builder, custom theme design studio, and platform developer tools.',
+    minTier: 'silver'
+  },
+  {
+    id: 'page-cache',
+    name: 'High-Speed Page Caching & Asset Optimizer',
+    type: 'spark',
+    tagline: 'Hummingbird Caching Engine',
+    description: 'Full-page caching, script minification, browser cache headers, and database optimization for instant page loads.',
+    minTier: 'silver'
+  },
+  {
+    id: 'image-optimizer',
+    name: 'Lossless Image Optimization & WebP Delivery',
+    type: 'spark',
+    tagline: "Titan's Mitt & Smush Pro",
+    description: 'Automated background image compression, Next-Gen WebP/AVIF formatting, and media library offloading.',
+    minTier: 'silver'
+  },
 
-  // Platinum tier additions
-  { id: 'nexos', name: 'Nexos Intelligence', type: 'portal', tagline: 'Multi-Agent AI Network', description: 'Autonomous agents cooperating across business workflows and automated data synthesis.', minTier: 'platinum' },
-  { id: 'noosphere', name: 'Noosphere Resonance', type: 'portal', tagline: 'Collective Intelligence Space', description: 'Explore the collective thought space and universal resonance network.', minTier: 'platinum' },
+  // Gold tier additions (4 tools)
+  {
+    id: 'logos',
+    name: 'Multi-Domain Network Management Portal',
+    type: 'portal',
+    tagline: 'Logos Multiverse',
+    description: 'Centralized admin web management portal orchestrating multiple domain nodes, subsites, and web networks.',
+    minTier: 'gold'
+  },
+  {
+    id: 'helios',
+    name: 'Multimedia Publishing & Broadcasting Studio',
+    type: 'portal',
+    tagline: 'Helios Media Studio',
+    description: 'Publish and syndicate multimedia audio playlists, video records, podcasts, and digital media collections.',
+    minTier: 'gold'
+  },
+  {
+    id: 'silver-arrow',
+    name: 'Continuous A/B Split Testing & Conversion Router',
+    type: 'portal',
+    tagline: 'Silver Arrow',
+    description: 'Server-level PHP 302 cache-split testing, historical page revision benchmarking, and multi-armed bandit traffic allocation.',
+    minTier: 'gold'
+  },
+  {
+    id: 'pegasus-boots',
+    name: 'Search Engine Optimization (SEO) & Smart Crawler',
+    type: 'portal',
+    tagline: 'Pegasus Boots & SmartCrawl Pro',
+    description: 'Automated XML sitemaps, JSON-LD structured schema markup, OpenGraph social preview cards, and SEO health audits.',
+    minTier: 'gold'
+  },
 
-  // Titanium & Palladium tier additions
-  { id: 'blackbox', name: 'BlackBOX Diagnostics', type: 'spark', tagline: 'Kernel Telemetry & Internals', description: 'Direct kernel telemetry, real-time memory profiling, and cluster state inspector.', minTier: 'titanium' }
+  // Gold Enhanced tier additions (3 tools)
+  {
+    id: 'ai-content',
+    name: 'AI Content Generation & Synthesis Pipeline',
+    type: 'spark',
+    tagline: 'AI Providers (OpenAI / Anthropic / Google)',
+    description: 'Integrated multi-model AI pipeline for automated article generation, marketing copy drafting, and smart assistant prompts.',
+    minTier: 'gold'
+  },
+  {
+    id: 'beehive-analytics',
+    name: 'Business Intelligence & Google Analytics Dashboard',
+    type: 'portal',
+    tagline: 'Beehive Analytics Telemetry',
+    description: 'Real-time traffic telemetry charts, user acquisition channels, audience demographics, and conversion analytics.',
+    minTier: 'gold'
+  },
+  {
+    id: 'moving-castle',
+    name: 'Multisite Database Migration & Replication Engine',
+    type: 'portal',
+    tagline: 'Moving Castle',
+    description: 'File-based SQL dump and bulk import engine with serialized string replacement for cross-environment synchronization.',
+    minTier: 'gold'
+  },
+
+  // Platinum tier additions (3 tools)
+  {
+    id: 'nexos',
+    name: 'Autonomous Multi-Agent AI Network',
+    type: 'portal',
+    tagline: 'Nexos Intelligence',
+    description: 'Network of autonomous AI agents cooperating across business workflows, system architecture, and automated data synthesis.',
+    minTier: 'platinum'
+  },
+  {
+    id: 'hookshot',
+    name: 'Bidirectional HTTP Webhook & API Gateway',
+    type: 'portal',
+    tagline: 'Magic Hookshot',
+    description: 'HMAC-verified incoming and outgoing webhooks with Action Scheduler retry queues, JSON payload transforms, and cross-plugin bridges.',
+    minTier: 'platinum'
+  },
+  {
+    id: 'agency-hub',
+    name: 'Turn-Key Agency Command & Client Portal Hub',
+    type: 'portal',
+    tagline: 'The Hub Client & Omega Source',
+    description: 'Dedicated client management hub, role-based access control (RBAC), and decentralized virtual passport authentication.',
+    minTier: 'platinum'
+  },
+
+  // Platinum Enhanced tier additions (3 tools)
+  {
+    id: 'noosphere',
+    name: 'Collective Intelligence & Knowledge Commons',
+    type: 'portal',
+    tagline: 'Noosphere Resonance',
+    description: 'Shared global thought stream, universal knowledge graph, and collaborative community forums across the sovereign network.',
+    minTier: 'platinum'
+  },
+  {
+    id: 'white-label',
+    name: 'Enterprise White-Label Branding Engine',
+    type: 'portal',
+    tagline: 'Ultimate Branding',
+    description: 'Complete custom logo replacement, white-label client admin themes, custom login portals, and CSS styling customization.',
+    minTier: 'platinum'
+  },
+  {
+    id: 'polos',
+    name: 'Fractal Governance & Quadratic Consensus Engine',
+    type: 'portal',
+    tagline: 'POLOS Consensus Engine',
+    description: 'Multi-scale quadratic voting, liquid proxy delegation, Circle Web-of-Trust verification, and federated w4 governance protocols.',
+    minTier: 'platinum'
+  },
+
+  // Uranium tier additions (3 tools)
+  {
+    id: 'enterprise-waf',
+    name: 'Enterprise Threat Defense & Zero-Trust Security Suite',
+    type: 'portal',
+    tagline: 'WP Defender Pro & Castle Walls',
+    description: 'Real-time malware scanning, two-factor authentication (2FA), audit logging, and automated threat smiting via Thor\'s Hammer.',
+    minTier: 'uranium'
+  },
+  {
+    id: 'yellow-links',
+    name: 'Directory Citations & Backlink Authority Network',
+    type: 'portal',
+    tagline: 'Yellow Links Directory',
+    description: 'Verified business directory listings, backlink tracking, domain citation score monitoring, and organic search share optimization.',
+    minTier: 'uranium'
+  },
+  {
+    id: 'treasure-trove',
+    name: 'Sovereign Valuation Vault & ROI Discovery Map',
+    type: 'portal',
+    tagline: 'Treasure Trove & Treasure Map',
+    description: 'Real-time equity valuation across commerce, CRM, and search capital combined with an interactive ROI quest journey map.',
+    minTier: 'uranium'
+  },
+
+  // Titanium tier additions (2 tools)
+  {
+    id: 'blackbox',
+    name: 'Kernel Diagnostics & Memory Profiling Inspector',
+    type: 'spark',
+    tagline: 'BlackBOX Diagnostics',
+    description: 'Direct server kernel telemetry, real-time memory profiling, SQLite/MySQL query inspector, and cluster state diagnostics.',
+    minTier: 'titanium'
+  },
+  {
+    id: 'auto-healing',
+    name: 'Automated Traffic Auto-Scaling & Self-Healing Engine',
+    type: 'portal',
+    tagline: 'Self-Healing Cluster',
+    description: 'Dynamic container worker scaling under heavy load with automatic crash detection, service restarts, and database recovery.',
+    minTier: 'titanium'
+  },
+
+  // Palladium tier additions (2 tools)
+  {
+    id: 'omni-core',
+    name: 'Omni-Sovereign Core Network API Matrix',
+    type: 'portal',
+    tagline: 'Omni Core Matrix',
+    description: 'Universal federated API matrix connecting all nodes, clusters, and client networks with global cryptographic synchronization.',
+    minTier: 'palladium'
+  },
+  {
+    id: 'concierge-retainer',
+    name: 'Principal Systems Engineering Retainer (20h/mo)',
+    type: 'portal',
+    tagline: 'My Compass Consulting',
+    description: 'Direct dedicated access to a Principal Systems Engineer for bespoke architecture design, custom plugins, and 24/7 priority support.',
+    minTier: 'palladium'
+  }
 ];
 
 export const BOX_TIERS: TierInfo[] = [
@@ -93,15 +415,15 @@ export const BOX_TIERS: TierInfo[] = [
     whiteGlovePrice: '$149/mo',
     whiteGloveHours: 1,
     target: 'Bloggers, Portfolio Owners, Freelancers, Solo Creators, Students, Hobbyists',
-    headline: 'Your Starter Super-Hub',
-    simpleExplanation: 'Your personal computer control deck. You get fast mini-apps for writing notes, listening to music, organizing daily goals, and winning gaming rewards.',
+    headline: 'Your Starter Personal WebTop',
+    simpleExplanation: 'Your personal sovereign computer deck. You get fast built-in tools for writing markdown notes, listening to web audio and radio, organizing daily task streaks, and earning gamified rewards.',
     superpowers: [
-      '11 built-in mini-apps for notes, music, tasks, and privacy',
-      'Personal WebTop workspace with star navigation',
-      'True North gaming rewards and daily quest streaks'
+      'Personal WebTop desktop workspace (YouMeOS Nucleos) with 4D star navigation',
+      'Built-in everyday tools for markdown notes, audio streaming, task focus streaks, and cookie privacy (Alphabet Soup, Beat Salad, Bubblegum, Cookie Jar)',
+      'Gamified engagement levels (True North XP) and visual runtime error QA reporting net (Bug-Catching Net)'
     ],
-    specs: ['1 vCPU Dedicated Core', '512MB High-Speed RAM', '10GB Storage', '5TB Dedicated Bandwidth'],
-    features: ['YouMeOS WebTop OS', 'Gamification & XP Engine', 'QA & Bug Reporting Net', 'Full Tesseract Framework'],
+    specs: ['1 vCPU Dedicated Core', '512MB High-Speed RAM', '10GB Storage (6GB System)', '5TB Dedicated Bandwidth'],
+    features: ['YouMeOS WebTop Desktop OS', 'True North XP Gamification Engine', 'Bug-Catching Net Visual QA Reporter', 'Full Tesseract Protocol Framework'],
     url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29371/302083/',
     stripeWhiteGloveUrl: 'https://buy.stripe.com/whiteglove_quantum',
     stripeLicenseUrl: 'https://buy.stripe.com/license_black'
@@ -116,15 +438,15 @@ export const BOX_TIERS: TierInfo[] = [
     whiteGlovePrice: '$199/mo',
     whiteGloveHours: 1,
     target: 'Local Shops, Contractors, Salons, Cafes, Fitness Instructors, Tradespeople',
-    headline: 'The Club and Customer Hub',
-    simpleExplanation: 'The starter club and store. Perfect for remembering your customers, saving their points, and sending instant news alerts straight to their screens.',
+    headline: 'The Customer Relationship & Marketing Hub',
+    simpleExplanation: 'The essential business toolkit for capturing leads, remembering customer milestones and reward points, and running scheduled email marketing drip campaigns.',
     superpowers: [
-      'Questbook CRM to remember customer milestones and points',
-      'Bomb Bag news flashes to send instant broadcast messages',
-      'Automated daily safeguards to keep data protected'
+      'Customer Relationship Management (Questbook CRM) to record client milestones, contacts, and reward points',
+      'Email marketing and automated drip sequence campaigns (Bomb Bag News Drip) for scheduled broadcasts and open/click tracking',
+      'Automated daily data safeguards (Snapshot Backups) and spam shield protection'
     ],
-    specs: ['1 vCPU Dedicated Core', '1GB High-Speed RAM', '25GB Storage', '10TB Dedicated Bandwidth'],
-    features: ['All Quantum Features', 'Questbook CRM Lead Capture', 'Bomb Bag Broadcasts', 'Automated Daily Safeguards'],
+    specs: ['1 vCPU Dedicated Core', '1GB High-Speed RAM', '25GB Storage (10GB System)', '10TB Dedicated Bandwidth'],
+    features: ['All Quantum Features', 'Questbook CRM Contact & Lead Capture', 'Bomb Bag Email Marketing & Drip Sequences', 'Automated Daily Data Safeguards'],
     url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29501/302084/',
     stripeWhiteGloveUrl: 'https://buy.stripe.com/whiteglove_bronze',
     stripeLicenseUrl: 'https://buy.stripe.com/license_bronze'
@@ -139,15 +461,15 @@ export const BOX_TIERS: TierInfo[] = [
     whiteGlovePrice: '$299/mo',
     whiteGloveHours: 1.5,
     target: 'Consultants, Photographers, Digital Marketers, Web Designers, Content Creators',
-    headline: 'The Superpower Automation Machine',
-    simpleExplanation: 'Put your computer on autopilot. Build smart step-by-step recipes that do work for you automatically, while strong shield walls keep your files safe.',
+    headline: 'The Workflow Automation & Security Hub',
+    simpleExplanation: 'Automate repetitive workflows with visual trigger-action recipes and forms, manage server commands through a holographic CLI terminal, and defend your site with a honeypot security firewall.',
     superpowers: [
-      'Magic Formula visual recipe builder with smart triggers',
-      'HoloShell command terminal and live health monitors',
-      'Castle Walls shield to block bots and suspicious traffic'
+      'Visual form builder and trigger-action automated recipes (Magic Formula) linked directly to your CRM',
+      'Browser-based server shell terminal (HoloShell CLI) and real-time telemetry graphs (System Monitor)',
+      'Web Application Firewall and honeypot attack defense barrier (Castle Walls & Mirror Shield)'
     ],
-    specs: ['2 vCPU Dedicated Cores', '2GB High-Speed RAM', '65GB NVMe Storage', '25TB Dedicated Bandwidth'],
-    features: ['All Bronze Features', 'Magic Formula Automations', 'HoloShell CLI & System Monitor', 'Castle Walls WAF Defense'],
+    specs: ['2 vCPU Dedicated Cores', '2GB High-Speed RAM', '65GB NVMe Storage (20GB System)', '25TB Dedicated Bandwidth'],
+    features: ['All Bronze Features', 'Magic Formula Visual Automations', 'HoloShell CLI & Live System Monitor', 'Castle Walls WAF & Honeypot Shield'],
     url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29504/302085/',
     stripeWhiteGloveUrl: 'https://buy.stripe.com/whiteglove_silver',
     stripeLicenseUrl: 'https://buy.stripe.com/license_silver'
@@ -162,15 +484,15 @@ export const BOX_TIERS: TierInfo[] = [
     whiteGlovePrice: '$399/mo',
     whiteGloveHours: 2,
     target: 'Lawyers, Dentists, Accountants, Real Estate Agents, Private Clinics, Boutiques',
-    headline: 'The Digital Shopkeeper',
-    simpleExplanation: 'Build cool web pages and sell items online. It comes with a developer toolkit and high-speed memory so your store never lags.',
+    headline: 'The E-Commerce & Custom Page Studio',
+    simpleExplanation: 'Build custom landing pages with visual tools, process retail or online checkouts through a Point-of-Sale terminal, and speed up page load times with automated caching and image compression.',
     superpowers: [
-      "Wizard's Tower studio to create custom pages and themes",
-      'Digital storefront tools to sell products online',
-      'Turbo cache system for ultra-fast page loading'
+      'Point-of-Sale (POS) retail checkout terminal (Bazaar POS) with barcode scanning and digital store catalog',
+      'Visual drag-and-drop page builder and theme design studio (Wizard\'s Tower & Magic Wand)',
+      'High-speed page caching (Hummingbird) and automated lossless image optimization (Titan\'s Mitt & Smush Pro)'
     ],
-    specs: ['2 vCPU Dedicated Cores', '4GB High-Speed RAM', '128GB Storage', '25TB Dedicated Bandwidth'],
-    features: ['All Silver Features', "Wizard's Tower Dev Studio", 'E-Commerce Storefront', 'High-Speed Page Cache'],
+    specs: ['2 vCPU Dedicated Cores', '4GB High-Speed RAM', '128GB Storage (28GB System)', '25TB Dedicated Bandwidth'],
+    features: ['All Silver Features', 'Bazaar POS & Digital Storefront', 'Wizard\'s Tower Visual Page Studio', 'High-Speed Page Cache & AI Image Optimizer'],
     url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/42889/290370/',
     stripeWhiteGloveUrl: 'https://buy.stripe.com/whiteglove_silver_enhanced',
     stripeLicenseUrl: 'https://buy.stripe.com/license_silver_enhanced'
@@ -185,15 +507,15 @@ export const BOX_TIERS: TierInfo[] = [
     whiteGlovePrice: '$599/mo',
     whiteGloveHours: 3,
     target: 'E-Commerce Brands, Software Startups, PR Agencies, Financial Advisors, Tech Firms',
-    headline: 'The Multiverse and Media Boss',
-    simpleExplanation: 'Control multiple websites from one screen. Create and broadcast your own music, videos, and podcasts with a full creative media studio.',
+    headline: 'The Multi-Domain & Media Broadcast Commander',
+    simpleExplanation: 'Manage multiple domain networks and portals from a single unified screen, broadcast audio and video media playlists, and run continuous A/B split tests with intelligent search crawler SEO.',
     superpowers: [
-      'Logos Multiverse command center to manage multiple domains',
-      'Helios creative media studio for music, audio, and videos',
-      'Automated sales funnels to turn visitors into happy buyers'
+      'Centralized multi-domain network management portal (Logos Multiverse) for controlling multiple subsites',
+      'Multimedia publishing and broadcasting studio (Helios Media Studio) for audio tracks, playlists, and video channels',
+      'Continuous historical A/B split-testing engine (Silver Arrow) and automated search crawler SEO (Pegasus Boots & SmartCrawl Pro)'
     ],
-    specs: ['4 vCPU Dedicated Cores', '8GB High-Speed RAM', '160GB NVMe Storage', '100TB Dedicated Bandwidth'],
-    features: ['All Silver Enhanced Features', 'Logos Multiverse Command', 'Helios Media Studio', 'Automated Sales Funnels'],
+    specs: ['4 vCPU Dedicated Cores', '8GB High-Speed RAM', '160GB NVMe Storage (25GB System)', '100TB Dedicated Bandwidth'],
+    features: ['All Silver Enhanced Features', 'Logos Multiverse Network Manager', 'Helios Multimedia Studio', 'Silver Arrow A/B Testing & Pegasus Boots SEO'],
     url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29505/302086/',
     stripeWhiteGloveUrl: 'https://buy.stripe.com/whiteglove_gold',
     stripeLicenseUrl: 'https://buy.stripe.com/license_gold'
@@ -208,15 +530,15 @@ export const BOX_TIERS: TierInfo[] = [
     whiteGlovePrice: '$799/mo',
     whiteGloveHours: 4,
     target: 'Mid-Size Agencies, Course Creators, Media Companies, SaaS Founders, Large Law Firms',
-    headline: 'The Smart Content Creator',
-    simpleExplanation: 'Let smart computers help you write articles, create marketing posts, and track easy charts that show how fast your business is growing.',
+    headline: 'The AI Content & Business Intelligence Suite',
+    simpleExplanation: 'Draft high-performing articles and marketing copy using integrated AI models, track real-time audience charts via business intelligence dashboards, and migrate databases seamlessly between staging and production.',
     superpowers: [
-      'AI content generator pipeline to draft posts and articles',
-      'Live business intelligence charts and growth metrics',
-      'Multi-app cluster setup for heavier workflows'
+      'Multi-model AI content generation pipeline (OpenAI, Anthropic, Google) for automated copy and articles',
+      'Live business intelligence telemetry and Google Analytics traffic dashboards (Beehive Analytics)',
+      'Competitor audience benchmarking (Enchanted Mirror & Golden Keywords) and bulk database migration engine (Moving Castle)'
     ],
-    specs: ['4 vCPU Dedicated Cores', '16GB High-Speed RAM', '384GB NVMe Storage', '100TB Dedicated Bandwidth'],
-    features: ['All Gold Features', 'AI Content Generator Pipeline', 'Business Intelligence Telemetry', 'Multi-App Cluster Setup'],
+    specs: ['4 vCPU Dedicated Cores', '16GB High-Speed RAM', '384GB NVMe Storage (34GB System)', '100TB Dedicated Bandwidth'],
+    features: ['All Gold Features', 'AI Content Generation Pipeline', 'Business Intelligence Analytics', 'Multisite Database Migration Engine'],
     url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/42890/290371/',
     stripeWhiteGloveUrl: 'https://buy.stripe.com/whiteglove_gold_enhanced',
     stripeLicenseUrl: 'https://buy.stripe.com/license_gold_enhanced'
@@ -230,16 +552,16 @@ export const BOX_TIERS: TierInfo[] = [
     cloudDiyPrice: '$299/mo',
     whiteGlovePrice: '$999/mo',
     whiteGloveHours: 5,
-    target: 'High-Volume Stores, B2B Enterprises, Digital Publishers, Investment Firms',
-    headline: 'The AI Robot Squad',
-    simpleExplanation: 'Get a whole team of smart AI helper agents. They work together non-stop 24/7 to solve tough tasks, organize data, and run your business.',
+    target: 'High-Volume Stores, B2B Enterprises, Digital Publishers, Investment Firms, Tech Hubs',
+    headline: 'The Autonomous AI & Integration Network',
+    simpleExplanation: 'Deploy a collaborative network of autonomous AI helper agents that work across business tasks, connect third-party platforms via bidirectional webhook gateways, and manage client portals with federated SSO.',
     superpowers: [
-      'Nexos AI multi-agent network working cooperatively',
-      'Turn-key agency command hub for clients and teams',
-      'Custom single sign-on security for fast team logins'
+      'Autonomous multi-agent AI network (Nexos Intelligence) executing complex workflows cooperatively',
+      'Bidirectional HTTP webhook integration gateway (Magic Hookshot) with automated retry queues and JSON transforms',
+      'Turn-key agency client management hub and federated single sign-on authentication (Omega Source)'
     ],
-    specs: ['6 vCPU Dedicated Cores', '16GB High-Speed RAM', '320GB Storage', '200TB Dedicated Bandwidth'],
-    features: ['All Gold Enhanced Features', 'Nexos Multi-Agent AI Network', 'Turn-Key Agency Hub', 'Custom Single Sign-On'],
+    specs: ['6 vCPU Dedicated Cores', '16GB High-Speed RAM', '320GB Storage (35GB System)', '200TB Dedicated Bandwidth'],
+    features: ['All Gold Enhanced Features', 'Nexos Autonomous Multi-Agent AI', 'Magic Hookshot Webhook Gateway', 'Agency Client Hub & Federated SSO'],
     url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29545/302087/',
     stripeWhiteGloveUrl: 'https://buy.stripe.com/whiteglove_platinum',
     stripeLicenseUrl: 'https://buy.stripe.com/license_platinum'
@@ -254,15 +576,15 @@ export const BOX_TIERS: TierInfo[] = [
     whiteGlovePrice: '$1,499/mo',
     whiteGloveHours: 7.5,
     target: 'Franchises, Marketing Networks, Healthcare Providers, Multi-Location Retailers',
-    headline: 'The Giant Brand Network',
-    simpleExplanation: 'Create a massive online world with your own logo and custom colors, with unlimited room for your team and all your fans.',
+    headline: 'The White-Label Brand & Governance Platform',
+    simpleExplanation: 'Brand the entire operating system with your company logo and custom styling, participate in collective knowledge spaces, and govern organizations using multi-scale quadratic consensus voting.',
     superpowers: [
-      'Noosphere resonance space for collective team thinking',
-      'White-label brand engine to put your own logo everywhere',
-      'High-capacity super cluster for heavy internet traffic'
+      'Collective intelligence space and shared knowledge commons (Noosphere Resonance)',
+      'Complete enterprise white-label branding engine (Ultimate Branding) for custom logos, login screens, and UI styles',
+      'Fractal quadratic consensus voting engine (POLOS) and real-time sovereign equity valuation (Treasure Trove)'
     ],
-    specs: ['6 vCPU Dedicated Cores', '24GB High-Speed RAM', '448GB Storage', '200TB Dedicated Bandwidth'],
-    features: ['All Platinum Features', 'Noosphere Resonance Space', 'White-Label Branding Engine', 'High-Capacity Cluster'],
+    specs: ['6 vCPU Dedicated Cores', '24GB High-Speed RAM', '448GB Storage (48GB System)', '200TB Dedicated Bandwidth'],
+    features: ['All Platinum Features', 'Noosphere Collective Intelligence Space', 'Ultimate White-Label Branding Engine', 'POLOS Fractal Governance & Equity Vault'],
     url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/42891/290372/',
     stripeWhiteGloveUrl: 'https://buy.stripe.com/whiteglove_platinum_enhanced',
     stripeLicenseUrl: 'https://buy.stripe.com/license_platinum_enhanced'
@@ -277,15 +599,15 @@ export const BOX_TIERS: TierInfo[] = [
     whiteGlovePrice: '$1,999/mo',
     whiteGloveHours: 10,
     target: 'Enterprise E-Commerce, Financial Institutions, Media Conglomerates, Global Agencies',
-    headline: 'The Bulletproof Vault',
-    simpleExplanation: 'The strongest security shield possible. It protects your data like a bank vault with non-stop backup power that never goes down.',
+    headline: 'The Zero-Trust Security & Compliance Fortress',
+    simpleExplanation: 'Protect mission-critical data with enterprise compliance controls, real-time zero-trust malware defenses, zero-downtime sandbox testing environments, and verified directory citations.',
     superpowers: [
-      'Enterprise regulatory compliance and safety certs',
-      'Real-time threat shield WAF defense barrier',
-      'Zero-downtime sandbox for testing without risk'
+      'Enterprise regulatory compliance and real-time threat defense barrier (WP Defender Pro & Castle Walls)',
+      'Zero-downtime staging and sandbox testing environments for risk-free plugin and code deployment',
+      'Verified business directory citations and backlink authority network (Yellow Links)'
     ],
-    specs: ['8 vCPU Dedicated Cores', '32GB High-Speed RAM', '640GB Storage', '250TB Dedicated Bandwidth'],
-    features: ['All Platinum Enhanced Features', 'Enterprise Regulatory Compliance', 'Real-Time Threat Shield', 'Zero-Downtime Sandbox'],
+    specs: ['8 vCPU Dedicated Cores', '32GB High-Speed RAM', '640GB Storage (60GB System)', '250TB Dedicated Bandwidth'],
+    features: ['All Platinum Enhanced Features', 'Enterprise Regulatory Compliance Suite', 'Real-Time Zero-Trust Threat Shield', 'Zero-Downtime Staging & Sandbox'],
     url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29546/302088/',
     stripeWhiteGloveUrl: 'https://buy.stripe.com/whiteglove_uranium',
     stripeLicenseUrl: 'https://buy.stripe.com/license_uranium'
@@ -300,15 +622,15 @@ export const BOX_TIERS: TierInfo[] = [
     whiteGlovePrice: '$2,499/mo',
     whiteGloveHours: 12,
     target: 'Multinational Corporations, Cloud SaaS Providers, High-Traffic News Outlets',
-    headline: 'The Self-Repairing Rocket',
-    simpleExplanation: 'An ultra-fast engine that monitors its own health. If anything breaks, it fixes the problem automatically in milliseconds without stopping.',
+    headline: 'The Self-Healing & Auto-Scaling High-Availability Cluster',
+    simpleExplanation: 'An ultra-fast, high-availability cluster that monitors its own kernel health with live memory profiling, scales container workers automatically during massive traffic spikes, and repairs crashed processes in milliseconds.',
     superpowers: [
-      'BlackBOX kernel diagnostics with live memory profiling',
-      'Auto-scaling engine that grows with sudden traffic spikes',
-      'Self-healing infrastructure that repairs itself on the fly'
+      'Deep kernel diagnostics with live memory and database query profiling (BlackBOX Diagnostics)',
+      'Extreme traffic auto-scaling engine dynamically allocating resources for millions of requests',
+      'Self-healing infrastructure that automatically restarts crashed daemons and verifies data integrity'
     ],
-    specs: ['16 vCPU Dedicated Cores', '64GB High-Speed RAM', '1.28TB SSD', '250TB+ Dedicated Bandwidth'],
-    features: ['All Uranium Features', 'BlackBOX Kernel Diagnostics', 'Auto-Scaling Engine', 'Self-Healing Infrastructure'],
+    specs: ['16 vCPU Dedicated Cores', '64GB High-Speed RAM', '1.28TB SSD (100GB System)', '250TB+ Dedicated Bandwidth'],
+    features: ['All Uranium Features', 'BlackBOX Kernel Diagnostics & Memory Profiler', 'Automated Traffic Auto-Scaling Engine', 'Self-Healing High-Availability Infrastructure'],
     url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29547/302089/',
     stripeWhiteGloveUrl: 'https://buy.stripe.com/whiteglove_titanium',
     stripeLicenseUrl: 'https://buy.stripe.com/license_titanium'
@@ -323,15 +645,15 @@ export const BOX_TIERS: TierInfo[] = [
     whiteGlovePrice: '$4,999/mo',
     whiteGloveHours: 20,
     target: 'Global Enterprises, Infrastructure Providers, Fortune 500s, Massive User Networks',
-    headline: 'The Master Infinity Key',
-    simpleExplanation: 'The ultimate power level. Unlimited worldwide speed, maximum computing power, and your own dedicated senior systems engineer on call.',
+    headline: 'The Omni-Sovereign Core Matrix & Principal Retainer',
+    simpleExplanation: 'The highest tier of digital sovereignty. Universal global API integration, worldwide real-time multi-region server synchronization, maximum dedicated compute resources, and a 20-hour monthly retainer with a Principal Systems Engineer.',
     superpowers: [
-      'Omni-Sovereign global core network API integration',
-      'Instant worldwide synchronization across all servers',
-      '20 hours monthly retainer with a dedicated senior systems engineer'
+      'Omni-Sovereign global core network API matrix connecting worldwide nodes and clusters',
+      'Instant real-time multi-region data synchronization across all international server endpoints',
+      '20 hours monthly dedicated consulting retainer with a Principal Systems Engineer (My Compass Consulting)'
     ],
-    specs: ['24 vCPU Dedicated Cores', '96GB High-Speed RAM', '2.5TB+ SSD', 'Unlimited Global Bandwidth'],
-    features: ['All Titanium Features', 'Omni-Sovereign Core Network API', 'Global Network Sync', '20h Principal Systems Retainer'],
+    specs: ['24 vCPU Dedicated Cores', '96GB High-Speed RAM', '2.5TB+ SSD (300GB System)', 'Unlimited Global Bandwidth'],
+    features: ['All Titanium Features', 'Omni-Sovereign Global Core Network API', 'Multi-Region Global Network Sync', '20h Dedicated Principal Systems Retainer'],
     url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29548/302090/',
     stripeWhiteGloveUrl: 'https://buy.stripe.com/whiteglove_palladium',
     stripeLicenseUrl: 'https://buy.stripe.com/license_palladium'

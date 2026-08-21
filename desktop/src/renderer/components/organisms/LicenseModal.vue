@@ -1,7 +1,7 @@
 <template>
   <div :class="['custom-modal-backdrop', { hidden: !isOpen }]">
     <div class="hud-modal-container">
-      <!-- Left Panel: Dedicated License Key Manager -->
+      <!-- Top Row Panel: Dedicated License Key Manager -->
       <LicenseKeyPanel
         :active-tier="effectiveActiveTier"
         :active-key="effectiveActiveKey"
@@ -9,11 +9,12 @@
         :active-tier-color="effectiveActiveTierColor"
         :input-key="inputKey"
         :feedback-msg="feedbackMsg"
+        @close="$emit('close')"
         @update:input-key="$emit('update:inputKey', $event)"
         @activate-key="$emit('activateKey')"
       />
 
-      <!-- Right Panel: Dedicated Upsell & Upgrade Store Showcase -->
+      <!-- Bottom Row Panel: Dedicated Upsell & Upgrade Store Showcase -->
       <UpsellStorePanel
         :selected-tier="effectiveSelectedTier"
         :selected-tier-data="effectiveSelectedTierData"

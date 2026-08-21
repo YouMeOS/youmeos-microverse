@@ -77,12 +77,27 @@ export function useMicroverseState() {
     bedrock: 7
   };
 
+  const LAYER_NAMES: Record<string, string> = {
+    compass: 'My COMPASS Software Suite',
+    portal: 'YouMeOS',
+    network: 'Private W4 Protocol Network',
+    server: 'W4 Tesseract Server',
+    core: 'Headless WP Core',
+    database: 'Database',
+    bedrock: 'Bedrock'
+  };
+
   const sortStackLayers = (layers: StackLayerStatus[]): StackLayerStatus[] => {
-    return [...layers].sort((a, b) => {
-      const orderA = LAYER_ORDER[a.id?.toLowerCase()] || 99;
-      const orderB = LAYER_ORDER[b.id?.toLowerCase()] || 99;
-      return orderA - orderB;
-    });
+    return [...layers]
+      .map(l => ({
+        ...l,
+        name: LAYER_NAMES[l.id?.toLowerCase()] || l.name
+      }))
+      .sort((a, b) => {
+        const orderA = LAYER_ORDER[a.id?.toLowerCase()] || 99;
+        const orderB = LAYER_ORDER[b.id?.toLowerCase()] || 99;
+        return orderA - orderB;
+      });
   };
 
   // 3. Helper Methods & Event Handlers
