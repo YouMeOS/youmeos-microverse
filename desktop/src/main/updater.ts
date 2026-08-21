@@ -31,10 +31,14 @@ export class UpdaterManager {
   private targetWindow: BrowserWindow | null = null;
 
   constructor() {
-    autoUpdater.autoDownload = false;
-    autoUpdater.autoInstallOnAppQuit = true;
-
-    this.registerEvents();
+    try {
+      autoUpdater.autoDownload = false;
+      autoUpdater.autoInstallOnAppQuit = true;
+      this.registerEvents();
+    } catch (err: any) {
+      console.warn('Auto-updater disabled or version mismatch:', err?.message || err);
+      this.currentStatus = { state: 'idle', error: err?.message };
+    }
   }
 
   setTargetWindow(window: BrowserWindow | null): void {

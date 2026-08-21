@@ -347,9 +347,8 @@ export class LicenseCloudManager {
   }
 
   private setupEventListeners(): void {
-    // Close buttons
+    // Close button
     document.getElementById('btn-close-license-modal')?.addEventListener('click', () => this.closeLicenseModal());
-    document.getElementById('btn-footer-close-license')?.addEventListener('click', () => this.closeLicenseModal());
 
     // Launch The Tesseract Spark from License Modal
     document.getElementById('btn-open-tesseract-cloud')?.addEventListener('click', (e) => {
@@ -428,10 +427,7 @@ export class LicenseCloudManager {
     };
 
     const heroStripeBtn = document.getElementById('btn-hero-stripe-checkout') as HTMLButtonElement | null;
-    const footerStripeBtn = document.getElementById('btn-footer-stripe-checkout') as HTMLButtonElement | null;
-
     heroStripeBtn?.addEventListener('click', () => triggerLicenseStripeCheckout(heroStripeBtn));
-    footerStripeBtn?.addEventListener('click', () => triggerLicenseStripeCheckout(footerStripeBtn));
 
     // Tier preview selector buttons
     document.querySelectorAll<HTMLButtonElement>('.tier-chip').forEach(btn => {
@@ -526,14 +522,10 @@ export class LicenseCloudManager {
       this.licenseActiveHero.style.borderColor = `${colorDef.hex}40`;
     }
 
-    // Update Stripe checkout button labels in hero and footer
+    // Update Stripe checkout button label in hero
     const heroStripeLabel = document.getElementById('btn-hero-stripe-label');
     if (heroStripeLabel) {
       heroStripeLabel.textContent = `Buy ${tierData.localPrice}`;
-    }
-    const footerStripeLabel = document.getElementById('btn-footer-stripe-label');
-    if (footerStripeLabel) {
-      footerStripeLabel.innerHTML = `Stripe Checkout &bull; ${tierData.name} Compass (${tierData.localPrice})`;
     }
 
     // Update quick switch selector active state

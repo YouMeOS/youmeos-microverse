@@ -2668,17 +2668,6 @@ body {
   transform: translateY(-1px);
 }
 
-.btn-modal-primary.btn-stripe-purple {
-  background: linear-gradient(135deg, #635bff 0%, #4338ca 100%);
-  border-color: #818cf8;
-  box-shadow: 0 0 15px rgba(99, 91, 255, 0.4);
-}
-
-.btn-modal-primary.btn-stripe-purple:hover {
-  background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%);
-  box-shadow: 0 0 22px rgba(99, 91, 255, 0.65);
-}
-
 /* Tier Selector Strip */
 .license-tier-strip {
   display: flex;
