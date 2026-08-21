@@ -7,6 +7,27 @@ export interface Architecture3DOptions {
 
 export type StackLayerId = 'portal' | 'compass' | 'core' | 'database' | 'bedrock' | 'server' | 'network';
 
+export interface CompassTierColorDef {
+  primary: number;
+  secondary: number;
+  accent: number;
+  hex: string;
+}
+
+export const COMPASS_TIER_COLORS: Record<string, CompassTierColorDef> = {
+  unverified: { primary: 0x62c9ff, secondary: 0x25a1c5, accent: 0xffffff, hex: '#62c9ff' },
+  community: { primary: 0x62c9ff, secondary: 0x25a1c5, accent: 0xffffff, hex: '#62c9ff' },
+  black: { primary: 0x00f2fe, secondary: 0x0077b6, accent: 0x62c9ff, hex: '#00f2fe' },
+  quantum: { primary: 0x00f2fe, secondary: 0x0077b6, accent: 0x62c9ff, hex: '#00f2fe' },
+  bronze: { primary: 0xcd7f32, secondary: 0x8b5a2b, accent: 0xffd599, hex: '#cd7f32' },
+  silver: { primary: 0xc0c0c0, secondary: 0x7f8c8d, accent: 0xffffff, hex: '#c0c0c0' },
+  gold: { primary: 0xffd700, secondary: 0xb8860b, accent: 0xfff0a0, hex: '#ffd700' },
+  platinum: { primary: 0xa0b2c6, secondary: 0x5c768d, accent: 0xe0e8f0, hex: '#a0b2c6' },
+  uranium: { primary: 0x3dee98, secondary: 0x059669, accent: 0x6ee7b7, hex: '#3dee98' },
+  titanium: { primary: 0x00e5ff, secondary: 0x0097a7, accent: 0x80deea, hex: '#00e5ff' },
+  palladium: { primary: 0xe6e6fa, secondary: 0x9370db, accent: 0xffd700, hex: '#e6e6fa' }
+};
+
 export class Architecture3DManager {
   private renderer: THREE.WebGLRenderer | null = null;
   private scene: THREE.Scene = new THREE.Scene();
@@ -37,6 +58,12 @@ export class Architecture3DManager {
   private compassOuterRing: THREE.Mesh | null = null;
   private compassInnerRing: THREE.Mesh | null = null;
   private compassSparkStar: THREE.Group = new THREE.Group();
+  private compassNeedles: THREE.Mesh[] = [];
+  private compassNeedleMatNorth: THREE.MeshStandardMaterial | null = null;
+  private compassNeedleMatSouth: THREE.MeshStandardMaterial | null = null;
+  private compassNeedleMatEastWest: THREE.MeshStandardMaterial | null = null;
+  private compassCenterSphere: THREE.Mesh | null = null;
+  private currentTierColorKey: string = 'black';
 
   // Layer 3: Headless Core elements
   private goldenCube: THREE.Mesh | null = null;
@@ -47,6 +74,7 @@ export class Architecture3DManager {
 
   // Layer 5: Bedrock Foundation Base Slab
   private bedrockSlab: THREE.Mesh | null = null;
+  private bedrockEdges: THREE.LineSegments | null = null;
   // Layer 5: Web Server (Matrix Cyber Engine) elements
   private serverLeds: THREE.Mesh[] = [];
 
@@ -428,64 +456,90 @@ export class Architecture3DManager {
     this.compassGroup = new THREE.Group();
     this.compassGroup.position.y = this.Y_COMPASS;
 
-    // 1. Outer Gyro Gimbal Ring (Emerald Green - 0x3ecd74 matching Compass Admin Splash)
+    const initialColors = COMPASS_TIER_COLORS[this.currentTierColorKey] || COMPASS_TIER_COLORS.black;
+
+    // 1. Outer Gyro Gimbal Ring
     const outerRingGeo = new THREE.TorusGeometry(1.45, 0.032, 12, 64);
     const outerRingMat = new THREE.MeshBasicMaterial({
-      color: 0x3ecd74,
+      color: initialColors.primary,
       transparent: true,
-      opacity: 0.9
+      opacity: 0.92
     });
     this.compassOuterRing = new THREE.Mesh(outerRingGeo, outerRingMat);
     this.compassOuterRing.rotation.x = Math.PI / 2;
     this.compassGroup.add(this.compassOuterRing);
 
-    // 2. Inner Gyro Gimbal Ring (Blue/Cyan - 0x25a1c5 matching Compass Admin Splash)
+    // 2. Inner Gyro Gimbal Ring
     const innerRingGeo = new THREE.TorusGeometry(1.12, 0.026, 12, 48);
     const innerRingMat = new THREE.MeshBasicMaterial({
-      color: 0x25a1c5,
+      color: initialColors.secondary,
       transparent: true,
-      opacity: 0.85
+      opacity: 0.88
     });
     this.compassInnerRing = new THREE.Mesh(innerRingGeo, innerRingMat);
     this.compassGroup.add(this.compassInnerRing);
 
     // 3. 4-point Diamond Spark Star
     this.compassSparkStar = new THREE.Group();
-    const needleMatCyan = new THREE.MeshStandardMaterial({ color: 0x62c9ff, roughness: 0.2, metalness: 0.8 });
-    const needleMatGold = new THREE.MeshStandardMaterial({ color: 0xffd599, roughness: 0.2, metalness: 0.8 });
+    this.compassNeedleMatNorth = new THREE.MeshStandardMaterial({
+      color: initialColors.primary,
+      roughness: 0.18,
+      metalness: 0.85,
+      emissive: initialColors.primary,
+      emissiveIntensity: 0.4
+    });
+    this.compassNeedleMatSouth = new THREE.MeshStandardMaterial({
+      color: initialColors.secondary,
+      roughness: 0.22,
+      metalness: 0.8,
+      emissive: initialColors.secondary,
+      emissiveIntensity: 0.3
+    });
+    this.compassNeedleMatEastWest = new THREE.MeshStandardMaterial({
+      color: initialColors.primary,
+      roughness: 0.2,
+      metalness: 0.82,
+      emissive: initialColors.primary,
+      emissiveIntensity: 0.35
+    });
+
+    this.compassNeedles = [];
 
     // North needle
     const northCone = new THREE.ConeGeometry(0.22, 0.85, 4);
-    const northMesh = new THREE.Mesh(northCone, needleMatCyan);
+    const northMesh = new THREE.Mesh(northCone, this.compassNeedleMatNorth);
     northMesh.position.y = 0.425;
     this.compassSparkStar.add(northMesh);
+    this.compassNeedles.push(northMesh);
 
     // South needle
     const southCone = new THREE.ConeGeometry(0.22, 0.85, 4);
-    const southMesh = new THREE.Mesh(southCone, needleMatGold);
+    const southMesh = new THREE.Mesh(southCone, this.compassNeedleMatSouth);
     southMesh.position.y = -0.425;
     southMesh.rotation.z = Math.PI;
     this.compassSparkStar.add(southMesh);
+    this.compassNeedles.push(southMesh);
 
     // East / West needles
     const eastCone = new THREE.ConeGeometry(0.18, 0.60, 4);
-    const eastMesh = new THREE.Mesh(eastCone, needleMatCyan);
+    const eastMesh = new THREE.Mesh(eastCone, this.compassNeedleMatEastWest);
     eastMesh.position.x = 0.30;
     eastMesh.rotation.z = -Math.PI / 2;
     this.compassSparkStar.add(eastMesh);
+    this.compassNeedles.push(eastMesh);
 
     const westCone = new THREE.ConeGeometry(0.18, 0.60, 4);
-    const westMesh = new THREE.Mesh(westCone, needleMatCyan);
+    const westMesh = new THREE.Mesh(westCone, this.compassNeedleMatEastWest);
     westMesh.position.x = -0.30;
     westMesh.rotation.z = Math.PI / 2;
     this.compassSparkStar.add(westMesh);
+    this.compassNeedles.push(westMesh);
 
     // Center Core Spark Sphere
-    const centerSphere = new THREE.Mesh(
-      new THREE.SphereGeometry(0.15, 16, 16),
-      new THREE.MeshBasicMaterial({ color: 0xffffff })
-    );
-    this.compassSparkStar.add(centerSphere);
+    const centerGeo = new THREE.SphereGeometry(0.15, 16, 16);
+    const centerMat = new THREE.MeshBasicMaterial({ color: initialColors.accent });
+    this.compassCenterSphere = new THREE.Mesh(centerGeo, centerMat);
+    this.compassSparkStar.add(this.compassCenterSphere);
 
     this.compassGroup.add(this.compassSparkStar);
   }
@@ -573,10 +627,63 @@ export class Architecture3DManager {
     const container = this.options.container;
     if (!container) return;
 
+    let startX = 0;
+    let startY = 0;
+
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+
+    const handleRaycastSelect = (clientX: number, clientY: number) => {
+      if (!this.camera || !container) return;
+      const rect = container.getBoundingClientRect();
+      mouse.x = ((clientX - rect.left) / rect.width) * 2 - 1;
+      mouse.y = -((clientY - rect.top) / rect.height) * 2 + 1;
+
+      raycaster.setFromCamera(mouse, this.camera);
+      const intersects = raycaster.intersectObjects(this.stackGroup.children, true);
+
+      if (intersects.length > 0) {
+        let currentObj: THREE.Object3D | null = intersects[0].object;
+        while (currentObj && currentObj !== this.stackGroup) {
+          if (currentObj === this.compassGroup) {
+            this.options.onLayerSelect?.('compass');
+            return;
+          }
+          if (currentObj === this.portalGroup) {
+            this.options.onLayerSelect?.('portal');
+            return;
+          }
+          if (currentObj === this.bedrockGroup) {
+            this.options.onLayerSelect?.('bedrock');
+            return;
+          }
+          if (currentObj === this.coreGroup) {
+            this.options.onLayerSelect?.('core');
+            return;
+          }
+          if (currentObj === this.serverGroup) {
+            this.options.onLayerSelect?.('server');
+            return;
+          }
+          if (currentObj === this.dbGroup) {
+            this.options.onLayerSelect?.('database');
+            return;
+          }
+          if (currentObj === this.networkGroup) {
+            this.options.onLayerSelect?.('network');
+            return;
+          }
+          currentObj = currentObj.parent;
+        }
+      }
+    };
+
     const onMouseDown = (e: MouseEvent) => {
       this.isDragging = true;
       this.previousMouseX = e.clientX;
       this.previousMouseY = e.clientY;
+      startX = e.clientX;
+      startY = e.clientY;
     };
 
     const onMouseMove = (e: MouseEvent) => {
@@ -596,8 +703,12 @@ export class Architecture3DManager {
       }
     };
 
-    const onMouseUp = () => {
+    const onMouseUp = (e: MouseEvent) => {
+      const dist = Math.hypot(e.clientX - startX, e.clientY - startY);
       this.isDragging = false;
+      if (dist < 6) {
+        handleRaycastSelect(e.clientX, e.clientY);
+      }
     };
 
     container.addEventListener('mousedown', onMouseDown);
@@ -610,6 +721,8 @@ export class Architecture3DManager {
         this.isDragging = true;
         this.previousMouseX = e.touches[0].clientX;
         this.previousMouseY = e.touches[0].clientY;
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
       }
     };
 
@@ -625,8 +738,14 @@ export class Architecture3DManager {
       }
     };
 
-    const onTouchEnd = () => {
+    const onTouchEnd = (e: TouchEvent) => {
       this.isDragging = false;
+      if (e.changedTouches.length === 1) {
+        const dist = Math.hypot(e.changedTouches[0].clientX - startX, e.changedTouches[0].clientY - startY);
+        if (dist < 8) {
+          handleRaycastSelect(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+        }
+      }
     };
 
     container.addEventListener('touchstart', onTouchStart, { passive: true });
@@ -634,6 +753,40 @@ export class Architecture3DManager {
     window.addEventListener('touchend', onTouchEnd);
 
     window.addEventListener('resize', () => this.resize());
+  }
+
+  public setCompassTier(tierKey: string): void {
+    const normalizedKey = (tierKey || 'black').toLowerCase().replace('box', '').replace('-enhanced', '');
+    const colorDef = COMPASS_TIER_COLORS[normalizedKey] || COMPASS_TIER_COLORS.black;
+    this.currentTierColorKey = normalizedKey;
+    this.setCompassColor(colorDef.primary, colorDef.secondary, colorDef.accent);
+  }
+
+  public setCompassColor(primary: number, secondary?: number, accent?: number): void {
+    const sec = secondary !== undefined ? secondary : primary;
+    const acc = accent !== undefined ? accent : 0xffffff;
+
+    if (this.compassOuterRing) {
+      (this.compassOuterRing.material as THREE.MeshBasicMaterial).color.setHex(primary);
+    }
+    if (this.compassInnerRing) {
+      (this.compassInnerRing.material as THREE.MeshBasicMaterial).color.setHex(sec);
+    }
+    if (this.compassNeedleMatNorth) {
+      this.compassNeedleMatNorth.color.setHex(primary);
+      this.compassNeedleMatNorth.emissive.setHex(primary);
+    }
+    if (this.compassNeedleMatSouth) {
+      this.compassNeedleMatSouth.color.setHex(sec);
+      this.compassNeedleMatSouth.emissive.setHex(sec);
+    }
+    if (this.compassNeedleMatEastWest) {
+      this.compassNeedleMatEastWest.color.setHex(primary);
+      this.compassNeedleMatEastWest.emissive.setHex(primary);
+    }
+    if (this.compassCenterSphere) {
+      (this.compassCenterSphere.material as THREE.MeshBasicMaterial).color.setHex(acc);
+    }
   }
 
   public setRunning(running: boolean): void {

@@ -52,7 +52,96 @@
         <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
         <path d="M21 3v5h-5" />
       </svg>
-      <span>Drag to Orbit Matrix</span>
+      <span>Drag to Orbit Matrix &bull; Click Layers to Inspect</span>
+    </div>
+
+    <!-- Floating Upsell Funnel FAB Actions (Top-Left) -->
+    <div
+      class="splash-floating-fabs"
+      id="splash-floating-fabs"
+    >
+      <!-- Funnel 2: DIY Cloud Box FAB -->
+      <button
+        id="splash-fab-cloud"
+        class="splash-fab-btn fab-cloud"
+        title="Explore DIY Cloud Boxes (w⁴ Protocol)"
+      >
+        <div class="fab-icon-glow">
+          <svg
+            viewBox="0 0 24 24"
+            width="15"
+            height="15"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" />
+          </svg>
+        </div>
+        <div class="fab-text-col">
+          <span class="fab-title">DIY Cloud Boxes</span>
+          <span class="fab-sub">From $14.99/mo</span>
+        </div>
+      </button>
+
+      <!-- Funnel 3: White Glove Service FAB -->
+      <button
+        id="splash-fab-whiteglove"
+        class="splash-fab-btn fab-whiteglove"
+        title="Explore White Glove Turnkey Concierge Deployment"
+      >
+        <div class="fab-icon-glow">
+          <svg
+            viewBox="0 0 24 24"
+            width="15"
+            height="15"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+          </svg>
+        </div>
+        <div class="fab-text-col">
+          <span class="fab-title">White Glove</span>
+          <span class="fab-sub">Done For You</span>
+        </div>
+      </button>
+
+      <!-- Funnel 1: My COMPASS License Quick Trigger FAB -->
+      <button
+        id="splash-fab-license"
+        class="splash-fab-btn fab-license"
+        title="Check & Upgrade My COMPASS License"
+      >
+        <div class="fab-icon-glow">
+          <svg
+            viewBox="0 0 24 24"
+            width="14"
+            height="14"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <circle
+              cx="12"
+              cy="12"
+              r="10"
+            />
+            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+          </svg>
+        </div>
+        <div class="fab-text-col">
+          <span
+            class="fab-title"
+            id="splash-fab-license-title"
+          >Black Compass</span>
+          <span
+            class="fab-sub"
+            id="splash-fab-license-sub"
+          >Active License</span>
+        </div>
+      </button>
     </div>
 
     <!-- Floating HUD Drawer Trigger / Pill -->
@@ -871,6 +960,18 @@
             <polyline points="6 9 12 15 18 9" />
           </svg>
         </div>
+
+        <button
+          id="btn-header-license"
+          class="btn-license-pill"
+          title="Open My COMPASS License Manager"
+        >
+          <span
+            class="license-pill-dot"
+            id="header-license-dot"
+          ></span>
+          <span id="header-license-label">Black Compass</span>
+        </button>
 
         <div
           id="overall-status-pill"
@@ -1771,6 +1872,658 @@
         class="version-tag"
       >Microverse v1.0.0</span>
     </footer>
+  </div>
+
+  <!-- =========================================================
+       Modal 1: My COMPASS Sovereignty License Manager
+       ========================================================= -->
+  <div
+    id="modal-compass-license"
+    class="custom-modal-backdrop hidden"
+  >
+    <div class="custom-modal-card glass-panel license-modal-card">
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <div
+            class="modal-brand-badge"
+            id="license-modal-badge"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+              />
+              <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+            </svg>
+          </div>
+          <div>
+            <h2
+              class="modal-title"
+              id="license-modal-title"
+            >My COMPASS License</h2>
+            <span class="modal-subtitle">Sovereignty Tier &amp; Spark Suite Activation</span>
+          </div>
+        </div>
+        <button
+          id="btn-close-license-modal"
+          class="modal-close-btn"
+          title="Close License Manager"
+        >&times;</button>
+      </div>
+
+      <div class="modal-body custom-scrollbar">
+        <!-- Active License Summary Card -->
+        <div
+          class="license-active-card"
+          id="license-active-hero"
+        >
+          <div class="license-active-glow"></div>
+          <div class="license-active-content">
+            <div class="license-active-top">
+              <div class="license-name-group">
+                <span
+                  class="license-active-pill"
+                  id="license-active-tier-pill"
+                >Black Compass</span>
+                <span
+                  class="license-status-tag"
+                  id="license-active-status-tag"
+                >Local BYO Hardware</span>
+              </div>
+              <span
+                class="license-active-price"
+                id="license-active-price"
+              >$9.99/mo (Software License)</span>
+            </div>
+
+            <p
+              class="license-active-desc"
+              id="license-active-desc"
+            >
+              Entry-level sovereignty for local bare-metal and desktop nodes. Includes core Sparks, local SQLite encryption, and True North gamification engine.
+            </p>
+
+            <div class="license-hero-actions-row">
+              <div class="license-key-display-row">
+                <span class="license-key-label">Active Key:</span>
+                <code
+                  class="license-key-code"
+                  id="license-active-key-code"
+                >BLCK-SOVEREIGN-LOCAL-2026</code>
+              </div>
+
+              <button
+                id="btn-hero-stripe-checkout"
+                class="btn-hero-stripe-checkout"
+                title="Open secure Stripe Checkout popup for this tier"
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  width="13"
+                  height="13"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <rect
+                    x="1"
+                    y="4"
+                    width="22"
+                    height="16"
+                    rx="2"
+                    ry="2"
+                  />
+                  <line
+                    x1="1"
+                    y1="10"
+                    x2="23"
+                    y2="10"
+                  />
+                </svg>
+                <span id="btn-hero-stripe-label">Stripe Checkout &bull; $9.99/mo</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Switch Sandbox Tier Preview Selector -->
+        <div class="license-tier-selector-section">
+          <div class="section-label-row">
+            <span class="section-label">Select License Tier Preview (Real-Time 3D Sync):</span>
+            <span class="section-hint">Syncs 3D matrix visual color</span>
+          </div>
+
+          <div
+            class="tier-pill-group"
+            id="tier-pill-selector"
+          >
+            <button
+              class="tier-select-btn active"
+              data-tier="black"
+            >
+              <span
+                class="tier-color-dot"
+                style="background: #00f2fe;"
+              ></span>
+              Black Compass
+            </button>
+            <button
+              class="tier-select-btn"
+              data-tier="bronze"
+            >
+              <span
+                class="tier-color-dot"
+                style="background: #cd7f32;"
+              ></span>
+              Bronze Compass
+            </button>
+            <button
+              class="tier-select-btn"
+              data-tier="silver"
+            >
+              <span
+                class="tier-color-dot"
+                style="background: #c0c0c0;"
+              ></span>
+              Silver Compass
+            </button>
+            <button
+              class="tier-select-btn"
+              data-tier="gold"
+            >
+              <span
+                class="tier-color-dot"
+                style="background: #ffd700;"
+              ></span>
+              Gold Compass
+            </button>
+            <button
+              class="tier-select-btn"
+              data-tier="platinum"
+            >
+              <span
+                class="tier-color-dot"
+                style="background: #a0b2c6;"
+              ></span>
+              Platinum Compass
+            </button>
+            <button
+              class="tier-select-btn"
+              data-tier="uranium"
+            >
+              <span
+                class="tier-color-dot"
+                style="background: #3dee98;"
+              ></span>
+              Uranium Compass
+            </button>
+            <button
+              class="tier-select-btn"
+              data-tier="titanium"
+            >
+              <span
+                class="tier-color-dot"
+                style="background: #00e5ff;"
+              ></span>
+              Titanium Compass
+            </button>
+            <button
+              class="tier-select-btn"
+              data-tier="palladium"
+            >
+              <span
+                class="tier-color-dot"
+                style="background: #e6e6fa;"
+              ></span>
+              Palladium Compass
+            </button>
+          </div>
+        </div>
+
+        <!-- License Key Entry / Verification Bar -->
+        <div class="license-activate-box">
+          <div class="activate-input-wrapper">
+            <svg
+              viewBox="0 0 24 24"
+              width="14"
+              height="14"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M21 2l-2 2m-1.5 1.5L16 7m-4-4l-8.5 8.5a4.95 4.95 0 0 0 0 7 4.95 4.95 0 0 0 7 0L19 10l-6-6z" />
+            </svg>
+            <input
+              type="text"
+              id="input-license-key"
+              placeholder="Enter License Key (e.g. GOLD-8821-X992-0199)..."
+              spellcheck="false"
+              autocomplete="off"
+            >
+            <button
+              id="btn-activate-license"
+              class="btn-activate-key"
+            >
+              Activate Key
+            </button>
+          </div>
+          <span
+            id="license-feedback-msg"
+            class="license-feedback-msg"
+          ></span>
+        </div>
+
+        <!-- Unlocked Sparks & PHP Plugins Section -->
+        <div class="license-sparks-section">
+          <div class="sparks-header-row">
+            <div class="sparks-title-group">
+              <span class="section-label">Included Software &amp; Portals</span>
+              <span
+                class="sparks-count-badge"
+                id="sparks-count-badge"
+              >6 Sparks Unlocked</span>
+            </div>
+
+            <div class="sparks-filter-tabs">
+              <button
+                class="spark-filter-btn active"
+                data-spark-type="all"
+              >All</button>
+              <button
+                class="spark-filter-btn"
+                data-spark-type="spark"
+              >Sparks (PWAs)</button>
+              <button
+                class="spark-filter-btn"
+                data-spark-type="portal"
+              >PHP Portals</button>
+            </div>
+          </div>
+
+          <div
+            class="sparks-grid"
+            id="license-sparks-grid"
+          >
+            <!-- Rendered dynamically by app.ts -->
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          id="btn-footer-close-license"
+          class="btn-modal-aux"
+        >
+          Close
+        </button>
+        <div class="modal-footer-right">
+          <button
+            id="btn-open-cloud-from-license"
+            class="btn-modal-aux"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="13"
+              height="13"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" />
+            </svg>
+            <span>Explore Cloud Boxes</span>
+          </button>
+          <button
+            id="btn-footer-stripe-checkout"
+            class="btn-modal-primary btn-stripe-purple"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="14"
+              height="14"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect
+                x="1"
+                y="4"
+                width="22"
+                height="16"
+                rx="2"
+                ry="2"
+              />
+              <line
+                x1="1"
+                y1="10"
+                x2="23"
+                y2="10"
+              />
+            </svg>
+            <span id="btn-footer-stripe-label">Stripe Checkout &bull; Black Compass ($9.99/mo)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       Modal 2: Tesseract Cloud & White Glove Sovereign Hub
+       ========================================================= -->
+  <div
+    id="modal-cloud-boxes"
+    class="custom-modal-backdrop hidden"
+  >
+    <div class="custom-modal-card glass-panel cloud-modal-card">
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <div class="modal-brand-badge cloud-badge">
+            <svg
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="modal-title">The Tesseract Sovereign Cloud</h2>
+            <span class="modal-subtitle">w⁴ Protocol Cloud Hosting &amp; White Glove Concierge</span>
+          </div>
+        </div>
+        <button
+          id="btn-close-cloud-modal"
+          class="modal-close-btn"
+          title="Close Cloud Hub"
+        >&times;</button>
+      </div>
+
+      <!-- Mode & Track Switcher Bar -->
+      <div class="cloud-toolbar">
+        <!-- Funnel Mode Switcher -->
+        <div
+          class="funnel-mode-toggle"
+          id="funnel-mode-toggle"
+        >
+          <button
+            class="funnel-toggle-btn active"
+            data-mode="diy"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="13"
+              height="13"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect
+                x="2"
+                y="7"
+                width="20"
+                height="14"
+                rx="2"
+                ry="2"
+              />
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+            </svg>
+            DIY Cloud Boxes (Self-Managed)
+          </button>
+          <button
+            class="funnel-toggle-btn"
+            data-mode="whiteglove"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="13"
+              height="13"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+            White Glove (Done For You + Retainer)
+          </button>
+        </div>
+
+        <!-- Track Filter -->
+        <div
+          class="cloud-track-filter"
+          id="cloud-track-filter"
+        >
+          <button
+            class="track-btn active"
+            data-track="all"
+          >All Tiers</button>
+          <button
+            class="track-btn"
+            data-track="micro"
+          >Micro</button>
+          <button
+            class="track-btn"
+            data-track="macro"
+          >Macro</button>
+          <button
+            class="track-btn"
+            data-track="omni"
+          >Omni</button>
+        </div>
+      </div>
+
+      <!-- Mode Banner -->
+      <div
+        class="mode-info-banner"
+        id="mode-info-banner"
+      >
+        <div class="banner-icon">
+          <svg
+            viewBox="0 0 24 24"
+            width="15"
+            height="15"
+            fill="none"
+            stroke="#62c9ff"
+            stroke-width="2"
+          >
+            <circle
+              cx="12"
+              cy="12"
+              r="10"
+            />
+            <line
+              x1="12"
+              y1="16"
+              x2="12"
+              y2="12"
+            />
+            <line
+              x1="12"
+              y1="8"
+              x2="12.01"
+              y2="8"
+            />
+          </svg>
+        </div>
+        <div
+          class="banner-text"
+          id="mode-banner-text"
+        >
+          <strong>DIY Cloud Boxes:</strong> Automated dedicated container provisioning on the w⁴ Hub. Includes isolated vCPU/RAM hardware resources + pre-installed Compass Spark suite.
+        </div>
+      </div>
+
+      <!-- Tier Cards Grid -->
+      <div class="modal-body custom-scrollbar">
+        <div
+          class="cloud-tiers-grid"
+          id="cloud-tiers-grid"
+        >
+          <!-- Populated dynamically by app.ts -->
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          id="btn-footer-close-cloud"
+          class="btn-modal-aux"
+        >
+          Close
+        </button>
+        <div class="modal-footer-right">
+          <a
+            href="https://w4.youmeos.com"
+            target="_blank"
+            id="link-w4-hub"
+            class="btn-modal-primary"
+          >
+            <span>Open w⁴ Protocol Hub</span>
+            <svg
+              viewBox="0 0 24 24"
+              width="13"
+              height="13"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       Modal 3: DIY Cloud Boxes Coming Soon Notice
+       ========================================================= -->
+  <div
+    id="modal-diy-coming-soon"
+    class="custom-modal-backdrop hidden"
+  >
+    <div class="custom-modal-card glass-panel coming-soon-modal-card">
+      <div class="modal-header">
+        <div class="modal-header-left">
+          <div class="modal-brand-badge diy-badge">
+            <svg
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="modal-title">DIY Cloud Boxes &bull; Coming Soon</h2>
+            <span class="modal-subtitle">Automated Sovereign Cloud Cluster Provisioning</span>
+          </div>
+        </div>
+        <button
+          id="btn-close-coming-soon-modal"
+          class="modal-close-btn"
+          title="Close Notice"
+        >&times;</button>
+      </div>
+
+      <div class="modal-body custom-scrollbar coming-soon-body">
+        <div class="coming-soon-hero">
+          <div class="coming-soon-glow"></div>
+          <div class="coming-soon-badge-tag">Finalizing Cluster Rollout</div>
+          <h3 class="coming-soon-heading">1-Click DIY Cloud Containers Rolling Out Soon</h3>
+          <p class="coming-soon-desc">
+            Direct self-managed DIY container provisioning via the w⁴ Protocol is currently undergoing final multi-region security and container validation tests before general release.
+          </p>
+        </div>
+
+        <div class="coming-soon-perks-box">
+          <div class="perks-title">What to Expect with DIY Boxes:</div>
+          <div class="perks-grid">
+            <div class="perk-item">
+              <span class="perk-dot">&#10003;</span>
+              <span>Automated isolated container provisioning in 60 seconds</span>
+            </div>
+            <div class="perk-item">
+              <span class="perk-dot">&#10003;</span>
+              <span>Pre-installed Sovereign Sparks &amp; My COMPASS Suite</span>
+            </div>
+            <div class="perk-item">
+              <span class="perk-dot">&#10003;</span>
+              <span>100% data portability &amp; local-to-cloud snapshot sync</span>
+            </div>
+            <div class="perk-item">
+              <span class="perk-dot">&#10003;</span>
+              <span>Self-managed root database &amp; encrypted storage</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="white-glove-bridge-card">
+          <div class="bridge-left">
+            <div class="bridge-tag">Available Right Now</div>
+            <h4 class="bridge-title">Need Cloud Deployment Today?</h4>
+            <p class="bridge-desc">
+              Our engineering team can manually provision, configure, and secure your cloud instance today with our <strong>White Glove Concierge Service</strong> (includes monthly engineering retainer hours).
+            </p>
+          </div>
+          <button
+            id="btn-bridge-to-whiteglove"
+            class="btn-bridge-whiteglove"
+          >
+            <span>Explore White Glove</span>
+            <svg
+              viewBox="0 0 24 24"
+              width="14"
+              height="14"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button
+          id="btn-footer-close-coming-soon"
+          class="btn-modal-aux"
+        >
+          Close
+        </button>
+        <div class="modal-footer-right">
+          <button
+            id="btn-coming-soon-whiteglove"
+            class="btn-modal-primary btn-gold"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              width="14"
+              height="14"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+            <span>Deploy via White Glove Concierge</span>
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script

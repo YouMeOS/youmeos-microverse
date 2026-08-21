@@ -9,6 +9,7 @@ const getStructuredLogsHandler = (filter?: any) => ipcRenderer.invoke('engine:st
 const clearLogsHandler = () => ipcRenderer.invoke('engine:clear-logs');
 const openUrlHandler = (url?: string) => ipcRenderer.invoke('engine:open-url', url);
 const openBrowserHandler = () => ipcRenderer.invoke('engine:open-browser');
+const openStripeCheckoutHandler = (url: string) => ipcRenderer.invoke('checkout:open-stripe', url);
 const setEngineTypeHandler = (type: string) => ipcRenderer.invoke('engine:set-type', type);
 const updatePluginsHandler = () => ipcRenderer.invoke('engine:update-plugins');
 const getVersionHandler = () => ipcRenderer.invoke('app:version');
@@ -47,6 +48,7 @@ contextBridge.exposeInMainWorld('api', {
   clearLogs: clearLogsHandler,
   openUrl: openUrlHandler,
   openBrowser: openBrowserHandler,
+  openStripeCheckout: openStripeCheckoutHandler,
   setEngineType: setEngineTypeHandler,
   updatePlugins: updatePluginsHandler,
   getVersion: getVersionHandler,

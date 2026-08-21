@@ -133,6 +133,69 @@ const readyHandler = async () => {
   ipcMain.handle('engine:open-url', openUrlHandler);
   ipcMain.handle('engine:open-browser', openUrlHandler);
 
+  // Stripe Checkout Popup Window with Automatic Completion Capture
+  ipcMain.handle('checkout:open-stripe', async (_, checkoutUrl: string) => {
+    return new Promise((resolve) => {
+      let isCompleted = false;
+
+      const checkoutWin = new BrowserWindow({
+        width: 540,
+        height: 780,
+        minWidth: 460,
+        minHeight: 600,
+        parent: mainWindow || undefined,
+        modal: true,
+        title: 'Stripe Checkout - YouMeOS Sovereignty',
+        backgroundColor: '#0a0d14',
+        autoHideMenuBar: true,
+        webPreferences: {
+          nodeIntegration: false,
+          contextIsolation: true
+        }
+      });
+
+      const handleNavigation = (navUrl: string) => {
+        try {
+          if (!navUrl || isCompleted) return;
+          const parsed = new URL(navUrl);
+          const isSuccessUrl =
+            parsed.pathname.includes('/checkout/success') ||
+            parsed.pathname.includes('/success') ||
+            parsed.searchParams.get('checkout') === 'success' ||
+            parsed.searchParams.get('status') === 'success';
+
+          if (isSuccessUrl) {
+            isCompleted = true;
+            const tier = parsed.searchParams.get('tier') || parsed.searchParams.get('license_tier') || 'gold';
+            const key = parsed.searchParams.get('key') || parsed.searchParams.get('license_key') || `${tier.toUpperCase().slice(0, 4)}-PROV-${Date.now()}`;
+            const sessionId = parsed.searchParams.get('session_id') || '';
+
+            setTimeout(() => {
+              if (!checkoutWin.isDestroyed()) {
+                checkoutWin.close();
+              }
+              resolve({ success: true, tier, key, sessionId });
+            }, 300);
+          }
+        } catch {
+          // ignore parsing error for non-standard schemes
+        }
+      };
+
+      checkoutWin.webContents.on('will-navigate', (_, navUrl) => handleNavigation(navUrl));
+      checkoutWin.webContents.on('will-redirect', (_, navUrl) => handleNavigation(navUrl));
+      checkoutWin.webContents.on('did-navigate', (_, navUrl) => handleNavigation(navUrl));
+
+      checkoutWin.on('closed', () => {
+        if (!isCompleted) {
+          resolve({ success: false, reason: 'closed_by_user' });
+        }
+      });
+
+      checkoutWin.loadURL(checkoutUrl || 'https://my.youmeos.com/checkout');
+    });
+  });
+
   await createWindow();
   if (mainWindow) {
     tray = createTray(engineManager, mainWindow);

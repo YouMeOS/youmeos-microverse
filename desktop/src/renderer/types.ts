@@ -17,6 +17,13 @@ export interface DesktopApi {
   clearLogs?: () => Promise<void>;
   openUrl: (url?: string) => Promise<void>;
   openBrowser: () => Promise<void>;
+  openStripeCheckout?: (url: string) => Promise<{
+    success: boolean;
+    tier?: string;
+    key?: string;
+    sessionId?: string;
+    reason?: string;
+  }>;
   setEngineType: (type: string) => Promise<void>;
   updatePlugins: () => Promise<{ stdout?: string; stderr?: string }>;
   getVersion?: () => Promise<string>;

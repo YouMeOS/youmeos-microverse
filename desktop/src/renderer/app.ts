@@ -5,6 +5,7 @@ import { QuakeConsoleManager } from './quake-console';
 import { ServicesViewManager } from './services-view';
 import { DownloadPanelManager } from './download-panel';
 import { TelemetryViewManager } from './telemetry-view';
+import { LicenseCloudManager } from './license-cloud-manager';
 
 const windowApi: DesktopApi = (window as unknown as { api: DesktopApi }).api;
 
@@ -25,6 +26,12 @@ const splashBtnLaunch = document.getElementById('splash-btn-launch') as HTMLButt
 const splashBtnDashboard = document.getElementById('splash-btn-dashboard') as HTMLButtonElement | null;
 const btnReturnSplash = document.getElementById('btn-return-splash') as HTMLButtonElement | null;
 const btnOpenSplash = document.getElementById('btn-open-splash') as HTMLButtonElement | null;
+
+// Splash Screen Floating Action Buttons (FABs)
+const splashFabCloud = document.getElementById('splash-fab-cloud') as HTMLButtonElement | null;
+const splashFabWhiteGlove = document.getElementById('splash-fab-whiteglove') as HTMLButtonElement | null;
+const splashFabLicense = document.getElementById('splash-fab-license') as HTMLButtonElement | null;
+const btnHeaderLicense = document.getElementById('btn-header-license') as HTMLButtonElement | null;
 
 // Dashboard 3D Canvas Container
 const dash3dCanvasContainer = document.getElementById('dash-3d-canvas-container') as HTMLElement | null;
@@ -57,6 +64,7 @@ let downloadPanel: DownloadPanelManager | null = null;
 let telemetryView: TelemetryViewManager | null = null;
 let architecture3D: Architecture3DManager | null = null;
 let smokeCanvas: SmokeCanvasEngine | null = null;
+let licenseCloudManager: LicenseCloudManager | null = null;
 
 // Application State
 let currentGatewayUrl = 'https://my.youmeos.com';
@@ -269,6 +277,9 @@ async function init(): Promise<void> {
   );
   downloadPanel = new DownloadPanelManager();
   telemetryView = new TelemetryViewManager();
+  licenseCloudManager = new LicenseCloudManager(windowApi, (tier) => {
+    architecture3D?.setCompassTier(tier);
+  });
 
   // 2. Initialize Stay on Splash Preference
   if (chkStaySplash) {
@@ -284,16 +295,25 @@ async function init(): Promise<void> {
     architecture3D = new Architecture3DManager({
       container: initialContainer,
       onLayerSelect: (layerId) => {
-        quakeConsole?.openWithFilter(
-          layerId === 'portal' ? 'gateway' : (layerId === 'compass' || layerId === 'core' ? 'core' : 'network')
-        );
+        if (layerId === 'compass') {
+          licenseCloudManager?.openLicenseModal();
+        } else if (layerId === 'portal' || layerId === 'server') {
+          windowApi.openUrl(currentGatewayUrl);
+        } else if (layerId === 'core' || layerId === 'database') {
+          quakeConsole?.openWithFilter('core');
+        } else {
+          quakeConsole?.openWithFilter('network');
+        }
       }
     });
     const isSideOpen = Boolean(splashSidePanel && !splashSidePanel.classList.contains('collapsed'));
     architecture3D.setSidePanelOpen(isSideOpen);
+    if (licenseCloudManager) {
+      architecture3D.setCompassTier(licenseCloudManager.getCurrentTier());
+    }
   }
 
-  // 4. Wire 3D Layer Hover Highlights
+  // 4. Wire 3D Layer Hover & Click Highlights
   document.querySelectorAll<HTMLElement>('[data-layer]').forEach(card => {
     const layer = card.getAttribute('data-layer');
     card.addEventListener('mouseenter', () => {
@@ -303,9 +323,11 @@ async function init(): Promise<void> {
       architecture3D?.highlightLayer(null);
     });
     card.addEventListener('click', () => {
-      if (layer === 'portal' || layer === 'server') {
+      if (layer === 'compass') {
+        licenseCloudManager?.openLicenseModal();
+      } else if (layer === 'portal' || layer === 'server') {
         windowApi.openUrl(currentGatewayUrl);
-      } else if (layer === 'compass' || layer === 'core' || layer === 'database') {
+      } else if (layer === 'core' || layer === 'database') {
         quakeConsole?.openWithFilter('core');
       } else {
         quakeConsole?.openWithFilter('network');
@@ -313,7 +335,28 @@ async function init(): Promise<void> {
     });
   });
 
-  // 5. Navigation & HUD Drawer Handlers
+  // 5. Floating Upsell FABs & Header License Pill Handlers
+  splashFabCloud?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    licenseCloudManager?.openDiyComingSoonModal();
+  });
+
+  splashFabWhiteGlove?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    licenseCloudManager?.openCloudHub('whiteglove');
+  });
+
+  splashFabLicense?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    licenseCloudManager?.openLicenseModal();
+  });
+
+  btnHeaderLicense?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    licenseCloudManager?.openLicenseModal();
+  });
+
+  // 6. Navigation & HUD Drawer Handlers
   splashHudToggle?.addEventListener('click', (e) => {
     e.stopPropagation();
     const isCollapsed = splashSidePanel?.classList.toggle('collapsed');
@@ -331,7 +374,7 @@ async function init(): Promise<void> {
   btnOpenSplash?.addEventListener('click', () => openSplashScreen());
   overallStatusPill?.addEventListener('click', () => quakeConsole?.toggleQuakeConsole());
 
-  // 6. Tab Triggers
+  // 7. Tab Triggers
   tabTriggers.forEach(btn => {
     btn.addEventListener('click', () => {
       const targetTab = btn.getAttribute('data-tab');
