@@ -33,12 +33,24 @@ export function createTray(
         }
       }
     };
+
+    const openBrowserHandler = async () => {
+      try {
+        const st = await engineManager.status();
+        const url = st.url || 'https://my.youmeos.com';
+        shell.openExternal(url);
+      } catch {
+        shell.openExternal('https://my.youmeos.com');
+      }
+    };
+
     const quitHandler = () => app.quit();
 
     const contextMenu = Menu.buildFromTemplate([
       { label: 'Show Dashboard', click: showPanelHandler },
       { type: 'separator' },
-      { label: 'Open YouMeOS Portal', click: openPortalHandler },
+      { label: 'Open Portal (Native Window)', click: openPortalHandler },
+      { label: 'Open in Browser (Default Browser)', click: openBrowserHandler },
       { type: 'separator' },
       { label: 'Start Engine', click: startHandler },
       { label: 'Stop Engine', click: stopHandler },

@@ -439,7 +439,7 @@
             <button
               id="splash-btn-launch"
               class="splash-action-btn aux-btn"
-              title="Open Gateway in browser"
+              title="Open YouMeOS Portal in Native Window"
             >
               <svg
                 viewBox="0 0 24 24"
@@ -449,14 +449,36 @@
                 stroke="currentColor"
                 stroke-width="2"
               >
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+                <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                <line x1="3" y1="9" x2="21" y2="9" />
               </svg>
-              <span>Launch</span>
+              <span>Portal</span>
+            </button>
+
+            <button
+              id="splash-btn-browser"
+              class="splash-action-btn aux-btn"
+              title="Open YouMeOS in External Web Browser"
+            >
+              <svg
+                viewBox="0 0 24 24"
+                width="14"
+                height="14"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <line x1="2" y1="12" x2="22" y2="12" />
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+              </svg>
+              <span>Browser</span>
             </button>
 
             <button
               id="splash-btn-dashboard"
               class="splash-action-btn secondary-btn"
+              title="Open Desktop Dashboard"
             >
               <span>Dashboard</span>
               <svg
@@ -1684,11 +1706,32 @@
             <span class="deck-label">Splash</span>
           </button>
 
-          <!-- Open Gateway in Browser -->
+          <!-- Open Gateway in Native Portal Window -->
+          <button
+            id="btn-open-portal"
+            class="deck-key deck-key-aux"
+            title="Open Gateway in Native Portal Window"
+          >
+            <svg
+              class="deck-icon"
+              viewBox="0 0 24 24"
+              width="14"
+              height="14"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+              <line x1="3" y1="9" x2="21" y2="9" />
+            </svg>
+            <span class="deck-label">Portal</span>
+          </button>
+
+          <!-- Open Gateway in External Web Browser -->
           <button
             id="btn-open-browser"
             class="deck-key deck-key-aux"
-            title="Open Gateway in Web Browser"
+            title="Open Gateway in Web Browser (Chrome/Default)"
           >
             <svg
               class="deck-icon"
@@ -1712,7 +1755,7 @@
               />
               <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
             </svg>
-            <span class="deck-label">Launch</span>
+            <span class="deck-label">Browser</span>
           </button>
 
           <!-- Update Plugins -->

@@ -16,7 +16,9 @@ export interface DesktopApi {
   getStructuredLogs?: (filter?: LogFilterOptions) => Promise<LogEntry[]>;
   clearLogs?: () => Promise<void>;
   openUrl: (url?: string) => Promise<void>;
-  openBrowser: () => Promise<void>;
+  openPortal?: (url?: string) => Promise<void>;
+  openExternal?: (url?: string) => Promise<void>;
+  openBrowser: (url?: string) => Promise<void>;
   openStripeCheckout?: (url: string) => Promise<{
     success: boolean;
     tier?: string;

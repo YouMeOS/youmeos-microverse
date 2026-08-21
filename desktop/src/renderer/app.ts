@@ -23,6 +23,7 @@ const splashStatusText = document.getElementById('splash-status-text') as HTMLEl
 const chkStaySplash = document.getElementById('chk-stay-splash') as HTMLInputElement | null;
 const splashBtnStart = document.getElementById('splash-btn-start') as HTMLButtonElement | null;
 const splashBtnLaunch = document.getElementById('splash-btn-launch') as HTMLButtonElement | null;
+const splashBtnBrowser = document.getElementById('splash-btn-browser') as HTMLButtonElement | null;
 const splashBtnDashboard = document.getElementById('splash-btn-dashboard') as HTMLButtonElement | null;
 const btnReturnSplash = document.getElementById('btn-return-splash') as HTMLButtonElement | null;
 const btnOpenSplash = document.getElementById('btn-open-splash') as HTMLButtonElement | null;
@@ -47,6 +48,7 @@ const versionTag = document.getElementById('version-tag') as HTMLElement | null;
 const btnStart = document.getElementById('btn-start') as HTMLButtonElement | null;
 const btnStop = document.getElementById('btn-stop') as HTMLButtonElement | null;
 const btnRestart = document.getElementById('btn-restart') as HTMLButtonElement | null;
+const btnOpenPortal = document.getElementById('btn-open-portal') as HTMLButtonElement | null;
 const btnOpenBrowser = document.getElementById('btn-open-browser') as HTMLButtonElement | null;
 const btnUpdatePlugins = document.getElementById('btn-update-plugins') as HTMLButtonElement | null;
 
@@ -469,13 +471,31 @@ async function init(): Promise<void> {
   };
   btnRestart?.addEventListener('click', restartHandler);
 
-  const openBrowserHandler = (e?: MouseEvent) => {
+  const openPortalHandler = (e?: MouseEvent, targetUrl?: string) => {
     e?.preventDefault();
-    windowApi.openUrl(currentGatewayUrl);
+    const url = targetUrl || currentGatewayUrl;
+    if (windowApi.openPortal) {
+      windowApi.openPortal(url);
+    } else {
+      windowApi.openUrl(url);
+    }
   };
-  linkGateway?.addEventListener('click', openBrowserHandler);
-  btnOpenBrowser?.addEventListener('click', () => openBrowserHandler());
-  splashBtnLaunch?.addEventListener('click', () => openBrowserHandler());
+
+  const openBrowserHandler = (e?: MouseEvent, targetUrl?: string) => {
+    e?.preventDefault();
+    const url = targetUrl || currentGatewayUrl;
+    if (windowApi.openExternal) {
+      windowApi.openExternal(url);
+    } else {
+      windowApi.openBrowser(url);
+    }
+  };
+
+  linkGateway?.addEventListener('click', (e) => openBrowserHandler(e));
+  btnOpenPortal?.addEventListener('click', (e) => openPortalHandler(e));
+  btnOpenBrowser?.addEventListener('click', (e) => openBrowserHandler(e));
+  splashBtnLaunch?.addEventListener('click', (e) => openPortalHandler(e));
+  splashBtnBrowser?.addEventListener('click', (e) => openBrowserHandler(e));
 
   const updatePluginsHandler = async () => {
     if (!btnUpdatePlugins) return;

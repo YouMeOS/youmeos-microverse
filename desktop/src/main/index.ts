@@ -223,11 +223,19 @@ const readyHandler = async () => {
     return execFileAsync('bash', [scriptPath]);
   });
 
-  const openUrlHandler = (_: unknown, targetUrl?: string) => {
+  const openPortalHandler = (_: unknown, targetUrl?: string) => {
     openPortalWindow(targetUrl || 'https://my.youmeos.com');
   };
-  ipcMain.handle('engine:open-url', openUrlHandler);
-  ipcMain.handle('engine:open-browser', openUrlHandler);
+
+  const openExternalHandler = async (_: unknown, targetUrl?: string) => {
+    const url = targetUrl || 'https://my.youmeos.com';
+    await shell.openExternal(url);
+  };
+
+  ipcMain.handle('engine:open-portal', openPortalHandler);
+  ipcMain.handle('engine:open-external', openExternalHandler);
+  ipcMain.handle('engine:open-url', openPortalHandler);
+  ipcMain.handle('engine:open-browser', openExternalHandler);
 
   // Stripe Checkout Popup Window with Automatic Completion Capture
   ipcMain.handle('checkout:open-stripe', async (_, checkoutUrl: string) => {

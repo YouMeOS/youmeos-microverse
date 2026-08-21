@@ -8,7 +8,9 @@ const getLogsHandler = (service?: string, tail?: number) => ipcRenderer.invoke('
 const getStructuredLogsHandler = (filter?: any) => ipcRenderer.invoke('engine:structured-logs', filter);
 const clearLogsHandler = () => ipcRenderer.invoke('engine:clear-logs');
 const openUrlHandler = (url?: string) => ipcRenderer.invoke('engine:open-url', url);
-const openBrowserHandler = () => ipcRenderer.invoke('engine:open-browser');
+const openPortalHandler = (url?: string) => ipcRenderer.invoke('engine:open-portal', url);
+const openExternalHandler = (url?: string) => ipcRenderer.invoke('engine:open-external', url);
+const openBrowserHandler = (url?: string) => ipcRenderer.invoke('engine:open-external', url);
 const openStripeCheckoutHandler = (url: string) => ipcRenderer.invoke('checkout:open-stripe', url);
 const setEngineTypeHandler = (type: string) => ipcRenderer.invoke('engine:set-type', type);
 const updatePluginsHandler = () => ipcRenderer.invoke('engine:update-plugins');
@@ -47,6 +49,8 @@ contextBridge.exposeInMainWorld('api', {
   getStructuredLogs: getStructuredLogsHandler,
   clearLogs: clearLogsHandler,
   openUrl: openUrlHandler,
+  openPortal: openPortalHandler,
+  openExternal: openExternalHandler,
   openBrowser: openBrowserHandler,
   openStripeCheckout: openStripeCheckoutHandler,
   setEngineType: setEngineTypeHandler,
