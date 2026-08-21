@@ -100,13 +100,16 @@
       @clear="logs.clear"
     />
 
-    <!-- COMPASS Sovereignty License Manager Modal -->
+    <!-- COMPASS Sovereignty License Manager Modal (2-Panel HUD) -->
     <LicenseModal
       :is-open="license.isModalOpen.value"
-      :current-tier="license.currentTier.value"
-      :current-key="license.currentKey.value"
-      :current-tier-data="license.currentTierData.value"
-      :current-tier-color="license.currentTierColor.value"
+      :active-tier="license.currentTier.value"
+      :active-key="license.currentKey.value"
+      :active-tier-data="license.activeTierData.value"
+      :active-tier-color="license.activeTierColor.value"
+      :selected-tier="license.selectedTier.value"
+      :selected-tier-data="license.selectedTierData.value"
+      :selected-tier-color="license.selectedTierColor.value"
       :tiers="allTiers"
       :input-key="license.inputKey.value"
       :feedback-msg="license.feedbackMsg.value"
@@ -116,7 +119,7 @@
       :filtered-sparks="license.filteredSparks.value"
       :unlocked-count="license.unlockedCount.value"
       @close="license.closeModal"
-      @select-tier="license.setTier"
+      @select-tier="license.selectTier"
       @update:input-key="license.inputKey.value = $event"
       @activate-key="license.activateKey"
       @stripe-checkout="license.triggerStripeCheckout"

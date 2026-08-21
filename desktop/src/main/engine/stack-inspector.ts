@@ -103,7 +103,7 @@ export async function inspectStackLayers(options: StackInspectionOptions): Promi
   const layers: StackLayerStatus[] = [
     {
       id: 'compass',
-      name: 'My COMPASS',
+      name: 'My COMPASS Software Suite',
       category: 'Command Suite & Sparks Navigator',
       installed: isCompassInstalled,
       active: isCompassActive,
@@ -113,7 +113,7 @@ export async function inspectStackLayers(options: StackInspectionOptions): Promi
     },
     {
       id: 'portal',
-      name: 'Event Horizon Portal',
+      name: 'YouMeOS',
       category: 'Front-End Interface & 3D Engine',
       installed: isEhInstalled,
       active: isEhActive,
@@ -123,7 +123,7 @@ export async function inspectStackLayers(options: StackInspectionOptions): Promi
     },
     {
       id: 'network',
-      name: 'Private Node Network',
+      name: 'Private W4 Protocol Network',
       category: 'ZeroConf & mDNS Mesh (youmeos.local)',
       installed: true,
       active: isNetworkActive,
@@ -132,7 +132,7 @@ export async function inspectStackLayers(options: StackInspectionOptions): Promi
     },
     {
       id: 'server',
-      name: 'Native Web & PHP Server',
+      name: 'W4 Tesseract Server',
       category: 'FrankenPHP / Nginx & Caddy Proxy',
       installed: true,
       active: isServerActive,
@@ -141,7 +141,7 @@ export async function inspectStackLayers(options: StackInspectionOptions): Promi
     },
     {
       id: 'core',
-      name: 'Headless WordPress Core',
+      name: 'Headless WP Core',
       category: 'Application Kernel & REST/GraphQL API',
       installed: isWpInstalled,
       active: isWpActive,
@@ -152,7 +152,7 @@ export async function inspectStackLayers(options: StackInspectionOptions): Promi
     },
     {
       id: 'database',
-      name: 'SQLite Database Store',
+      name: 'Database',
       category: 'Encrypted VFS Persistent Storage',
       installed: isDbInstalled,
       active: isDbActive,
@@ -161,7 +161,7 @@ export async function inspectStackLayers(options: StackInspectionOptions): Promi
     },
     {
       id: 'bedrock',
-      name: 'Blackbox Bedrock',
+      name: 'Bedrock',
       category: 'Must-Use (MU) Foundation & Genesis Wave',
       installed: isBedrockInstalled,
       active: isBedrockActive,

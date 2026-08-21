@@ -151,7 +151,7 @@
                 {{ currentTierData.name }} Compass
               </span>
             </div>
-            <h4 class="dash-block-title">My COMPASS Sovereignty</h4>
+            <h4 class="dash-block-title">My COMPASS Software Suite</h4>
             <p class="dash-block-sub">XP gamification, 4D star navigation, and active sparks license.</p>
           </div>
 
@@ -160,7 +160,7 @@
               <span class="dash-card-tag cyan-tag">Layer 2</span>
               <StatusDot :status="status" />
             </div>
-            <h4 class="dash-block-title">Event Horizon Portal</h4>
+            <h4 class="dash-block-title">YouMeOS</h4>
             <p class="dash-block-sub">Sovereign personal desktop environment with detachable sparks.</p>
           </div>
 
@@ -169,7 +169,7 @@
               <span class="dash-card-tag coral-tag">Layer 3</span>
               <StatusDot :status="status" />
             </div>
-            <h4 class="dash-block-title">Private Node Network</h4>
+            <h4 class="dash-block-title">Private W4 Protocol Network</h4>
             <p class="dash-block-sub">ZeroConf mDNS discovery mesh connecting sovereign nodes.</p>
           </div>
 
@@ -178,7 +178,7 @@
               <span class="dash-card-tag emerald-tag">Layer 4</span>
               <StatusDot :status="status" />
             </div>
-            <h4 class="dash-block-title">Web Server Gateway</h4>
+            <h4 class="dash-block-title">W4 Tesseract Server</h4>
             <p class="dash-block-sub">FrankenPHP &amp; Caddy proxy routing ports 80 and 443 with TLS.</p>
           </div>
 
@@ -187,7 +187,7 @@
               <span class="dash-card-tag gold-tag">Layer 5</span>
               <StatusDot :status="status" />
             </div>
-            <h4 class="dash-block-title">Headless Core</h4>
+            <h4 class="dash-block-title">Headless WP Core</h4>
             <p class="dash-block-sub">Kernel headless runtime powering REST API and plugin pipelines.</p>
           </div>
 
@@ -196,7 +196,7 @@
               <span class="dash-card-tag purple-tag">Layer 6</span>
               <StatusDot :status="status" />
             </div>
-            <h4 class="dash-block-title">SQLite Database Store</h4>
+            <h4 class="dash-block-title">Database</h4>
             <p class="dash-block-sub">Zero-configuration single-file database sandbox in blackbox/.</p>
           </div>
 
@@ -205,7 +205,7 @@
               <span class="dash-card-tag blue-tag">Layer 7</span>
               <StatusDot :status="status" />
             </div>
-            <h4 class="dash-block-title">Blackbox Bedrock</h4>
+            <h4 class="dash-block-title">Bedrock</h4>
             <p class="dash-block-sub">Genesis Wave foundation and blackbox/ storage container.</p>
           </div>
         </div>

@@ -61,13 +61,13 @@ defineEmits<{
 }>();
 
 const layerTagMap: Record<string, { tag: string; tagClass: string; defaultTitle: string }> = {
-  compass: { tag: 'Systems', tagClass: 'neon-tag', defaultTitle: 'My COMPASS' },
-  portal: { tag: 'Portal', tagClass: 'cyan-tag', defaultTitle: 'Event Horizon' },
-  network: { tag: 'Mesh', tagClass: 'coral-tag', defaultTitle: 'Private Node (mDNS)' },
-  server: { tag: 'Gateway', tagClass: 'emerald-tag', defaultTitle: 'Web Server' },
-  core: { tag: 'Kernel', tagClass: 'gold-tag', defaultTitle: 'Headless Core' },
-  database: { tag: 'Storage', tagClass: 'purple-tag', defaultTitle: 'SQLite Database' },
-  bedrock: { tag: 'Foundation', tagClass: 'blue-tag', defaultTitle: 'Blackbox Bedrock' }
+  compass: { tag: 'Systems', tagClass: 'neon-tag', defaultTitle: 'My COMPASS Software Suite' },
+  portal: { tag: 'Portal', tagClass: 'cyan-tag', defaultTitle: 'YouMeOS' },
+  network: { tag: 'Mesh', tagClass: 'coral-tag', defaultTitle: 'Private W4 Protocol Network' },
+  server: { tag: 'Gateway', tagClass: 'emerald-tag', defaultTitle: 'W4 Tesseract Server' },
+  core: { tag: 'Kernel', tagClass: 'gold-tag', defaultTitle: 'Headless WP Core' },
+  database: { tag: 'Storage', tagClass: 'purple-tag', defaultTitle: 'Database' },
+  bedrock: { tag: 'Foundation', tagClass: 'blue-tag', defaultTitle: 'Bedrock' }
 };
 
 const normalizedId = computed(() => (props.layerId || props.dataLayer || '').toLowerCase());
