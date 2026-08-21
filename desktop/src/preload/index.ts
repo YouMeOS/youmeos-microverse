@@ -17,6 +17,12 @@ const setEngineTypeHandler = (type: string) => ipcRenderer.invoke('engine:set-ty
 const updatePluginsHandler = () => ipcRenderer.invoke('engine:update-plugins');
 const getVersionHandler = () => ipcRenderer.invoke('app:version');
 
+const listUsersHandler = () => ipcRenderer.invoke('diagnostics:list-users');
+const resetPasswordHandler = (userId?: number, customPassword?: string) => ipcRenderer.invoke('diagnostics:reset-password', userId, customPassword);
+const autoLoginHandler = (userId?: number, redirectTo?: string) => ipcRenderer.invoke('diagnostics:auto-login', userId, redirectTo);
+const flushSessionHandler = () => ipcRenderer.invoke('diagnostics:flush-session');
+const checkDbHealthHandler = () => ipcRenderer.invoke('diagnostics:db-health');
+
 const checkUpdatesHandler = () => ipcRenderer.invoke('updater:check');
 const downloadUpdateHandler = () => ipcRenderer.invoke('updater:download');
 const installUpdateHandler = () => ipcRenderer.invoke('updater:install');
@@ -71,6 +77,11 @@ contextBridge.exposeInMainWorld('api', {
   setEngineType: setEngineTypeHandler,
   updatePlugins: updatePluginsHandler,
   getVersion: getVersionHandler,
+  listUsers: listUsersHandler,
+  resetPassword: resetPasswordHandler,
+  autoLogin: autoLoginHandler,
+  flushSession: flushSessionHandler,
+  checkDbHealth: checkDbHealthHandler,
   checkForUpdates: checkUpdatesHandler,
   downloadUpdate: downloadUpdateHandler,
   installUpdate: installUpdateHandler,

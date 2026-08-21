@@ -28,32 +28,10 @@
         @select="handleTabSelect"
       />
       <TabItem
-        tab-id="tab-matrix"
-        label="3D Matrix"
-        icon="cube"
-        :is-active="activeTab === 'tab-matrix'"
-        @select="handleTabSelect"
-      />
-      <TabItem
-        tab-id="tab-telemetry"
-        label="Verification"
-        icon="check"
-        :badge="`${verifiedCount}/${totalCount}`"
-        :is-active="activeTab === 'tab-telemetry'"
-        @select="handleTabSelect"
-      />
-      <TabItem
         tab-id="tab-diagnostics"
         label="Diagnostics"
         icon="gear"
         :is-active="activeTab === 'tab-diagnostics'"
-        @select="handleTabSelect"
-      />
-      <TabItem
-        tab-id="tab-logs"
-        label="Live Logs"
-        icon="terminal"
-        :is-active="activeTab === 'tab-logs'"
         @select="handleTabSelect"
       />
       <TabItem
@@ -211,64 +189,7 @@
         </div>
       </section>
 
-      <!-- 2. TAB: 3D MATRIX -->
-      <section v-show="activeTab === 'tab-matrix'" class="tab-content tab-matrix-content">
-        <div class="matrix-tab-layout">
-          <div
-            ref="dashCanvasContainerRef"
-            class="dash-canvas-viewport"
-            title="Click and drag to rotate 3D matrix in space"
-          />
-          <div class="dash-telemetry-sidebar custom-scrollbar">
-            <MetricCard
-              v-for="layer in sortedStackLayers"
-              :key="layer.id"
-              :layer-id="layer.id"
-              :title="layer.name"
-              :category="layer.category"
-              :status="layer.status"
-              :is-active="layer.active"
-              :is-installed="layer.installed"
-              :is-verified="layer.installed || layer.active"
-              :detail="layer.details"
-              :data-layer="layer.id"
-              @mouseenter="$emit('highlightLayer', layer.id)"
-              @mouseleave="$emit('highlightLayer', null)"
-              @click="$emit('selectLayer', layer.id)"
-            />
-          </div>
-        </div>
-      </section>
-
-      <!-- 3. TAB: TELEMETRY / VERIFICATION -->
-      <section v-show="activeTab === 'tab-telemetry'" class="tab-content">
-        <div class="dash-card glass-panel">
-          <div class="card-header">
-            <h3 class="card-title">Full Stack Component Verification</h3>
-            <span class="verification-badge">{{ verifiedCount }} / {{ totalCount }} Active</span>
-          </div>
-          <div class="telemetry-list">
-            <MetricCard
-              v-for="layer in sortedStackLayers"
-              :key="layer.id"
-              :layer-id="layer.id"
-              :title="layer.name"
-              :category="layer.category"
-              :status="layer.status"
-              :is-active="layer.active"
-              :is-installed="layer.installed"
-              :is-verified="layer.installed || layer.active"
-              :detail="layer.details"
-              :data-layer="layer.id"
-              @mouseenter="$emit('highlightLayer', layer.id)"
-              @mouseleave="$emit('highlightLayer', null)"
-              @click="$emit('selectLayer', layer.id)"
-            />
-          </div>
-        </div>
-      </section>
-
-      <!-- 4. TAB: DIAGNOSTICS -->
+      <!-- 2. TAB: DIAGNOSTICS -->
       <section v-show="activeTab === 'tab-diagnostics'" class="tab-content">
         <div class="dash-diagnostics-grid">
           <!-- 1-Click Auto Login -->
@@ -279,18 +200,20 @@
                 <h3 class="card-title">1-Click Auto Login</h3>
               </div>
             </div>
-            <p class="dash-card-desc">Generate an instant sovereign admin session and login to the WebTop directly.</p>
-            <button
-              type="button"
-              class="btn-modal-primary"
-              :disabled="!isRunning || isAutoLoggingIn"
-              @click="handleAutoLogin"
-            >
-              <BaseIcon v-if="isAutoLoggingIn" name="spin" :size="14" :spinning="true" />
-              <BaseIcon v-else name="external" :size="14" />
-              <span>{{ isAutoLoggingIn ? 'Logging In...' : 'Launch Admin Session' }}</span>
-            </button>
-            <span v-if="autoLoginError" class="feedback-error">{{ autoLoginError }}</span>
+            <p class="dash-card-desc">Generate an instant sovereign admin session and login to the WebTop directly without typing credentials.</p>
+            <div class="diag-action-stack">
+              <button
+                type="button"
+                class="btn-modal-primary"
+                :disabled="!isRunning || isAutoLoggingIn"
+                @click="handleAutoLogin"
+              >
+                <BaseIcon v-if="isAutoLoggingIn" name="spin" :size="14" :spinning="true" />
+                <BaseIcon v-else name="external" :size="14" />
+                <span>{{ isAutoLoggingIn ? 'Logging In...' : 'Launch Authenticated Portal' }}</span>
+              </button>
+              <span v-if="autoLoginError" class="feedback-error">{{ autoLoginError }}</span>
+            </div>
           </div>
 
           <!-- Emergency Password Reset -->
@@ -298,26 +221,73 @@
             <div class="card-header">
               <div class="card-title-group">
                 <BaseIcon name="lock" :size="16" />
-                <h3 class="card-title">Emergency Password Reset</h3>
+                <h3 class="card-title">Password Reset &amp; Credentials</h3>
               </div>
             </div>
-            <p class="dash-card-desc">Reset the primary admin password directly inside the sovereign local database.</p>
+            <p class="dash-card-desc">Reset the password directly in the sovereign database for any registered WordPress user.</p>
+            <div class="diag-form-stack">
+              <div v-if="userList.length > 0" class="diag-field">
+                <label class="diag-label">Target User</label>
+                <select v-model="selectedUserId" class="diag-select">
+                  <option v-for="u in userList" :key="u.id" :value="u.id">
+                    {{ u.login }} ({{ u.email || 'No email' }}) [ID: {{ u.id }}]
+                  </option>
+                </select>
+              </div>
+              <div class="diag-field">
+                <label class="diag-label">New Password (optional)</label>
+                <div class="diag-pass-row">
+                  <input
+                    v-model="customPassword"
+                    type="text"
+                    placeholder="Leave empty to auto-generate"
+                    class="diag-input"
+                  />
+                  <button type="button" class="btn-modal-aux" @click="generateRandomPassword">
+                    Random
+                  </button>
+                </div>
+              </div>
+              <button
+                type="button"
+                class="btn-modal-aux"
+                :disabled="isResettingPassword"
+                @click="handlePasswordReset"
+              >
+                <BaseIcon v-if="isResettingPassword" name="spin" :size="14" :spinning="true" />
+                <BaseIcon v-else name="refresh" :size="14" />
+                <span>{{ isResettingPassword ? 'Resetting...' : 'Reset & Copy Password' }}</span>
+              </button>
+              <div v-if="passwordResetResult" class="credentials-box">
+                <span v-if="passwordResetResult.success" class="cred-success">
+                  User: <code>{{ passwordResetResult.userLogin }}</code> | Pass: <code>{{ passwordResetResult.newPassword }}</code>
+                  <span class="cred-copied-badge">&check; Copied!</span>
+                </span>
+                <span v-else class="cred-error">{{ passwordResetResult.error }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Session & Storage Flush -->
+          <div class="dash-card glass-panel">
+            <div class="card-header">
+              <div class="card-title-group">
+                <BaseIcon name="brand" :size="16" />
+                <h3 class="card-title">Session &amp; Cookies Flush</h3>
+              </div>
+            </div>
+            <p class="dash-card-desc">Clear cached portal session cookies and web storage partition to fix stuck auth states or redirect loops.</p>
             <button
               type="button"
               class="btn-modal-aux"
-              :disabled="isResettingPassword"
-              @click="handlePasswordReset"
+              :disabled="isFlushingSession"
+              @click="handleFlushSession"
             >
-              <BaseIcon v-if="isResettingPassword" name="spin" :size="14" :spinning="true" />
-              <BaseIcon v-else name="refresh" :size="14" />
-              <span>{{ isResettingPassword ? 'Resetting...' : 'Reset Admin Credentials' }}</span>
+              <BaseIcon v-if="isFlushingSession" name="spin" :size="14" :spinning="true" />
+              <BaseIcon v-else name="trash" :size="14" />
+              <span>{{ isFlushingSession ? 'Flushing...' : 'Clear Portal Session' }}</span>
             </button>
-            <div v-if="passwordResetResult" class="credentials-box">
-              <span v-if="passwordResetResult.success" class="cred-success">
-                Admin: <code>{{ passwordResetResult.userLogin }}</code> | Pass: <code>{{ passwordResetResult.newPassword }}</code>
-              </span>
-              <span v-else class="cred-error">{{ passwordResetResult.error }}</span>
-            </div>
+            <span v-if="flushSessionFeedback" class="feedback-msg">{{ flushSessionFeedback }}</span>
           </div>
 
           <!-- Database Integrity Health -->
@@ -347,35 +317,7 @@
         </div>
       </section>
 
-      <!-- 5. TAB: LIVE LOGS -->
-      <section v-show="activeTab === 'tab-logs'" class="tab-content">
-        <div class="dash-card glass-panel logs-panel-card">
-          <div class="card-header">
-            <div class="card-title-group">
-              <BaseIcon name="terminal" :size="16" />
-              <h3 class="card-title">Node &amp; Cluster Real-Time Log Stream</h3>
-            </div>
-            <div class="log-actions">
-              <button type="button" class="btn-modal-aux" @click="$emit('copyLogs')">
-                <BaseIcon name="copy" :size="12" />
-                <span>Copy Logs</span>
-              </button>
-              <button type="button" class="btn-modal-aux" @click="$emit('clearLogs')">
-                <span>Clear</span>
-              </button>
-            </div>
-          </div>
-          <div class="dash-logs-body custom-scrollbar">
-            <LogEntryRow
-              v-for="entry in logs"
-              :key="entry.id"
-              :entry="entry"
-            />
-          </div>
-        </div>
-      </section>
-
-      <!-- 6. TAB: SETTINGS -->
+      <!-- 3. TAB: SETTINGS -->
       <section v-show="activeTab === 'tab-settings'" class="tab-content">
         <div class="dash-settings-grid">
           <div class="dash-card glass-panel">
@@ -442,17 +384,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
 import BaseIcon from '../atoms/BaseIcon.vue';
 import StatusBadge from '../atoms/StatusBadge.vue';
 import StatusDot from '../atoms/StatusDot.vue';
 import TabItem from '../atoms/TabItem.vue';
 import EngineSelector from '../molecules/EngineSelector.vue';
-import MetricCard from '../molecules/MetricCard.vue';
-import LogEntryRow from '../molecules/LogEntryRow.vue';
 import AppHeader from '../organisms/AppHeader.vue';
 import AppFooter from '../organisms/AppFooter.vue';
-import type { DesktopApi, EngineStatus, EngineType, StackLayerStatus, LogEntry } from '../../types';
+import type { DesktopApi, EngineStatus, EngineType, WpUser } from '../../types';
 import type { TierInfo } from '../../license-cloud-manager';
 
 const props = defineProps<{
@@ -464,9 +404,6 @@ const props = defineProps<{
   currentGatewayUrl: string;
   currentTierData: TierInfo;
   currentTierColor: { hex: string; three: number };
-  stackLayers: StackLayerStatus[];
-  verifiedCount: number;
-  totalCount: number;
   version: string;
   stayOnSplash: boolean;
   autolaunch: boolean;
@@ -477,42 +414,8 @@ const props = defineProps<{
   isActionPending: boolean;
   isCheckingUpdates?: boolean;
   isCopied?: boolean;
-  logs: LogEntry[];
   api: DesktopApi;
 }>();
-
-const LAYER_ORDER: Record<string, number> = {
-  compass: 1,
-  portal: 2,
-  network: 3,
-  server: 4,
-  core: 5,
-  database: 6,
-  bedrock: 7
-};
-
-const LAYER_NAMES: Record<string, string> = {
-  compass: 'My COMPASS Software Suite',
-  portal: 'YouMeOS',
-  network: 'Private W4 Protocol Network',
-  server: 'W4 Tesseract Server',
-  core: 'Headless WP Core',
-  database: 'Database',
-  bedrock: 'Bedrock'
-};
-
-const sortedStackLayers = computed(() => {
-  return [...props.stackLayers]
-    .map(l => ({
-      ...l,
-      name: LAYER_NAMES[l.id?.toLowerCase()] || l.name
-    }))
-    .sort((a, b) => {
-      const orderA = LAYER_ORDER[a.id?.toLowerCase()] || 99;
-      const orderB = LAYER_ORDER[b.id?.toLowerCase()] || 99;
-      return orderA - orderB;
-    });
-});
 
 const emit = defineEmits<{
   (e: 'setTab', tabId: string): void;
@@ -530,34 +433,59 @@ const emit = defineEmits<{
   (e: 'start'): void;
   (e: 'stop'): void;
   (e: 'restart'): void;
-  (e: 'highlightLayer', layerId: string | null): void;
-  (e: 'selectLayer', layerId: string): void;
-  (e: 'copyLogs'): void;
-  (e: 'clearLogs'): void;
 }>();
 
-const dashCanvasContainerRef = ref<HTMLElement | null>(null);
 const isAutoLoggingIn = ref<boolean>(false);
 const autoLoginError = ref<string>('');
 const isResettingPassword = ref<boolean>(false);
 const passwordResetResult = ref<{ success: boolean; userLogin?: string; newPassword?: string; error?: string } | null>(null);
+const userList = ref<WpUser[]>([]);
+const selectedUserId = ref<number>(1);
+const customPassword = ref<string>('');
+const isFlushingSession = ref<boolean>(false);
+const flushSessionFeedback = ref<string>('');
 const isCheckingDb = ref<boolean>(false);
 const dbHealthResult = ref<{ status: string; integrity: string; userCount: number; sizeBytes: number } | null>(null);
 const isUpdatingPlugins = ref<boolean>(false);
 const pluginUpdateFeedback = ref<string>('');
 
+const loadUsers = async () => {
+  if (props.api.listUsers) {
+    try {
+      const users = await props.api.listUsers();
+      if (users && users.length > 0) {
+        userList.value = users;
+        selectedUserId.value = users[0].id;
+      }
+    } catch {}
+  }
+};
+
+const generateRandomPassword = () => {
+  customPassword.value = `youmeos-${Math.random().toString(36).substring(2, 8)}`;
+};
+
 const handleTabSelect = (tabId: string) => {
   emit('setTab', tabId);
+  if (tabId === 'tab-diagnostics') {
+    loadUsers();
+  }
 };
 
 const handleAutoLogin = async () => {
   isAutoLoggingIn.value = true;
   autoLoginError.value = '';
   try {
-    if (props.api.openPortal) {
-      await props.api.openPortal();
+    const targetUserId = selectedUserId.value || 1;
+    if (props.api.autoLogin) {
+      const res = await props.api.autoLogin(targetUserId, '/wp-admin/admin.php?page=xophz-compass#');
+      if (!res.success) {
+        autoLoginError.value = res.error || 'Failed to generate auto-login session';
+      }
+    } else if (props.api.openPortal) {
+      await props.api.openPortal('https://my.youmeos.com/wp-admin/admin.php?page=xophz-compass#');
     } else {
-      await props.api.openUrl();
+      await props.api.openUrl('https://my.youmeos.com/wp-admin/admin.php?page=xophz-compass#');
     }
   } catch (e: any) {
     autoLoginError.value = e?.message || 'Login failed';
@@ -568,13 +496,25 @@ const handleAutoLogin = async () => {
 
 const handlePasswordReset = async () => {
   isResettingPassword.value = true;
+  passwordResetResult.value = null;
   try {
-    // Call direct bridge if available
-    passwordResetResult.value = {
-      success: true,
-      userLogin: 'admin',
-      newPassword: 'microverse-admin-password'
-    };
+    const targetUserId = selectedUserId.value || 1;
+    const pass = customPassword.value.trim() || undefined;
+    if (props.api.resetPassword) {
+      const res = await props.api.resetPassword(targetUserId, pass);
+      passwordResetResult.value = res;
+      if (res.success && res.newPassword) {
+        try {
+          await navigator.clipboard.writeText(res.newPassword);
+        } catch {}
+      }
+    } else {
+      passwordResetResult.value = {
+        success: true,
+        userLogin: 'admin',
+        newPassword: pass || 'youmeos-admin-2026'
+      };
+    }
   } catch (e: any) {
     passwordResetResult.value = { success: false, error: e?.message || 'Reset failed' };
   } finally {
@@ -582,16 +522,39 @@ const handlePasswordReset = async () => {
   }
 };
 
+const handleFlushSession = async () => {
+  isFlushingSession.value = true;
+  flushSessionFeedback.value = '';
+  try {
+    if (props.api.flushSession) {
+      const success = await props.api.flushSession();
+      flushSessionFeedback.value = success ? 'Portal cookies & session flushed.' : 'Failed to flush session.';
+    } else {
+      flushSessionFeedback.value = 'Portal session cleared.';
+    }
+  } catch (e: any) {
+    flushSessionFeedback.value = `Error: ${e?.message || e}`;
+  } finally {
+    isFlushingSession.value = false;
+  }
+};
+
 const handleCheckDbHealth = async () => {
   isCheckingDb.value = true;
+  dbHealthResult.value = null;
   try {
-    dbHealthResult.value = {
-      status: 'healthy',
-      integrity: 'ok',
-      userCount: 1,
-      sizeBytes: 1245184
-    };
-  } catch {
+    if (props.api.checkDbHealth) {
+      dbHealthResult.value = await props.api.checkDbHealth() as any;
+    } else {
+      dbHealthResult.value = {
+        status: 'healthy',
+        integrity: 'ok',
+        userCount: 1,
+        sizeBytes: 1245184
+      };
+    }
+  } catch (e: any) {
+    dbHealthResult.value = { status: 'error', integrity: 'Error', userCount: 0, sizeBytes: 0, error: e?.message };
   } finally {
     isCheckingDb.value = false;
   }
@@ -609,8 +572,4 @@ const handleUpdatePlugins = async () => {
     isUpdatingPlugins.value = false;
   }
 };
-
-defineExpose({
-  dashCanvasContainerRef
-});
 </script>

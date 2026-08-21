@@ -8,7 +8,7 @@
         </div>
         <div>
           <h3 class="panel-title">My License &amp; Key</h3>
-          <span class="panel-subtitle">Sovereignty verification &amp; node activation</span>
+          <span class="panel-subtitle">License verification &amp; node activation</span>
         </div>
       </div>
       <button

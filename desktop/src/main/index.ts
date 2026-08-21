@@ -185,9 +185,9 @@ async function createWindow(): Promise<void> {
   const appIcon = getAppIcon();
 
   mainWindow = new BrowserWindow({
-    width: 830,
+    width: 860,
     height: 860,
-    minWidth: 680,
+    minWidth: 700,
     minHeight: 700,
     resizable: true,
     title: 'My YouMeOS Microverse',
@@ -321,10 +321,40 @@ const readyHandler = async () => {
   ipcMain.handle('engine:open-browser', openExternalHandler);
   ipcMain.handle('engine:open-blackbox-folder', openBlackboxFolderHandler);
 
+  // Diagnostic & Auto-Login Handlers
+  ipcMain.handle('engine:auto-login', async (_, userId?: number, redirectTo?: string) => {
+    const targetRedirect = redirectTo || '/wp-admin/admin.php?page=xophz-compass#';
+    const result = await diagnosticsManager.generateAutoLoginUrl(userId || 1, targetRedirect);
+    if (result.success && result.url) {
+      openPortalWindow(result.url);
+    }
+    return result;
+  });
+
+  ipcMain.handle('engine:reset-password', async (_, userId?: number, customPassword?: string) => {
+    return diagnosticsManager.resetPassword(userId || 1, customPassword);
+  });
+
+  ipcMain.handle('engine:db-health', async () => {
+    return diagnosticsManager.checkDatabaseHealth();
+  });
+
   ipcMain.handle('updater:check', () => updaterManager.checkForUpdates());
   ipcMain.handle('updater:download', () => updaterManager.downloadUpdate());
   ipcMain.handle('updater:install', () => updaterManager.quitAndInstall());
   ipcMain.handle('updater:get-status', () => updaterManager.getStatus());
+
+  ipcMain.handle('diagnostics:list-users', () => diagnosticsManager.listUsers());
+  ipcMain.handle('diagnostics:reset-password', (_, userId: number, newPassword?: string) => diagnosticsManager.resetPassword(userId, newPassword));
+  ipcMain.handle('diagnostics:auto-login', async (_, userId?: number, redirectTo?: string) => {
+    const result = await diagnosticsManager.generateAutoLoginUrl(userId || 1, redirectTo || '/wp-admin/');
+    if (result.success && result.url) {
+      openPortalWindow(result.url);
+    }
+    return result;
+  });
+  ipcMain.handle('diagnostics:flush-session', () => diagnosticsManager.flushPortalSession());
+  ipcMain.handle('diagnostics:db-health', () => diagnosticsManager.checkDatabaseHealth());
 
   // Stripe Checkout Popup Window with Automatic Completion Capture
   ipcMain.handle('checkout:open-stripe', async (_, checkoutUrl: string) => {
@@ -340,7 +370,7 @@ const readyHandler = async () => {
         minHeight: 600,
         parent: mainWindow || undefined,
         modal: true,
-        title: 'Stripe Checkout - YouMeOS Sovereignty',
+        title: 'Stripe Checkout - YouMeOS',
         backgroundColor: '#0a0d14',
         icon: appIcon,
         autoHideMenuBar: true,

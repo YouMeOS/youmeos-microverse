@@ -39,7 +39,10 @@ add_action( 'init', function() {
 	wp_set_auth_cookie( $user->ID, true, is_ssl() );
 	do_action( 'wp_login', $user->user_login, $user );
 
-	$redirect_to = isset( $_GET['redirect_to'] ) ? esc_url_raw( wp_unslash( $_GET['redirect_to'] ) ) : home_url( '/' );
+	$default_redirect = admin_url( 'admin.php?page=xophz-compass#' );
+	$redirect_to = ( isset( $_GET['redirect_to'] ) && ! empty( $_GET['redirect_to'] ) )
+		? esc_url_raw( wp_unslash( $_GET['redirect_to'] ) ) 
+		: $default_redirect;
 	wp_safe_redirect( $redirect_to );
 	exit;
 }, 1 );

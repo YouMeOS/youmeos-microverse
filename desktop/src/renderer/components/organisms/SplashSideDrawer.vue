@@ -91,7 +91,7 @@
       @open-url="$emit('openUrl')"
       @open-browser="$emit('openBrowser')"
       @open-blackbox="$emit('openBlackbox')"
-      @open-dashboard="$emit('openDashboard')"
+      @open-settings="$emit('openSettings')"
     />
   </div>
 </template>
@@ -164,6 +164,6 @@ defineEmits<{
   (e: 'openUrl'): void;
   (e: 'openBrowser'): void;
   (e: 'openBlackbox'): void;
-  (e: 'openDashboard'): void;
+  (e: 'openSettings'): void;
 }>();
 </script>

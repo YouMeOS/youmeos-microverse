@@ -13,7 +13,6 @@
     <div class="header-controls">
       <!-- Engine Mode Selector -->
       <div class="engine-switch">
-        <label for="engine-selector" class="control-label">Engine</label>
         <EngineSelector
           :model-value="engineType"
           @update:model-value="$emit('setEngineType', $event)"
@@ -87,12 +86,11 @@
         <!-- 3D Matrix Splash Button -->
         <button
           type="button"
-          class="btn-return-splash"
+          class="btn-icon btn-splash-toggle"
           title="Return to 3D Matrix Splash View"
           @click="$emit('openSplash')"
         >
-          <BaseIcon name="cube" :size="13" />
-          <span>3D Matrix</span>
+          <BaseIcon name="cube" :size="14" />
         </button>
       </div>
     </div>

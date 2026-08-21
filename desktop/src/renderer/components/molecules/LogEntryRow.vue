@@ -24,8 +24,10 @@ const formattedTime = computed(() => {
 const serviceBadgeClass = computed(() => {
   const s = props.entry.service.toLowerCase();
   if (s.includes('caddy') || s.includes('gateway')) return 'service-caddy';
-  if (s.includes('wp') || s.includes('php') || s.includes('core')) return 'service-wp';
+  if (s.includes('wp') || s.includes('php') || s.includes('core') || s.includes('franken')) return 'service-wp';
   if (s.includes('sqlite') || s.includes('db')) return 'service-db';
+  if (s.includes('setup') || s.includes('composer') || s.includes('system')) return 'service-setup';
+  if (s.includes('node') || s.includes('network') || s.includes('mesh')) return 'service-node';
   return 'service-system';
 });
 </script>

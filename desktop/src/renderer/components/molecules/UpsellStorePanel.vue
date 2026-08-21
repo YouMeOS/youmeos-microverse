@@ -7,7 +7,7 @@
           <BaseIcon name="compass" :size="18" />
         </div>
         <div>
-          <h3 class="panel-title">COMPASS Sovereignty Store</h3>
+          <h3 class="panel-title">YouMeOS COMPASS Store</h3>
           <span class="panel-subtitle">Upgrade tier to unlock mini-apps &amp; superpowers</span>
         </div>
       </div>

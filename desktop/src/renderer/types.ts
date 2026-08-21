@@ -15,6 +15,13 @@ import type {
   UpdateProgress
 } from '../main/updater';
 
+import type {
+  WpUser,
+  PasswordResetResult,
+  AutoLoginResult,
+  DbHealthResult
+} from '../main/engine/diagnostics';
+
 export interface DesktopApi {
   start: () => Promise<void>;
   stop: () => Promise<void>;
@@ -38,6 +45,11 @@ export interface DesktopApi {
   setEngineType: (type: string) => Promise<void>;
   updatePlugins: () => Promise<{ stdout?: string; stderr?: string }>;
   getVersion?: () => Promise<string>;
+  listUsers?: () => Promise<WpUser[]>;
+  resetPassword?: (userId?: number, customPassword?: string) => Promise<PasswordResetResult>;
+  autoLogin?: (userId?: number, redirectTo?: string) => Promise<AutoLoginResult>;
+  flushSession?: () => Promise<boolean>;
+  checkDbHealth?: () => Promise<DbHealthResult>;
   checkForUpdates?: () => Promise<AppUpdateStatus>;
   downloadUpdate?: () => Promise<void>;
   installUpdate?: () => Promise<void>;
@@ -60,5 +72,9 @@ export type {
   LogFilterOptions,
   AppUpdateStatus,
   UpdateState,
-  UpdateProgress
+  UpdateProgress,
+  WpUser,
+  PasswordResetResult,
+  AutoLoginResult,
+  DbHealthResult
 };

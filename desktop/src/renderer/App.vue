@@ -33,7 +33,7 @@
       @open-url="state.openUrl"
       @open-browser="state.openBrowser"
       @open-blackbox="state.openBlackbox"
-      @open-dashboard="handleSwitchView('dashboard')"
+      @open-settings="handleOpenSettings"
     />
 
     <!-- Primary Main Dashboard Layout View -->
@@ -47,9 +47,6 @@
       :current-gateway-url="state.currentGatewayUrl.value"
       :current-tier-data="license.currentTierData.value"
       :current-tier-color="license.currentTierColor.value"
-      :stack-layers="state.stackLayers.value"
-      :verified-count="state.verifiedLayersCount.value"
-      :total-count="state.totalLayersCount.value"
       :version="state.version.value"
       :stay-on-splash="state.stayOnSplash.value"
       :autolaunch="state.autolaunch.value"
@@ -60,7 +57,6 @@
       :is-action-pending="state.isActionPending.value"
       :is-checking-updates="updater.isChecking.value"
       :is-copied="isCopied"
-      :logs="logs.filteredLogs.value"
       :api="state.api"
       @set-tab="handleSetTab"
       @set-engine-type="state.setEngineType"
@@ -77,10 +73,6 @@
       @start="state.start"
       @stop="state.stop"
       @restart="state.restart"
-      @highlight-layer="handleHighlightLayer"
-      @select-layer="handleSelectLayer"
-      @copy-logs="logs.copyToClipboard"
-      @clear-logs="logs.clear"
     />
 
     <!-- Quake-Style Dropdown Live Console HUD -->
@@ -100,7 +92,7 @@
       @clear="logs.clear"
     />
 
-    <!-- COMPASS Sovereignty License Manager Modal (2-Panel HUD) -->
+    <!-- COMPASS License Manager Modal (2-Panel HUD) -->
     <LicenseModal
       :is-open="license.isModalOpen.value"
       :active-tier="license.currentTier.value"
@@ -183,16 +175,11 @@ const allTiers = [
 // 3. Helper Methods
 const switchCanvasContainer = (target: 'splash' | 'dashboard') => {
   const splashContainer = splashViewRef.value?.canvasContainerRef;
-  const dashContainer = dashViewRef.value?.dashCanvasContainerRef;
   const rendererDom = document.querySelector('canvas[data-engine="three.js"]');
 
   if (target === 'splash' && splashContainer) {
     if (rendererDom && rendererDom.parentElement !== splashContainer) {
       splashContainer.appendChild(rendererDom);
-    }
-  } else if (target === 'dashboard' && dashContainer) {
-    if (rendererDom && rendererDom.parentElement !== dashContainer) {
-      dashContainer.appendChild(rendererDom);
     }
   }
 
@@ -206,13 +193,13 @@ const handleSwitchView = (view: 'splash' | 'dashboard') => {
   });
 };
 
+const handleOpenSettings = () => {
+  state.activeTab.value = 'tab-settings';
+  handleSwitchView('dashboard');
+};
+
 const handleSetTab = (tabId: string) => {
   state.activeTab.value = tabId;
-  if (tabId === 'tab-matrix') {
-    nextTick(() => {
-      switchCanvasContainer('dashboard');
-    });
-  }
 };
 
 const handleHighlightLayer = (layerId: string | null) => {

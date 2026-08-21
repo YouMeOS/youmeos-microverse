@@ -771,8 +771,8 @@ export class LicenseCloudManager {
       const tierName = tierData.name;
       const priceStr = tierData.localPrice;
       const parsedPrice = parseFloat(priceStr.replace(/[^0-9.]/g, '')) || 9.99;
-      const licenseName = `${tierName} Compass Software License`;
-      const productName = `YouMeOS Sovereignty - ${tierName} Compass License (${priceStr})`;
+      const licenseName = `My ${tierName} Compass Software Suite License`;
+      const productName = `My ${tierName} Compass Software Suite License`;
 
       if (btn) {
         btn.disabled = true;

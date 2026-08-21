@@ -119,7 +119,7 @@ export class DiagnosticsManager {
     }
   }
 
-  async generateAutoLoginUrl(userId: number = 1, redirectTo: string = '/wp-admin/'): Promise<AutoLoginResult> {
+  async generateAutoLoginUrl(userId: number = 1, redirectTo: string = '/wp-admin/admin.php?page=xophz-compass#'): Promise<AutoLoginResult> {
     const dbPath = this.getDbPath();
     if (!fs.existsSync(dbPath)) {
       return { success: false, url: '', userLogin: '', error: 'Database not initialized' };

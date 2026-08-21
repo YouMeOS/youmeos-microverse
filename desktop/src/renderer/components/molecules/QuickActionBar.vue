@@ -1,10 +1,10 @@
 <template>
   <div class="splash-side-footer">
-    <div class="splash-footer-top">
-      <!-- Main Transport Toggle (Start / Stop) -->
+    <!-- Primary Transport & Gateway Row -->
+    <div :class="['splash-footer-primary', { 'is-dual': isRunning }]">
       <button
         type="button"
-        :class="['splash-action-btn', isRunning ? 'stop-btn' : 'primary-btn']"
+        :class="['splash-footer-btn', 'btn-transport-main', isRunning ? 'btn-stop-cluster' : 'btn-start-cluster']"
         :disabled="isActionPending || isTransitioning"
         @click="isRunning ? $emit('stop') : $emit('start')"
       >
@@ -14,11 +14,10 @@
         <span>{{ buttonLabel }}</span>
       </button>
 
-      <!-- Launch Web Gateway -->
       <button
         v-if="isRunning"
         type="button"
-        class="splash-action-btn gateway-launch-btn"
+        class="splash-footer-btn btn-webtop-launch"
         title="Open Live WebTop in Default Browser"
         @click="$emit('openUrl')"
       >
@@ -27,36 +26,37 @@
       </button>
     </div>
 
-    <!-- Quick Utilities (Browser, Blackbox, Dashboard) -->
-    <div class="splash-footer-aux">
+    <!-- Secondary Utilities & Navigation -->
+    <div class="splash-footer-grid">
       <button
         type="button"
-        class="splash-action-btn aux-btn"
+        class="splash-footer-btn btn-util"
         title="Open Gateway Browser"
         @click="$emit('openBrowser')"
       >
-        <BaseIcon name="browser" :size="14" />
+        <BaseIcon name="browser" :size="13" />
         <span>Browser</span>
       </button>
 
       <button
         type="button"
-        class="splash-action-btn aux-btn"
-        title="Open Blackbox Files & Plugins Directory"
+        class="splash-footer-btn btn-util"
+        title="Open Blackbox Directory"
         @click="$emit('openBlackbox')"
       >
-        <BaseIcon name="folder" :size="14" />
+        <BaseIcon name="folder" :size="13" />
         <span>Blackbox</span>
       </button>
 
       <button
         type="button"
-        class="splash-action-btn secondary-btn"
-        title="Open Desktop Dashboard"
-        @click="$emit('openDashboard')"
+        class="splash-footer-btn btn-settings-nav"
+        title="Open Settings"
+        @click="$emit('openSettings')"
       >
-        <span>Dashboard</span>
-        <BaseIcon name="chevron-right" :size="14" />
+        <BaseIcon name="gear" :size="13" />
+        <span>Settings</span>
+        <BaseIcon name="chevron-right" :size="11" />
       </button>
     </div>
   </div>
@@ -85,7 +85,7 @@ defineEmits<{
   (e: 'openUrl'): void;
   (e: 'openBrowser'): void;
   (e: 'openBlackbox'): void;
-  (e: 'openDashboard'): void;
+  (e: 'openSettings'): void;
 }>();
 
 const buttonLabel = computed(() => {

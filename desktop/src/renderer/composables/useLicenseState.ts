@@ -159,8 +159,8 @@ export function useLicenseState(onTierChanged?: (tier: string) => void) {
     const tierData = selectedTierData.value;
     const priceStr = tierData.localPrice;
     const parsedPrice = parseFloat(priceStr.replace(/[^0-9.]/g, '')) || 9.99;
-    const licenseName = `${tierData.name} Compass Software License`;
-    const productName = `YouMeOS Sovereignty - ${tierData.name} Compass License (${priceStr})`;
+    const licenseName = `My ${tierData.name} Compass Software Suite License`;
+    const productName = `My ${tierData.name} Compass Software Suite License`;
 
     isCheckingOut.value = true;
     try {
