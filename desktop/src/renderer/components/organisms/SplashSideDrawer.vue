@@ -41,7 +41,7 @@
       <!-- Verification Cards List -->
       <div class="telemetry-list">
         <MetricCard
-          v-for="layer in stackLayers"
+          v-for="layer in sortedStackLayers"
           :key="layer.id"
           :layer-id="layer.id"
           :title="layer.name"
@@ -97,6 +97,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import BaseIcon from '../atoms/BaseIcon.vue';
 import StatusBadge from '../atoms/StatusBadge.vue';
 import EngineSelector from '../molecules/EngineSelector.vue';
@@ -104,7 +105,7 @@ import MetricCard from '../molecules/MetricCard.vue';
 import QuickActionBar from '../molecules/QuickActionBar.vue';
 import type { EngineStatus, EngineType, StackLayerStatus } from '../../types';
 
-defineProps<{
+const props = defineProps<{
   isOpen: boolean;
   status: EngineStatus;
   engineType: EngineType;
@@ -117,6 +118,24 @@ defineProps<{
   isTransitioning: boolean;
   isActionPending: boolean;
 }>();
+
+const LAYER_ORDER: Record<string, number> = {
+  bedrock: 1,
+  database: 2,
+  core: 3,
+  server: 4,
+  network: 5,
+  portal: 6,
+  compass: 7
+};
+
+const sortedStackLayers = computed(() => {
+  return [...props.stackLayers].sort((a, b) => {
+    const orderA = LAYER_ORDER[a.id?.toLowerCase()] || 99;
+    const orderB = LAYER_ORDER[b.id?.toLowerCase()] || 99;
+    return orderA - orderB;
+  });
+});
 
 defineEmits<{
   (e: 'close'): void;

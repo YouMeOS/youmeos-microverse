@@ -67,12 +67,30 @@ export function useMicroverseState() {
     return stackLayers.value.length || 7;
   });
 
+  const LAYER_ORDER: Record<string, number> = {
+    bedrock: 1,
+    database: 2,
+    core: 3,
+    server: 4,
+    network: 5,
+    portal: 6,
+    compass: 7
+  };
+
+  const sortStackLayers = (layers: StackLayerStatus[]): StackLayerStatus[] => {
+    return [...layers].sort((a, b) => {
+      const orderA = LAYER_ORDER[a.id?.toLowerCase()] || 99;
+      const orderB = LAYER_ORDER[b.id?.toLowerCase()] || 99;
+      return orderA - orderB;
+    });
+  };
+
   // 3. Helper Methods & Event Handlers
   const updateFromStatusInfo = (info: Partial<EngineStatusInfo>) => {
     if (info.status) status.value = info.status;
     if (info.engineType) engineType.value = info.engineType;
     if (info.services) services.value = info.services;
-    if (info.stackLayers) stackLayers.value = info.stackLayers;
+    if (info.stackLayers) stackLayers.value = sortStackLayers(info.stackLayers);
     if (info.gateways) gateways.value = info.gateways;
     if (info.url) currentGatewayUrl.value = info.url;
     if (info.downloadProgress !== undefined) downloadProgress.value = info.downloadProgress;

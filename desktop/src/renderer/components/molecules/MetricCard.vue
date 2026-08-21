@@ -61,13 +61,13 @@ defineEmits<{
 }>();
 
 const layerTagMap: Record<string, { tag: string; tagClass: string; defaultTitle: string }> = {
-  compass: { tag: 'Systems', tagClass: 'neon-tag', defaultTitle: 'My COMPASS' },
-  portal: { tag: 'Portal', tagClass: 'cyan-tag', defaultTitle: 'Event Horizon' },
   bedrock: { tag: 'Foundation', tagClass: 'blue-tag', defaultTitle: 'Blackbox Bedrock' },
+  database: { tag: 'Storage', tagClass: 'purple-tag', defaultTitle: 'SQLite Database' },
   core: { tag: 'Kernel', tagClass: 'gold-tag', defaultTitle: 'Headless Core' },
   server: { tag: 'Gateway', tagClass: 'emerald-tag', defaultTitle: 'Web Server' },
-  database: { tag: 'Storage', tagClass: 'purple-tag', defaultTitle: 'SQLite Database' },
-  network: { tag: 'Mesh', tagClass: 'coral-tag', defaultTitle: 'Private Node (mDNS)' }
+  network: { tag: 'Mesh', tagClass: 'coral-tag', defaultTitle: 'Private Node (mDNS)' },
+  portal: { tag: 'Portal', tagClass: 'cyan-tag', defaultTitle: 'Event Horizon' },
+  compass: { tag: 'Systems', tagClass: 'neon-tag', defaultTitle: 'My COMPASS' }
 };
 
 const normalizedId = computed(() => (props.layerId || props.dataLayer || '').toLowerCase());

@@ -20,6 +20,9 @@ export interface TierInfo {
   whiteGlovePrice: string;
   whiteGloveHours: number;
   target: string;
+  headline: string;
+  simpleExplanation: string;
+  superpowers: string[];
   specs: string[];
   features: string[];
   url: string;
@@ -90,6 +93,13 @@ export const BOX_TIERS: TierInfo[] = [
     whiteGlovePrice: '$149/mo',
     whiteGloveHours: 1,
     target: 'Bloggers, Portfolio Owners, Freelancers, Solo Creators, Students, Hobbyists',
+    headline: 'Your Starter Super-Hub',
+    simpleExplanation: 'Your personal computer control deck. You get fast mini-apps for writing notes, listening to music, organizing daily goals, and winning gaming rewards.',
+    superpowers: [
+      '11 built-in mini-apps for notes, music, tasks, and privacy',
+      'Personal WebTop workspace with star navigation',
+      'True North gaming rewards and daily quest streaks'
+    ],
     specs: ['1 vCPU Dedicated Core', '512MB High-Speed RAM', '10GB Storage', '5TB Dedicated Bandwidth'],
     features: ['YouMeOS WebTop OS', 'Gamification & XP Engine', 'QA & Bug Reporting Net', 'Full Tesseract Framework'],
     url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29371/302083/',
@@ -106,6 +116,13 @@ export const BOX_TIERS: TierInfo[] = [
     whiteGlovePrice: '$199/mo',
     whiteGloveHours: 1,
     target: 'Local Shops, Contractors, Salons, Cafes, Fitness Instructors, Tradespeople',
+    headline: 'The Club and Customer Hub',
+    simpleExplanation: 'The starter club and store. Perfect for remembering your customers, saving their points, and sending instant news alerts straight to their screens.',
+    superpowers: [
+      'Questbook CRM to remember customer milestones and points',
+      'Bomb Bag news flashes to send instant broadcast messages',
+      'Automated daily safeguards to keep data protected'
+    ],
     specs: ['1 vCPU Dedicated Core', '1GB High-Speed RAM', '25GB Storage', '10TB Dedicated Bandwidth'],
     features: ['All Quantum Features', 'Questbook CRM Lead Capture', 'Bomb Bag Broadcasts', 'Automated Daily Safeguards'],
     url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29501/302084/',
@@ -122,6 +139,13 @@ export const BOX_TIERS: TierInfo[] = [
     whiteGlovePrice: '$299/mo',
     whiteGloveHours: 1.5,
     target: 'Consultants, Photographers, Digital Marketers, Web Designers, Content Creators',
+    headline: 'The Superpower Automation Machine',
+    simpleExplanation: 'Put your computer on autopilot. Build smart step-by-step recipes that do work for you automatically, while strong shield walls keep your files safe.',
+    superpowers: [
+      'Magic Formula visual recipe builder with smart triggers',
+      'HoloShell command terminal and live health monitors',
+      'Castle Walls shield to block bots and suspicious traffic'
+    ],
     specs: ['2 vCPU Dedicated Cores', '2GB High-Speed RAM', '65GB NVMe Storage', '25TB Dedicated Bandwidth'],
     features: ['All Bronze Features', 'Magic Formula Automations', 'HoloShell CLI & System Monitor', 'Castle Walls WAF Defense'],
     url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29504/302085/',
@@ -138,6 +162,13 @@ export const BOX_TIERS: TierInfo[] = [
     whiteGlovePrice: '$399/mo',
     whiteGloveHours: 2,
     target: 'Lawyers, Dentists, Accountants, Real Estate Agents, Private Clinics, Boutiques',
+    headline: 'The Digital Shopkeeper',
+    simpleExplanation: 'Build cool web pages and sell items online. It comes with a developer toolkit and high-speed memory so your store never lags.',
+    superpowers: [
+      "Wizard's Tower studio to create custom pages and themes",
+      'Digital storefront tools to sell products online',
+      'Turbo cache system for ultra-fast page loading'
+    ],
     specs: ['2 vCPU Dedicated Cores', '4GB High-Speed RAM', '128GB Storage', '25TB Dedicated Bandwidth'],
     features: ['All Silver Features', "Wizard's Tower Dev Studio", 'E-Commerce Storefront', 'High-Speed Page Cache'],
     url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/42889/290370/',
@@ -154,6 +185,13 @@ export const BOX_TIERS: TierInfo[] = [
     whiteGlovePrice: '$599/mo',
     whiteGloveHours: 3,
     target: 'E-Commerce Brands, Software Startups, PR Agencies, Financial Advisors, Tech Firms',
+    headline: 'The Multiverse and Media Boss',
+    simpleExplanation: 'Control multiple websites from one screen. Create and broadcast your own music, videos, and podcasts with a full creative media studio.',
+    superpowers: [
+      'Logos Multiverse command center to manage multiple domains',
+      'Helios creative media studio for music, audio, and videos',
+      'Automated sales funnels to turn visitors into happy buyers'
+    ],
     specs: ['4 vCPU Dedicated Cores', '8GB High-Speed RAM', '160GB NVMe Storage', '100TB Dedicated Bandwidth'],
     features: ['All Silver Enhanced Features', 'Logos Multiverse Command', 'Helios Media Studio', 'Automated Sales Funnels'],
     url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29505/302086/',
@@ -170,6 +208,13 @@ export const BOX_TIERS: TierInfo[] = [
     whiteGlovePrice: '$799/mo',
     whiteGloveHours: 4,
     target: 'Mid-Size Agencies, Course Creators, Media Companies, SaaS Founders, Large Law Firms',
+    headline: 'The Smart Content Creator',
+    simpleExplanation: 'Let smart computers help you write articles, create marketing posts, and track easy charts that show how fast your business is growing.',
+    superpowers: [
+      'AI content generator pipeline to draft posts and articles',
+      'Live business intelligence charts and growth metrics',
+      'Multi-app cluster setup for heavier workflows'
+    ],
     specs: ['4 vCPU Dedicated Cores', '16GB High-Speed RAM', '384GB NVMe Storage', '100TB Dedicated Bandwidth'],
     features: ['All Gold Features', 'AI Content Generator Pipeline', 'Business Intelligence Telemetry', 'Multi-App Cluster Setup'],
     url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/42890/290371/',
@@ -186,6 +231,13 @@ export const BOX_TIERS: TierInfo[] = [
     whiteGlovePrice: '$999/mo',
     whiteGloveHours: 5,
     target: 'High-Volume Stores, B2B Enterprises, Digital Publishers, Investment Firms',
+    headline: 'The AI Robot Squad',
+    simpleExplanation: 'Get a whole team of smart AI helper agents. They work together non-stop 24/7 to solve tough tasks, organize data, and run your business.',
+    superpowers: [
+      'Nexos AI multi-agent network working cooperatively',
+      'Turn-key agency command hub for clients and teams',
+      'Custom single sign-on security for fast team logins'
+    ],
     specs: ['6 vCPU Dedicated Cores', '16GB High-Speed RAM', '320GB Storage', '200TB Dedicated Bandwidth'],
     features: ['All Gold Enhanced Features', 'Nexos Multi-Agent AI Network', 'Turn-Key Agency Hub', 'Custom Single Sign-On'],
     url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29545/302087/',
@@ -202,6 +254,13 @@ export const BOX_TIERS: TierInfo[] = [
     whiteGlovePrice: '$1,499/mo',
     whiteGloveHours: 7.5,
     target: 'Franchises, Marketing Networks, Healthcare Providers, Multi-Location Retailers',
+    headline: 'The Giant Brand Network',
+    simpleExplanation: 'Create a massive online world with your own logo and custom colors, with unlimited room for your team and all your fans.',
+    superpowers: [
+      'Noosphere resonance space for collective team thinking',
+      'White-label brand engine to put your own logo everywhere',
+      'High-capacity super cluster for heavy internet traffic'
+    ],
     specs: ['6 vCPU Dedicated Cores', '24GB High-Speed RAM', '448GB Storage', '200TB Dedicated Bandwidth'],
     features: ['All Platinum Features', 'Noosphere Resonance Space', 'White-Label Branding Engine', 'High-Capacity Cluster'],
     url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/42891/290372/',
@@ -218,6 +277,13 @@ export const BOX_TIERS: TierInfo[] = [
     whiteGlovePrice: '$1,999/mo',
     whiteGloveHours: 10,
     target: 'Enterprise E-Commerce, Financial Institutions, Media Conglomerates, Global Agencies',
+    headline: 'The Bulletproof Vault',
+    simpleExplanation: 'The strongest security shield possible. It protects your data like a bank vault with non-stop backup power that never goes down.',
+    superpowers: [
+      'Enterprise regulatory compliance and safety certs',
+      'Real-time threat shield WAF defense barrier',
+      'Zero-downtime sandbox for testing without risk'
+    ],
     specs: ['8 vCPU Dedicated Cores', '32GB High-Speed RAM', '640GB Storage', '250TB Dedicated Bandwidth'],
     features: ['All Platinum Enhanced Features', 'Enterprise Regulatory Compliance', 'Real-Time Threat Shield', 'Zero-Downtime Sandbox'],
     url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29546/302088/',
@@ -234,6 +300,13 @@ export const BOX_TIERS: TierInfo[] = [
     whiteGlovePrice: '$2,499/mo',
     whiteGloveHours: 12,
     target: 'Multinational Corporations, Cloud SaaS Providers, High-Traffic News Outlets',
+    headline: 'The Self-Repairing Rocket',
+    simpleExplanation: 'An ultra-fast engine that monitors its own health. If anything breaks, it fixes the problem automatically in milliseconds without stopping.',
+    superpowers: [
+      'BlackBOX kernel diagnostics with live memory profiling',
+      'Auto-scaling engine that grows with sudden traffic spikes',
+      'Self-healing infrastructure that repairs itself on the fly'
+    ],
     specs: ['16 vCPU Dedicated Cores', '64GB High-Speed RAM', '1.28TB SSD', '250TB+ Dedicated Bandwidth'],
     features: ['All Uranium Features', 'BlackBOX Kernel Diagnostics', 'Auto-Scaling Engine', 'Self-Healing Infrastructure'],
     url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29547/302089/',
@@ -250,6 +323,13 @@ export const BOX_TIERS: TierInfo[] = [
     whiteGlovePrice: '$4,999/mo',
     whiteGloveHours: 20,
     target: 'Global Enterprises, Infrastructure Providers, Fortune 500s, Massive User Networks',
+    headline: 'The Master Infinity Key',
+    simpleExplanation: 'The ultimate power level. Unlimited worldwide speed, maximum computing power, and your own dedicated senior systems engineer on call.',
+    superpowers: [
+      'Omni-Sovereign global core network API integration',
+      'Instant worldwide synchronization across all servers',
+      '20 hours monthly retainer with a dedicated senior systems engineer'
+    ],
     specs: ['24 vCPU Dedicated Cores', '96GB High-Speed RAM', '2.5TB+ SSD', 'Unlimited Global Bandwidth'],
     features: ['All Titanium Features', 'Omni-Sovereign Core Network API', 'Global Network Sync', '20h Principal Systems Retainer'],
     url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29548/302090/',

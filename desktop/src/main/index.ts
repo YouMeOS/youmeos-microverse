@@ -193,12 +193,15 @@ async function createWindow(): Promise<void> {
     title: 'My YouMeOS Microverse',
     backgroundColor: '#0a0d14',
     icon: appIcon,
+    autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload', 'index.js'),
       nodeIntegration: false,
       contextIsolation: true
     }
   });
+
+  mainWindow.setMenu(null);
 
   if (!appIcon.isEmpty()) {
     mainWindow.setIcon(appIcon);

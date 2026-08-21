@@ -102,26 +102,6 @@ export async function inspectStackLayers(options: StackInspectionOptions): Promi
 
   const layers: StackLayerStatus[] = [
     {
-      id: 'compass',
-      name: 'My COMPASS',
-      category: 'Command Suite & Sparks Navigator',
-      installed: isCompassInstalled,
-      active: isCompassActive,
-      version: compassVersion,
-      details: isCompassInstalled ? `PHP Plugin · v${compassVersion || '1.0'}` : 'Not installed in plugins',
-      status: isCompassActive ? 'running' : (isCompassInstalled ? 'stopped' : 'error')
-    },
-    {
-      id: 'portal',
-      name: 'Event Horizon Portal',
-      category: 'Front-End Interface & 3D Engine',
-      installed: isEhInstalled,
-      active: isEhActive,
-      version: ehVersion,
-      details: isEhInstalled ? `Vue 3 + Vuetify · ${ehVersion || 'Ready'}` : 'Not installed in plugins',
-      status: isEhActive ? 'running' : (isEhInstalled ? 'stopped' : 'error')
-    },
-    {
       id: 'bedrock',
       name: 'Blackbox Bedrock',
       category: 'Must-Use (MU) Foundation & Genesis Wave',
@@ -130,6 +110,15 @@ export async function inspectStackLayers(options: StackInspectionOptions): Promi
       version: bedrockVersion,
       details: isBedrockInstalled ? `MU-Plugin · v${bedrockVersion || '26.8'}` : 'Bedrock MU missing',
       status: isBedrockActive ? 'running' : (isBedrockInstalled ? 'stopped' : 'error')
+    },
+    {
+      id: 'database',
+      name: 'SQLite Database Store',
+      category: 'Encrypted VFS Persistent Storage',
+      installed: isDbInstalled,
+      active: isDbActive,
+      details: isDbInstalled ? `database.sqlite (${dbSizeStr || 'Active'})` : 'No database file',
+      status: isDbActive ? 'running' : (isDbInstalled ? 'stopped' : 'error')
     },
     {
       id: 'core',
@@ -152,15 +141,6 @@ export async function inspectStackLayers(options: StackInspectionOptions): Promi
       status: isServerActive ? 'running' : 'stopped'
     },
     {
-      id: 'database',
-      name: 'SQLite Database Store',
-      category: 'Encrypted VFS Persistent Storage',
-      installed: isDbInstalled,
-      active: isDbActive,
-      details: isDbInstalled ? `database.sqlite (${dbSizeStr || 'Active'})` : 'No database file',
-      status: isDbActive ? 'running' : (isDbInstalled ? 'stopped' : 'error')
-    },
-    {
       id: 'network',
       name: 'Private Node Network',
       category: 'ZeroConf & mDNS Mesh (youmeos.local)',
@@ -168,6 +148,26 @@ export async function inspectStackLayers(options: StackInspectionOptions): Promi
       active: isNetworkActive,
       details: 'youmeos.local · Port 5353 / Loopback',
       status: isNetworkActive ? 'running' : 'stopped'
+    },
+    {
+      id: 'portal',
+      name: 'Event Horizon Portal',
+      category: 'Front-End Interface & 3D Engine',
+      installed: isEhInstalled,
+      active: isEhActive,
+      version: ehVersion,
+      details: isEhInstalled ? `Vue 3 + Vuetify · ${ehVersion || 'Ready'}` : 'Not installed in plugins',
+      status: isEhActive ? 'running' : (isEhInstalled ? 'stopped' : 'error')
+    },
+    {
+      id: 'compass',
+      name: 'My COMPASS',
+      category: 'Command Suite & Sparks Navigator',
+      installed: isCompassInstalled,
+      active: isCompassActive,
+      version: compassVersion,
+      details: isCompassInstalled ? `PHP Plugin · v${compassVersion || '1.0'}` : 'Not installed in plugins',
+      status: isCompassActive ? 'running' : (isCompassInstalled ? 'stopped' : 'error')
     }
   ];
 

@@ -17,23 +17,38 @@ export function useLicenseState(onTierChanged?: (tier: string) => void) {
   const isModalOpen = ref<boolean>(false);
   const currentTier = ref<string>(localStorage.getItem('youmeosLicenseTier') || 'black');
   const currentKey = ref<string>(localStorage.getItem('youmeosLicenseKey') || 'BLCK-SOVEREIGN-LOCAL-2026');
+  const selectedTier = ref<string>(localStorage.getItem('youmeosLicenseTier') || 'black');
   const activeSparkFilter = ref<'all' | 'spark' | 'portal'>('all');
-  const isSparksCollapsed = ref<boolean>(true);
+  const isSparksCollapsed = ref<boolean>(false);
   const inputKey = ref<string>('');
   const feedbackMsg = ref<{ text: string; type: 'success' | 'error' } | null>(null);
   const isCheckingOut = ref<boolean>(false);
 
   // 2. Computed State
-  const currentTierData = computed<TierInfo>(() => {
-    return BOX_TIERS.find(t => t.id === currentTier.value) || BOX_TIERS[0];
+  const activeTierData = computed<TierInfo>(() => {
+    const target = currentTier.value;
+    return BOX_TIERS.find(t => t.id === target || (target === 'black' && t.id === 'quantum')) || BOX_TIERS[0];
   });
 
-  const currentTierColor = computed(() => {
+  const activeTierColor = computed(() => {
     return COMPASS_TIER_COLORS[currentTier.value] || COMPASS_TIER_COLORS.black;
   });
 
-  const currentTierIndex = computed(() => {
-    return TIER_ORDER.indexOf(currentTier.value);
+  const selectedTierData = computed<TierInfo>(() => {
+    const target = selectedTier.value;
+    return BOX_TIERS.find(t => t.id === target || (target === 'black' && t.id === 'quantum')) || BOX_TIERS[0];
+  });
+
+  const selectedTierColor = computed(() => {
+    return COMPASS_TIER_COLORS[selectedTier.value] || COMPASS_TIER_COLORS.black;
+  });
+
+  // Backwards compatibility aliases
+  const currentTierData = computed<TierInfo>(() => selectedTierData.value);
+  const currentTierColor = computed(() => selectedTierColor.value);
+
+  const selectedTierIndex = computed(() => {
+    return TIER_ORDER.indexOf(selectedTier.value);
   });
 
   const filteredSparks = computed(() => {
@@ -46,7 +61,7 @@ export function useLicenseState(onTierChanged?: (tier: string) => void) {
 
     return list.map(p => {
       const requiredIdx = TIER_ORDER.indexOf(p.minTier);
-      const isUnlocked = currentTierIndex.value >= requiredIdx;
+      const isUnlocked = selectedTierIndex.value >= requiredIdx;
       return {
         ...p,
         isUnlocked
@@ -68,9 +83,18 @@ export function useLicenseState(onTierChanged?: (tier: string) => void) {
     }, 4000);
   };
 
+  const selectTier = (tier: string) => {
+    const normalized = (tier || 'black').toLowerCase().replace('box', '').replace('-enhanced', '');
+    selectedTier.value = normalized;
+    if (onTierChanged) {
+      onTierChanged(normalized);
+    }
+  };
+
   const setTier = (tier: string, key?: string) => {
     const normalized = (tier || 'black').toLowerCase().replace('box', '').replace('-enhanced', '');
     currentTier.value = normalized;
+    selectedTier.value = normalized;
     if (key) {
       currentKey.value = key;
       localStorage.setItem('youmeosLicenseKey', key);
@@ -84,11 +108,16 @@ export function useLicenseState(onTierChanged?: (tier: string) => void) {
   };
 
   const openModal = () => {
+    selectedTier.value = currentTier.value;
     isModalOpen.value = true;
   };
 
   const closeModal = () => {
     isModalOpen.value = false;
+    // Revert 3D matrix to actual active tier upon closing
+    if (onTierChanged) {
+      onTierChanged(currentTier.value);
+    }
   };
 
   const toggleSparksCollapse = () => {
@@ -126,8 +155,8 @@ export function useLicenseState(onTierChanged?: (tier: string) => void) {
   };
 
   const triggerStripeCheckout = async () => {
-    const tierKey = currentTier.value;
-    const tierData = currentTierData.value;
+    const tierKey = selectedTier.value;
+    const tierData = selectedTierData.value;
     const priceStr = tierData.localPrice;
     const parsedPrice = parseFloat(priceStr.replace(/[^0-9.]/g, '')) || 9.99;
     const licenseName = `${tierData.name} Compass Software License`;
@@ -182,6 +211,11 @@ export function useLicenseState(onTierChanged?: (tier: string) => void) {
     isModalOpen,
     currentTier,
     currentKey,
+    activeTierData,
+    activeTierColor,
+    selectedTier,
+    selectedTierData,
+    selectedTierColor,
     currentTierData,
     currentTierColor,
     activeSparkFilter,
@@ -192,6 +226,7 @@ export function useLicenseState(onTierChanged?: (tier: string) => void) {
     filteredSparks,
     unlockedCount,
     setTier,
+    selectTier,
     openModal,
     closeModal,
     toggleSparksCollapse,

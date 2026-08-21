@@ -112,14 +112,14 @@ export class Architecture3DManager {
   private targetCameraDist: number = 16.0;
   private currentCameraDist: number = 16.0;
 
-  // Layer Height Offsets (Optimized vertical separation)
-  private readonly Y_COMPASS = 4.35;
-  private readonly Y_PORTAL = 2.6;
-  private readonly Y_BEDROCK = 1.3;
-  private readonly Y_CORE = 0.0;
-  private readonly Y_SERVER = -1.3;
-  private readonly Y_DB = -2.6;
-  private readonly Y_NETWORK = -3.9;
+  // Layer Height Offsets (Chakra Alignment: Root to Crown bottom-up)
+  private readonly Y_COMPASS = 4.35; // Crown (7th Chakra - Apex)
+  private readonly Y_PORTAL = 2.6;   // Third Eye (6th Chakra)
+  private readonly Y_NETWORK = 1.3;  // Throat (5th Chakra)
+  private readonly Y_SERVER = 0.0;   // Heart (4th Chakra - Equilibrium)
+  private readonly Y_CORE = -1.3;    // Solar Plexus (3rd Chakra)
+  private readonly Y_DB = -2.6;      // Sacral (2nd Chakra)
+  private readonly Y_BEDROCK = -3.9; // Root (1st Chakra - Base Substrate)
 
   // Unified Monolithic Box Structure Footprint (Exploded Cube Architecture)
   private readonly BOX_FOOTPRINT = 2.6;
@@ -176,34 +176,34 @@ export class Architecture3DManager {
     // Build Central Singularity Spine
     this.buildSpine();
 
-    // Build Layer 7: Network
-    this.buildNetworkLayer();
-
-    // Build Layer 6: SQLite Database Store
-    this.buildDatabaseLayer();
-
-    // Build Layer 5: Web & PHP Server
-    this.buildServerLayer();
-
-    // Build Layer 4: Headless Core (Application Kernel)
-    this.buildCoreLayer();
-
-    // Build Layer 3: Blackbox Bedrock Foundation
+    // Layer 1: Blackbox Bedrock Foundation (Root)
     this.buildBedrockLayer();
 
-    // Build Layer 2: Portal / Event Horizon (Singularity & Hypercube)
+    // Layer 2: SQLite Database Store (Sacral)
+    this.buildDatabaseLayer();
+
+    // Layer 3: Headless Core Application Kernel (Solar Plexus)
+    this.buildCoreLayer();
+
+    // Layer 4: Web Server & Gateway (Heart)
+    this.buildServerLayer();
+
+    // Layer 5: Private Node & Mesh (Throat)
+    this.buildNetworkLayer();
+
+    // Layer 6: Portal / Event Horizon (Third Eye)
     this.buildPortalLayer();
 
-    // Build Layer 1: My COMPASS (Sparks & Navigation Apex)
+    // Layer 7: My COMPASS (Crown)
     this.buildCompassLayer();
 
     // Add all layers to master stack
     this.stackGroup.add(
-      this.networkGroup,
-      this.dbGroup,
-      this.serverGroup,
-      this.coreGroup,
       this.bedrockGroup,
+      this.dbGroup,
+      this.coreGroup,
+      this.serverGroup,
+      this.networkGroup,
       this.portalGroup,
       this.compassGroup
     );
