@@ -253,8 +253,10 @@ export class SmokeCanvasEngine {
   }
 }
 
-export function initSmokeCanvas(canvasId = 'microverse-smoke-canvas'): SmokeCanvasEngine | null {
-  const el = document.getElementById(canvasId) as HTMLCanvasElement | null;
+export function initSmokeCanvas(target: string | HTMLCanvasElement = 'microverse-smoke-canvas'): SmokeCanvasEngine | null {
+  const el = typeof target === 'string'
+    ? (document.getElementById(target) as HTMLCanvasElement | null)
+    : target;
   if (!el) return null;
   return new SmokeCanvasEngine(el);
 }

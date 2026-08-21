@@ -2,6 +2,6 @@ packages:
   - '.'
 allowBuilds:
   electron: true
+  esbuild: true
 minimumReleaseAgeExclude:
   - vite@8.2.2
-
