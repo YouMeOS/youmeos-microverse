@@ -23,6 +23,8 @@ export interface TierInfo {
   specs: string[];
   features: string[];
   url: string;
+  stripeWhiteGloveUrl?: string;
+  stripeLicenseUrl?: string;
 }
 
 export const TIER_ORDER = [

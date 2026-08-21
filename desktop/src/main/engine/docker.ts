@@ -271,7 +271,7 @@ export class DockerEngine extends BaseEngine {
 
   async status(): Promise<EngineStatusInfo> {
     const isDocker = await this.isAvailable();
-    const stackLayers = await inspectStackLayers({
+    let stackLayers = await inspectStackLayers({
       projectDir: this.projectDir,
       resourcesDir: this.resourcesDir,
       isServerRunning: false
@@ -416,7 +416,7 @@ export class DockerEngine extends BaseEngine {
         overallStatus = 'starting';
       }
 
-      const stackLayers = await inspectStackLayers({
+      stackLayers = await inspectStackLayers({
         projectDir: this.projectDir,
         resourcesDir: this.resourcesDir,
         isServerRunning: overallStatus === 'running'
