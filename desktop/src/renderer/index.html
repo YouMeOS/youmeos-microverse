@@ -206,35 +206,7 @@
           class="telemetry-list"
           id="splash-telemetry-list"
         >
-          <!-- Layer 1: Portal (Event Horizon) -->
-          <div
-            class="telemetry-card"
-            data-layer="portal"
-            id="splash-card-portal"
-          >
-            <div class="telemetry-card-info">
-              <div class="telemetry-card-top">
-                <span class="telemetry-card-tag cyan-tag">Portal</span>
-                <span class="telemetry-card-name">Event Horizon</span>
-              </div>
-              <span
-                class="telemetry-card-detail"
-                id="splash-detail-portal"
-              >Checking plugin...</span>
-            </div>
-            <div
-              class="telemetry-status-pill stopped"
-              id="splash-pill-portal"
-            >
-              <span
-                class="dot stopped"
-                id="splash-dot-portal"
-              ></span>
-              <span id="splash-label-portal">Offline</span>
-            </div>
-          </div>
-
-          <!-- Layer 2: My COMPASS -->
+          <!-- Layer 1: My COMPASS (Systems Apex) -->
           <div
             class="telemetry-card"
             data-layer="compass"
@@ -262,35 +234,35 @@
             </div>
           </div>
 
-          <!-- Layer 3: SQLite Database -->
+          <!-- Layer 2: Portal (Event Horizon) -->
           <div
             class="telemetry-card"
-            data-layer="database"
-            id="splash-card-database"
+            data-layer="portal"
+            id="splash-card-portal"
           >
             <div class="telemetry-card-info">
               <div class="telemetry-card-top">
-                <span class="telemetry-card-tag purple-tag">Storage</span>
-                <span class="telemetry-card-name">SQLite Database</span>
+                <span class="telemetry-card-tag cyan-tag">Portal</span>
+                <span class="telemetry-card-name">Event Horizon</span>
               </div>
               <span
                 class="telemetry-card-detail"
-                id="splash-detail-database"
-              >Checking storage...</span>
+                id="splash-detail-portal"
+              >Checking plugin...</span>
             </div>
             <div
               class="telemetry-status-pill stopped"
-              id="splash-pill-database"
+              id="splash-pill-portal"
             >
               <span
                 class="dot stopped"
-                id="splash-dot-database"
+                id="splash-dot-portal"
               ></span>
-              <span id="splash-label-database">Offline</span>
+              <span id="splash-label-portal">Offline</span>
             </div>
           </div>
 
-          <!-- Layer 4: Bedrock (MU Plugin) -->
+          <!-- Layer 3: Bedrock (MU Plugin) -->
           <div
             class="telemetry-card"
             data-layer="bedrock"
@@ -318,7 +290,7 @@
             </div>
           </div>
 
-          <!-- Layer 5: Headless Core -->
+          <!-- Layer 4: Headless Core -->
           <div
             class="telemetry-card"
             data-layer="core"
@@ -346,7 +318,7 @@
             </div>
           </div>
 
-          <!-- Layer 6: Web & PHP Server -->
+          <!-- Layer 5: Web & PHP Server -->
           <div
             class="telemetry-card"
             data-layer="server"
@@ -354,7 +326,7 @@
           >
             <div class="telemetry-card-info">
               <div class="telemetry-card-top">
-                <span class="telemetry-card-tag cyan-tag">Gateway</span>
+                <span class="telemetry-card-tag emerald-tag">Gateway</span>
                 <span class="telemetry-card-name">Web & PHP Server</span>
               </div>
               <span
@@ -374,6 +346,34 @@
             </div>
           </div>
 
+          <!-- Layer 6: SQLite Database -->
+          <div
+            class="telemetry-card"
+            data-layer="database"
+            id="splash-card-database"
+          >
+            <div class="telemetry-card-info">
+              <div class="telemetry-card-top">
+                <span class="telemetry-card-tag purple-tag">Storage</span>
+                <span class="telemetry-card-name">SQLite Database</span>
+              </div>
+              <span
+                class="telemetry-card-detail"
+                id="splash-detail-database"
+              >Checking storage...</span>
+            </div>
+            <div
+              class="telemetry-status-pill stopped"
+              id="splash-pill-database"
+            >
+              <span
+                class="dot stopped"
+                id="splash-dot-database"
+              ></span>
+              <span id="splash-label-database">Offline</span>
+            </div>
+          </div>
+
           <!-- Layer 7: Private Node Network (mDNS) -->
           <div
             class="telemetry-card"
@@ -382,7 +382,7 @@
           >
             <div class="telemetry-card-info">
               <div class="telemetry-card-top">
-                <span class="telemetry-card-tag blue-tag">Mesh</span>
+                <span class="telemetry-card-tag coral-tag">Mesh</span>
                 <span class="telemetry-card-name">Private Node (mDNS)</span>
               </div>
               <span
@@ -1116,31 +1116,6 @@
             <!-- Layer Status Summary Chips -->
             <div
               class="dash-layer-card"
-              data-layer="portal"
-              id="dash-card-portal"
-            >
-              <div class="dash-card-info">
-                <span class="dash-card-tag cyan-tag">Portal</span>
-                <span class="dash-card-title">Event Horizon</span>
-                <span
-                  class="dash-card-sub"
-                  id="dash-sub-portal"
-                >Checking...</span>
-              </div>
-              <div
-                class="tier-status-pill stopped"
-                id="dash-pill-portal"
-              >
-                <span
-                  class="dot stopped"
-                  id="dash-dot-portal"
-                ></span>
-                <span id="dash-label-portal">Offline</span>
-              </div>
-            </div>
-
-            <div
-              class="dash-layer-card"
               data-layer="compass"
               id="dash-card-compass"
             >
@@ -1166,26 +1141,26 @@
 
             <div
               class="dash-layer-card"
-              data-layer="database"
-              id="dash-card-database"
+              data-layer="portal"
+              id="dash-card-portal"
             >
               <div class="dash-card-info">
-                <span class="dash-card-tag purple-tag">Storage</span>
-                <span class="dash-card-title">SQLite Database</span>
+                <span class="dash-card-tag cyan-tag">Portal</span>
+                <span class="dash-card-title">Event Horizon</span>
                 <span
                   class="dash-card-sub"
-                  id="dash-sub-database"
+                  id="dash-sub-portal"
                 >Checking...</span>
               </div>
               <div
                 class="tier-status-pill stopped"
-                id="dash-pill-database"
+                id="dash-pill-portal"
               >
                 <span
                   class="dot stopped"
-                  id="dash-dot-database"
+                  id="dash-dot-portal"
                 ></span>
-                <span id="dash-label-database">Offline</span>
+                <span id="dash-label-portal">Offline</span>
               </div>
             </div>
 
@@ -1245,7 +1220,7 @@
               id="dash-card-server"
             >
               <div class="dash-card-info">
-                <span class="dash-card-tag cyan-tag">Gateway</span>
+                <span class="dash-card-tag emerald-tag">Gateway</span>
                 <span class="dash-card-title">Web & PHP Server</span>
                 <span
                   class="dash-card-sub"
@@ -1266,11 +1241,36 @@
 
             <div
               class="dash-layer-card"
+              data-layer="database"
+              id="dash-card-database"
+            >
+              <div class="dash-card-info">
+                <span class="dash-card-tag purple-tag">Storage</span>
+                <span class="dash-card-title">SQLite Database</span>
+                <span
+                  class="dash-card-sub"
+                  id="dash-sub-database"
+                >Checking...</span>
+              </div>
+              <div
+                class="tier-status-pill stopped"
+                id="dash-pill-database"
+              >
+                <span
+                  class="dot stopped"
+                  id="dash-dot-database"
+                ></span>
+                <span id="dash-label-database">Offline</span>
+              </div>
+            </div>
+
+            <div
+              class="dash-layer-card"
               data-layer="network"
               id="dash-card-network"
             >
               <div class="dash-card-info">
-                <span class="dash-card-tag blue-tag">Mesh</span>
+                <span class="dash-card-tag coral-tag">Mesh</span>
                 <span class="dash-card-title">Private Node (mDNS)</span>
                 <span
                   class="dash-card-sub"
@@ -1301,39 +1301,7 @@
           class="visual-architecture-stack"
           id="system-model-view"
         >
-          <!-- Layer 1: Portal -->
-          <div
-            class="visual-stack-tier"
-            id="layer-event-horizon"
-          >
-            <div class="tier-identity-col">
-              <div class="tier-badge-row">
-                <span class="tier-badge cyan-badge">Front-End Interface</span>
-                <div
-                  class="tier-status-pill stopped"
-                  id="status-pill-portal"
-                ><span
-                    class="dot stopped"
-                    id="dot-portal"
-                  ></span><span id="label-portal">Offline</span></div>
-              </div>
-              <h2 class="tier-title">Event Horizon</h2>
-              <p
-                class="tier-subtitle"
-                id="arch-sub-portal"
-              >3D Engine & Vue 3 Micro-Frontends</p>
-              <div class="tier-meta-tags">
-                <span
-                  class="tier-tag highlight"
-                  id="arch-ver-portal"
-                >Plugin Verified</span>
-                <span class="tier-tag">Vue 3 + Vuetify</span>
-                <span class="tier-tag">Spatial Canvas</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Layer 2: Compass -->
+          <!-- Layer 1: Compass -->
           <div
             class="visual-stack-tier"
             id="layer-compass"
@@ -1365,39 +1333,39 @@
             </div>
           </div>
 
-          <!-- Layer 3: Database -->
+          <!-- Layer 2: Portal -->
           <div
             class="visual-stack-tier"
-            id="layer-database"
+            id="layer-event-horizon"
           >
             <div class="tier-identity-col">
               <div class="tier-badge-row">
-                <span class="tier-badge purple-badge">Storage</span>
+                <span class="tier-badge cyan-badge">Front-End Interface</span>
                 <div
                   class="tier-status-pill stopped"
-                  id="status-pill-database"
+                  id="status-pill-portal"
                 ><span
                     class="dot stopped"
-                    id="dot-database"
-                  ></span><span id="label-database">Offline</span></div>
+                    id="dot-portal"
+                  ></span><span id="label-portal">Offline</span></div>
               </div>
-              <h2 class="tier-title">SQLite Database</h2>
+              <h2 class="tier-title">Event Horizon</h2>
               <p
                 class="tier-subtitle"
-                id="arch-sub-database"
-              >Encrypted VFS Persistent Storage</p>
+                id="arch-sub-portal"
+              >3D Engine & Vue 3 Micro-Frontends</p>
               <div class="tier-meta-tags">
                 <span
                   class="tier-tag highlight"
-                  id="arch-ver-database"
-                >database.sqlite</span>
-                <span class="tier-tag">VFS</span>
-                <span class="tier-tag">Local</span>
+                  id="arch-ver-portal"
+                >Plugin Verified</span>
+                <span class="tier-tag">Vue 3 + Vuetify</span>
+                <span class="tier-tag">Spatial Canvas</span>
               </div>
             </div>
           </div>
 
-          <!-- Layer 4: Bedrock -->
+          <!-- Layer 3: Bedrock -->
           <div
             class="visual-stack-tier"
             id="layer-bedrock"
@@ -1428,7 +1396,7 @@
             </div>
           </div>
 
-          <!-- Layer 5: Core -->
+          <!-- Layer 4: Core -->
           <div
             class="visual-stack-tier"
             id="layer-core"
@@ -1460,14 +1428,14 @@
             </div>
           </div>
 
-          <!-- Layer 6: Server -->
+          <!-- Layer 5: Server -->
           <div
             class="visual-stack-tier"
             id="layer-server"
           >
             <div class="tier-identity-col">
               <div class="tier-badge-row">
-                <span class="tier-badge cyan-badge">Gateway</span>
+                <span class="tier-badge emerald-badge">Gateway</span>
                 <div
                   class="tier-status-pill stopped"
                   id="status-pill-server"
@@ -1492,6 +1460,38 @@
             </div>
           </div>
 
+          <!-- Layer 6: Database -->
+          <div
+            class="visual-stack-tier"
+            id="layer-database"
+          >
+            <div class="tier-identity-col">
+              <div class="tier-badge-row">
+                <span class="tier-badge purple-badge">Storage</span>
+                <div
+                  class="tier-status-pill stopped"
+                  id="status-pill-database"
+                ><span
+                    class="dot stopped"
+                    id="dot-database"
+                  ></span><span id="label-database">Offline</span></div>
+              </div>
+              <h2 class="tier-title">SQLite Database</h2>
+              <p
+                class="tier-subtitle"
+                id="arch-sub-database"
+              >Encrypted VFS Persistent Storage</p>
+              <div class="tier-meta-tags">
+                <span
+                  class="tier-tag highlight"
+                  id="arch-ver-database"
+                >database.sqlite</span>
+                <span class="tier-tag">VFS</span>
+                <span class="tier-tag">Local</span>
+              </div>
+            </div>
+          </div>
+
           <!-- Layer 7: Network -->
           <div
             class="visual-stack-tier"
@@ -1499,7 +1499,7 @@
           >
             <div class="tier-identity-col">
               <div class="tier-badge-row">
-                <span class="tier-badge blue-badge">Mesh</span>
+                <span class="tier-badge coral-badge">Mesh</span>
                 <div
                   class="tier-status-pill stopped"
                   id="status-pill-network"

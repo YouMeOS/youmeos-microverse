@@ -102,16 +102,6 @@ export async function inspectStackLayers(options: StackInspectionOptions): Promi
 
   const layers: StackLayerStatus[] = [
     {
-      id: 'portal',
-      name: 'Event Horizon Portal',
-      category: 'Front-End Interface & 3D Engine',
-      installed: isEhInstalled,
-      active: isEhActive,
-      version: ehVersion,
-      details: isEhInstalled ? `Vue 3 + Vuetify · ${ehVersion || 'Ready'}` : 'Not installed in plugins',
-      status: isEhActive ? 'running' : (isEhInstalled ? 'stopped' : 'error')
-    },
-    {
       id: 'compass',
       name: 'My COMPASS',
       category: 'Command Suite & Sparks Navigator',
@@ -122,13 +112,14 @@ export async function inspectStackLayers(options: StackInspectionOptions): Promi
       status: isCompassActive ? 'running' : (isCompassInstalled ? 'stopped' : 'error')
     },
     {
-      id: 'database',
-      name: 'SQLite Database Store',
-      category: 'Encrypted VFS Persistent Storage',
-      installed: isDbInstalled,
-      active: isDbActive,
-      details: isDbInstalled ? `database.sqlite (${dbSizeStr || 'Active'})` : 'No database file',
-      status: isDbActive ? 'running' : (isDbInstalled ? 'stopped' : 'error')
+      id: 'portal',
+      name: 'Event Horizon Portal',
+      category: 'Front-End Interface & 3D Engine',
+      installed: isEhInstalled,
+      active: isEhActive,
+      version: ehVersion,
+      details: isEhInstalled ? `Vue 3 + Vuetify · ${ehVersion || 'Ready'}` : 'Not installed in plugins',
+      status: isEhActive ? 'running' : (isEhInstalled ? 'stopped' : 'error')
     },
     {
       id: 'bedrock',
@@ -159,6 +150,15 @@ export async function inspectStackLayers(options: StackInspectionOptions): Promi
       active: isServerActive,
       details: 'Ports 80 / 443 · HTTP/2 & TLS 1.3',
       status: isServerActive ? 'running' : 'stopped'
+    },
+    {
+      id: 'database',
+      name: 'SQLite Database Store',
+      category: 'Encrypted VFS Persistent Storage',
+      installed: isDbInstalled,
+      active: isDbActive,
+      details: isDbInstalled ? `database.sqlite (${dbSizeStr || 'Active'})` : 'No database file',
+      status: isDbActive ? 'running' : (isDbInstalled ? 'stopped' : 'error')
     },
     {
       id: 'network',

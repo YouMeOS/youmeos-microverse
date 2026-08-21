@@ -63,6 +63,7 @@ let currentGatewayUrl = 'https://my.youmeos.com';
 let isActionPending = false;
 let currentCanvasParent: 'splash' | 'dashboard' = 'splash';
 let hasAutoTransitioned = false;
+let hasAutoLaunchedGateway = false;
 
 function switchCanvasContainer(target: 'splash' | 'dashboard'): void {
   if (currentCanvasParent === target) return;
@@ -219,8 +220,21 @@ function updateStatusUI(info: Partial<EngineStatusInfo>): void {
     btnRestart.disabled = isActionPending || isStopped || isTransitioning || isError;
   }
 
+  if (isStopped) {
+    hasAutoTransitioned = false;
+    hasAutoLaunchedGateway = false;
+  }
+
+  // Auto-launch gateway in browser when service turns on
+  const shouldAutoLaunchGateway = isRunning && !hasAutoLaunchedGateway;
+  if (shouldAutoLaunchGateway) {
+    hasAutoLaunchedGateway = true;
+    windowApi.openUrl(currentGatewayUrl);
+  }
+
   // Auto-transition from splash on run if not locked
-  if (isRunning && !hasAutoTransitioned && !chkStaySplash?.checked) {
+  const shouldAutoTransitionSplash = isRunning && !hasAutoTransitioned && !chkStaySplash?.checked;
+  if (shouldAutoTransitionSplash) {
     hasAutoTransitioned = true;
     setTimeout(() => {
       if (!chkStaySplash?.checked) dismissSplashScreen();

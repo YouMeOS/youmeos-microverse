@@ -84,12 +84,12 @@ export class Architecture3DManager {
   private currentCameraDist: number = 16.0;
 
   // Layer Height Offsets (Optimized vertical separation)
-  private readonly Y_PORTAL = 3.9;
-  private readonly Y_COMPASS = 2.6;
-  private readonly Y_DB = 1.3;
-  private readonly Y_BEDROCK = 0.0;
-  private readonly Y_CORE = -1.3;
-  private readonly Y_SERVER = -2.6;
+  private readonly Y_COMPASS = 3.9;
+  private readonly Y_PORTAL = 2.6;
+  private readonly Y_BEDROCK = 1.3;
+  private readonly Y_CORE = 0.0;
+  private readonly Y_SERVER = -1.3;
+  private readonly Y_DB = -2.6;
   private readonly Y_NETWORK = -3.9;
 
   // Unified Monolithic Box Structure Footprint (Exploded Cube Architecture)
@@ -150,33 +150,33 @@ export class Architecture3DManager {
     // Build Layer 7: Network
     this.buildNetworkLayer();
 
-    // Build Layer 6: Web Server
-    this.buildServerLayer();
-
-    // Build Layer 5: Blackbox Bedrock Foundation
-    this.buildBedrockLayer();
-
-    // Build Layer 4: SQLite Database Store
+    // Build Layer 6: SQLite Database Store
     this.buildDatabaseLayer();
 
-    // Build Layer 3: Headless Core (Application Kernel)
+    // Build Layer 5: Web & PHP Server
+    this.buildServerLayer();
+
+    // Build Layer 4: Headless Core (Application Kernel)
     this.buildCoreLayer();
 
-    // Build Layer 2: My COMPASS (Sparks & Navigation)
-    this.buildCompassLayer();
+    // Build Layer 3: Blackbox Bedrock Foundation
+    this.buildBedrockLayer();
 
-    // Build Layer 1: Portal / Event Horizon (Singularity & Hypercube)
+    // Build Layer 2: Portal / Event Horizon (Singularity & Hypercube)
     this.buildPortalLayer();
+
+    // Build Layer 1: My COMPASS (Sparks & Navigation Apex)
+    this.buildCompassLayer();
 
     // Add all layers to master stack
     this.stackGroup.add(
       this.networkGroup,
-      this.serverGroup,
-      this.bedrockGroup,
       this.dbGroup,
+      this.serverGroup,
       this.coreGroup,
-      this.compassGroup,
-      this.portalGroup
+      this.bedrockGroup,
+      this.portalGroup,
+      this.compassGroup
     );
   }
 
@@ -351,7 +351,7 @@ export class Architecture3DManager {
     this.coreGroup.position.y = this.Y_CORE;
 
     // Solid 3D Golden Cube (Application Kernel)
-    const coreHeight = 1.5;
+    const coreHeight = 0.85;
     const cubeGeo = new THREE.BoxGeometry(this.BOX_FOOTPRINT, coreHeight, this.BOX_FOOTPRINT);
     const cubeMat = new THREE.MeshStandardMaterial({
       color: 0xd49b56,
@@ -378,20 +378,28 @@ export class Architecture3DManager {
     this.compassGroup = new THREE.Group();
     this.compassGroup.position.y = this.Y_COMPASS;
 
-    // Outer Gyro Gimbal Ring
-    const outerRingGeo = new THREE.TorusGeometry(1.65, 0.035, 12, 48);
-    const ringMat = new THREE.MeshBasicMaterial({ color: 0x62c9ff, transparent: true, opacity: 0.85 });
-    this.compassOuterRing = new THREE.Mesh(outerRingGeo, ringMat);
+    // 1. Outer Gyro Gimbal Ring (Emerald Green - 0x3ecd74 matching Compass Admin Splash)
+    const outerRingGeo = new THREE.TorusGeometry(1.7, 0.035, 12, 64);
+    const outerRingMat = new THREE.MeshBasicMaterial({
+      color: 0x3ecd74,
+      transparent: true,
+      opacity: 0.9
+    });
+    this.compassOuterRing = new THREE.Mesh(outerRingGeo, outerRingMat);
     this.compassOuterRing.rotation.x = Math.PI / 2;
     this.compassGroup.add(this.compassOuterRing);
 
-    // Inner Gimbal Ring
-    const innerRingGeo = new THREE.TorusGeometry(1.2, 0.03, 12, 36);
-    const innerRingMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8, transparent: true, opacity: 0.7 });
+    // 2. Inner Gyro Gimbal Ring (Blue/Cyan - 0x25a1c5 matching Compass Admin Splash)
+    const innerRingGeo = new THREE.TorusGeometry(1.3, 0.03, 12, 48);
+    const innerRingMat = new THREE.MeshBasicMaterial({
+      color: 0x25a1c5,
+      transparent: true,
+      opacity: 0.85
+    });
     this.compassInnerRing = new THREE.Mesh(innerRingGeo, innerRingMat);
     this.compassGroup.add(this.compassInnerRing);
 
-    // 4-point Diamond Spark Star
+    // 3. 4-point Diamond Spark Star
     this.compassSparkStar = new THREE.Group();
     const needleMatCyan = new THREE.MeshStandardMaterial({ color: 0x62c9ff, roughness: 0.2, metalness: 0.8 });
     const needleMatGold = new THREE.MeshStandardMaterial({ color: 0xffd599, roughness: 0.2, metalness: 0.8 });
@@ -707,17 +715,22 @@ export class Architecture3DManager {
       posAttr.needsUpdate = true;
     }
 
-    // 2. My COMPASS Animation
+    // 2. My COMPASS Gyroscopic Gimbal Animation
     if (this.compassOuterRing) {
-      this.compassOuterRing.rotation.z = this.activeTime * 0.35 * speedMultiplier;
+      // Outer Emerald Ring pitch & yaw rotation
+      this.compassOuterRing.rotation.x = Math.PI / 2 + Math.sin(this.activeTime * 0.75) * 0.38;
+      this.compassOuterRing.rotation.y = this.activeTime * 0.55 * speedMultiplier;
+      this.compassOuterRing.rotation.z = Math.cos(this.activeTime * 0.6) * 0.28;
     }
     if (this.compassInnerRing) {
-      this.compassInnerRing.rotation.y = this.activeTime * 0.7 * speedMultiplier;
-      this.compassInnerRing.rotation.x = this.activeTime * 0.4 * speedMultiplier;
+      // Inner Blue Ring counter-gyroscopic precession
+      this.compassInnerRing.rotation.x = this.activeTime * 0.75 * speedMultiplier;
+      this.compassInnerRing.rotation.y = Math.cos(this.activeTime * 0.85) * 0.45;
+      this.compassInnerRing.rotation.z = this.activeTime * 0.4 * speedMultiplier;
     }
     if (this.compassSparkStar) {
       this.compassSparkStar.rotation.z = -this.activeTime * 0.5 * speedMultiplier;
-      const sparkScale = 1 + Math.sin(this.activeTime * 2.5) * 0.06;
+      const sparkScale = 1 + Math.sin(this.activeTime * 2.5) * 0.08;
       this.compassSparkStar.scale.set(sparkScale, sparkScale, sparkScale);
     }
 
