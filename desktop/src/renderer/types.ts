@@ -6,6 +6,11 @@ import type {
   LogEntry,
   LogFilterOptions
 } from '../main/engine/types';
+import type {
+  AppUpdateStatus,
+  UpdateState,
+  UpdateProgress
+} from '../main/updater';
 
 export interface DesktopApi {
   start: () => Promise<void>;
@@ -19,6 +24,7 @@ export interface DesktopApi {
   openPortal?: (url?: string) => Promise<void>;
   openExternal?: (url?: string) => Promise<void>;
   openBrowser: (url?: string) => Promise<void>;
+  openBlackboxFolder?: (subfolder?: string) => Promise<string>;
   openStripeCheckout?: (url: string) => Promise<{
     success: boolean;
     tier?: string;
@@ -29,9 +35,14 @@ export interface DesktopApi {
   setEngineType: (type: string) => Promise<void>;
   updatePlugins: () => Promise<{ stdout?: string; stderr?: string }>;
   getVersion?: () => Promise<string>;
+  checkForUpdates?: () => Promise<AppUpdateStatus>;
+  downloadUpdate?: () => Promise<void>;
+  installUpdate?: () => Promise<void>;
+  getUpdateStatus?: () => Promise<AppUpdateStatus>;
   onDownloadProgress?: (callback: (progress: DownloadProgress | null) => void) => () => void;
   onLog?: (callback: (log: LogEntry) => void) => () => void;
   onStatusChange?: (callback: (status: EngineStatusInfo) => void) => () => void;
+  onUpdateStatus?: (callback: (status: AppUpdateStatus) => void) => () => void;
 }
 
 export type {
@@ -40,5 +51,8 @@ export type {
   EngineStatusInfo,
   StackLayerStatus,
   LogEntry,
-  LogFilterOptions
+  LogFilterOptions,
+  AppUpdateStatus,
+  UpdateState,
+  UpdateProgress
 };

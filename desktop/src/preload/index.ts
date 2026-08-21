@@ -11,10 +11,16 @@ const openUrlHandler = (url?: string) => ipcRenderer.invoke('engine:open-url', u
 const openPortalHandler = (url?: string) => ipcRenderer.invoke('engine:open-portal', url);
 const openExternalHandler = (url?: string) => ipcRenderer.invoke('engine:open-external', url);
 const openBrowserHandler = (url?: string) => ipcRenderer.invoke('engine:open-external', url);
+const openBlackboxFolderHandler = (subfolder?: string) => ipcRenderer.invoke('engine:open-blackbox-folder', subfolder);
 const openStripeCheckoutHandler = (url: string) => ipcRenderer.invoke('checkout:open-stripe', url);
 const setEngineTypeHandler = (type: string) => ipcRenderer.invoke('engine:set-type', type);
 const updatePluginsHandler = () => ipcRenderer.invoke('engine:update-plugins');
 const getVersionHandler = () => ipcRenderer.invoke('app:version');
+
+const checkUpdatesHandler = () => ipcRenderer.invoke('updater:check');
+const downloadUpdateHandler = () => ipcRenderer.invoke('updater:download');
+const installUpdateHandler = () => ipcRenderer.invoke('updater:install');
+const getUpdateStatusHandler = () => ipcRenderer.invoke('updater:get-status');
 
 const onDownloadProgressHandler = (callback: (progress: any) => void) => {
   const subscription = (_: any, data: any) => callback(data);
@@ -40,6 +46,14 @@ const onStatusChangeHandler = (callback: (status: any) => void) => {
   };
 };
 
+const onUpdateStatusHandler = (callback: (status: any) => void) => {
+  const subscription = (_: any, data: any) => callback(data);
+  ipcRenderer.on('updater:status-changed', subscription);
+  return () => {
+    ipcRenderer.removeListener('updater:status-changed', subscription);
+  };
+};
+
 contextBridge.exposeInMainWorld('api', {
   start: startHandler,
   stop: stopHandler,
@@ -52,11 +66,17 @@ contextBridge.exposeInMainWorld('api', {
   openPortal: openPortalHandler,
   openExternal: openExternalHandler,
   openBrowser: openBrowserHandler,
+  openBlackboxFolder: openBlackboxFolderHandler,
   openStripeCheckout: openStripeCheckoutHandler,
   setEngineType: setEngineTypeHandler,
   updatePlugins: updatePluginsHandler,
   getVersion: getVersionHandler,
+  checkForUpdates: checkUpdatesHandler,
+  downloadUpdate: downloadUpdateHandler,
+  installUpdate: installUpdateHandler,
+  getUpdateStatus: getUpdateStatusHandler,
   onDownloadProgress: onDownloadProgressHandler,
   onLog: onLogHandler,
-  onStatusChange: onStatusChangeHandler
+  onStatusChange: onStatusChangeHandler,
+  onUpdateStatus: onUpdateStatusHandler
 });

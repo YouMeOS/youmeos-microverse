@@ -6,6 +6,7 @@ import { ServicesViewManager } from './services-view';
 import { DownloadPanelManager } from './download-panel';
 import { TelemetryViewManager } from './telemetry-view';
 import { LicenseCloudManager } from './license-cloud-manager';
+import { UpdateManager } from './update-manager';
 
 const windowApi: DesktopApi = (window as unknown as { api: DesktopApi }).api;
 
@@ -21,9 +22,11 @@ const splashStatusPill = document.getElementById('splash-status-pill') as HTMLEl
 const splashStatusDot = document.getElementById('splash-status-dot') as HTMLElement | null;
 const splashStatusText = document.getElementById('splash-status-text') as HTMLElement | null;
 const chkStaySplash = document.getElementById('chk-stay-splash') as HTMLInputElement | null;
+const chkAutolaunch = document.getElementById('chk-autolaunch') as HTMLInputElement | null;
 const splashBtnStart = document.getElementById('splash-btn-start') as HTMLButtonElement | null;
 const splashBtnLaunch = document.getElementById('splash-btn-launch') as HTMLButtonElement | null;
 const splashBtnBrowser = document.getElementById('splash-btn-browser') as HTMLButtonElement | null;
+const splashBtnBlackbox = document.getElementById('splash-btn-blackbox') as HTMLButtonElement | null;
 const splashBtnDashboard = document.getElementById('splash-btn-dashboard') as HTMLButtonElement | null;
 const btnReturnSplash = document.getElementById('btn-return-splash') as HTMLButtonElement | null;
 const btnOpenSplash = document.getElementById('btn-open-splash') as HTMLButtonElement | null;
@@ -50,6 +53,8 @@ const btnStop = document.getElementById('btn-stop') as HTMLButtonElement | null;
 const btnRestart = document.getElementById('btn-restart') as HTMLButtonElement | null;
 const btnOpenPortal = document.getElementById('btn-open-portal') as HTMLButtonElement | null;
 const btnOpenBrowser = document.getElementById('btn-open-browser') as HTMLButtonElement | null;
+const btnOpenBlackbox = document.getElementById('btn-open-blackbox') as HTMLButtonElement | null;
+const btnArchOpenBlackbox = document.getElementById('btn-arch-open-blackbox') as HTMLButtonElement | null;
 const btnUpdatePlugins = document.getElementById('btn-update-plugins') as HTMLButtonElement | null;
 
 // Tab Elements
@@ -64,6 +69,7 @@ let telemetryView: TelemetryViewManager | null = null;
 let architecture3D: Architecture3DManager | null = null;
 let smokeCanvas: SmokeCanvasEngine | null = null;
 let licenseCloudManager: LicenseCloudManager | null = null;
+let updateManager: UpdateManager | null = null;
 
 // Application State
 let currentGatewayUrl = 'https://my.youmeos.com';
@@ -233,7 +239,8 @@ function updateStatusUI(info: Partial<EngineStatusInfo>): void {
   }
 
   // Auto-launch gateway in browser when service turns on
-  const shouldAutoLaunchGateway = isRunning && !hasAutoLaunchedGateway;
+  const isAutolaunchEnabled = chkAutolaunch ? chkAutolaunch.checked : true;
+  const shouldAutoLaunchGateway = isRunning && !hasAutoLaunchedGateway && isAutolaunchEnabled;
   if (shouldAutoLaunchGateway) {
     hasAutoLaunchedGateway = true;
     windowApi.openUrl(currentGatewayUrl);
@@ -279,12 +286,21 @@ async function init(): Promise<void> {
   licenseCloudManager = new LicenseCloudManager(windowApi, (tier) => {
     architecture3D?.setCompassTier(tier);
   });
+  updateManager = new UpdateManager(windowApi);
 
-  // 2. Initialize Stay on Splash Preference
+  // 2. Initialize Stay on Splash & Auto-launch Preferences
   if (chkStaySplash) {
     chkStaySplash.checked = localStorage.getItem('youmeos_stay_splash') === 'true';
     chkStaySplash.addEventListener('change', () => {
       localStorage.setItem('youmeos_stay_splash', chkStaySplash.checked ? 'true' : 'false');
+    });
+  }
+
+  if (chkAutolaunch) {
+    const savedAutoLaunch = localStorage.getItem('youmeos_autolaunch');
+    chkAutolaunch.checked = savedAutoLaunch !== null ? savedAutoLaunch === 'true' : true;
+    chkAutolaunch.addEventListener('change', () => {
+      localStorage.setItem('youmeos_autolaunch', chkAutolaunch.checked ? 'true' : 'false');
     });
   }
 
@@ -496,6 +512,17 @@ async function init(): Promise<void> {
   btnOpenBrowser?.addEventListener('click', (e) => openBrowserHandler(e));
   splashBtnLaunch?.addEventListener('click', (e) => openPortalHandler(e));
   splashBtnBrowser?.addEventListener('click', (e) => openBrowserHandler(e));
+
+  const openBlackboxHandler = (e?: MouseEvent, subfolder?: string) => {
+    e?.preventDefault();
+    if (windowApi.openBlackboxFolder) {
+      windowApi.openBlackboxFolder(subfolder);
+    }
+  };
+
+  btnOpenBlackbox?.addEventListener('click', (e) => openBlackboxHandler(e));
+  splashBtnBlackbox?.addEventListener('click', (e) => openBlackboxHandler(e));
+  btnArchOpenBlackbox?.addEventListener('click', (e) => openBlackboxHandler(e));
 
   const updatePluginsHandler = async () => {
     if (!btnUpdatePlugins) return;

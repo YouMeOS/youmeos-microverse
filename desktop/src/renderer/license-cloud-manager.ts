@@ -274,7 +274,6 @@ export class LicenseCloudManager {
   private licenseActiveTierPill = document.getElementById('license-active-tier-pill') as HTMLElement | null;
   private licenseActiveStatusTag = document.getElementById('license-active-status-tag') as HTMLElement | null;
   private licenseActivePrice = document.getElementById('license-active-price') as HTMLElement | null;
-  private licenseActiveDesc = document.getElementById('license-active-desc') as HTMLElement | null;
   private licenseActiveKeyCode = document.getElementById('license-active-key-code') as HTMLElement | null;
   private licenseSparksGrid = document.getElementById('license-sparks-grid') as HTMLElement | null;
   private sparksCountBadge = document.getElementById('sparks-count-badge') as HTMLElement | null;
@@ -435,7 +434,7 @@ export class LicenseCloudManager {
     footerStripeBtn?.addEventListener('click', () => triggerLicenseStripeCheckout(footerStripeBtn));
 
     // Tier preview selector buttons
-    document.querySelectorAll<HTMLButtonElement>('.tier-select-btn').forEach(btn => {
+    document.querySelectorAll<HTMLButtonElement>('.tier-chip').forEach(btn => {
       btn.addEventListener('click', () => {
         const targetTier = btn.getAttribute('data-tier');
         if (targetTier) {
@@ -456,6 +455,15 @@ export class LicenseCloudManager {
         this.activeSparkFilter = (btn.getAttribute('data-spark-type') as any) || 'all';
         this.renderSparksGrid();
       });
+    });
+
+    // Collapsible sparks section toggle
+    const sparksToggle = document.getElementById('btn-toggle-sparks');
+    const sparksWrapper = document.getElementById('sparks-grid-wrapper');
+    sparksToggle?.addEventListener('click', (e) => {
+      const clickedFilter = (e.target as HTMLElement).closest('.spark-filter-btn');
+      if (clickedFilter) return;
+      sparksWrapper?.classList.toggle('collapsed');
     });
   }
 
@@ -509,23 +517,19 @@ export class LicenseCloudManager {
       this.licenseActiveStatusTag.style.background = `${colorDef.hex}20`;
     }
     if (this.licenseActivePrice) {
-      this.licenseActivePrice.textContent = `${tierData.localPrice} (Software License)`;
-      this.licenseActivePrice.style.color = '#ffd599';
-    }
-    if (this.licenseActiveDesc) {
-      this.licenseActiveDesc.textContent = `${tierData.target}. Includes full ${tierData.name} feature suite with local database encryption and sparks orchestration.`;
+      this.licenseActivePrice.textContent = tierData.localPrice;
     }
     if (this.licenseActiveKeyCode) {
       this.licenseActiveKeyCode.textContent = this.currentKey || 'BLCK-SOVEREIGN-LOCAL-2026';
     }
     if (this.licenseActiveHero) {
-      this.licenseActiveHero.style.borderColor = `${colorDef.hex}50`;
+      this.licenseActiveHero.style.borderColor = `${colorDef.hex}40`;
     }
 
     // Update Stripe checkout button labels in hero and footer
     const heroStripeLabel = document.getElementById('btn-hero-stripe-label');
     if (heroStripeLabel) {
-      heroStripeLabel.textContent = `Buy ${tierData.name} (${tierData.localPrice})`;
+      heroStripeLabel.textContent = `Buy ${tierData.localPrice}`;
     }
     const footerStripeLabel = document.getElementById('btn-footer-stripe-label');
     if (footerStripeLabel) {
@@ -533,7 +537,7 @@ export class LicenseCloudManager {
     }
 
     // Update quick switch selector active state
-    document.querySelectorAll<HTMLButtonElement>('.tier-select-btn').forEach(btn => {
+    document.querySelectorAll<HTMLButtonElement>('.tier-chip').forEach(btn => {
       const isTarget = btn.getAttribute('data-tier') === tierKey;
       btn.classList.toggle('active', isTarget);
       if (isTarget) {

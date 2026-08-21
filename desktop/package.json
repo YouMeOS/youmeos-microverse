@@ -33,6 +33,7 @@
   },
   "dependencies": {
     "adm-zip": "^0.6.0",
+    "electron-updater": "^6.8.9",
     "three": "^0.185.1"
   }
 }

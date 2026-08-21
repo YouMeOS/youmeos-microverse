@@ -19,6 +19,8 @@ extraResources:
       - "**/*"
 publish:
   provider: github
+  owner: YouMeOS
+  repo: youmeos-microverse
 mac:
   target: dmg
   icon: assets/icon.png

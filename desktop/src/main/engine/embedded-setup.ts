@@ -64,32 +64,91 @@ function getFrankenPhpUrl(): string {
   throw new Error(`Unsupported OS: ${platform}`);
 }
 
-function ensureSymlink(sourcePath: string, targetPath: string): void {
-  const targetStat = fs.lstatSync(targetPath, { throwIfNoEntry: false });
-  const hasExistingTarget = targetStat !== undefined;
+function normalizePath(targetPath: string): string {
+  const clean = targetPath.replace(/^\\\\\?\\|^\\\?\?\\/, '');
+  const resolved = path.resolve(clean);
+  return process.platform === 'win32' ? resolved.toLowerCase() : resolved;
+}
 
-  if (hasExistingTarget) {
+function removePathSafe(targetPath: string): void {
+  try {
+    const targetStat = fs.lstatSync(targetPath, { throwIfNoEntry: false });
+    if (!targetStat) {
+      try { fs.unlinkSync(targetPath); } catch {}
+      return;
+    }
+    if (process.platform === 'win32' && targetStat.isDirectory()) {
+      try {
+        fs.rmdirSync(targetPath);
+      } catch {
+        fs.rmSync(targetPath, { recursive: true, force: true });
+      }
+    } else if (targetStat.isSymbolicLink()) {
+      try {
+        fs.unlinkSync(targetPath);
+      } catch {
+        fs.rmSync(targetPath, { recursive: true, force: true });
+      }
+    } else {
+      fs.rmSync(targetPath, { recursive: true, force: true });
+    }
+  } catch {
+    try { fs.rmSync(targetPath, { recursive: true, force: true }); } catch {}
+  }
+}
+
+function ensureSymlink(sourcePath: string, targetPath: string): void {
+  if (!fs.existsSync(sourcePath)) {
+    return;
+  }
+
+  let targetStat: fs.Stats | undefined;
+  try {
+    targetStat = fs.lstatSync(targetPath, { throwIfNoEntry: false });
+  } catch {
+    removePathSafe(targetPath);
+    targetStat = undefined;
+  }
+
+  if (targetStat !== undefined) {
     const isSymlink = targetStat.isSymbolicLink();
     if (isSymlink) {
       try {
         const currentLink = fs.readlinkSync(targetPath);
-        const resolvedCurrent = path.resolve(path.dirname(targetPath), currentLink);
-        const resolvedSource = path.resolve(sourcePath);
-        const isMatchingTarget = resolvedCurrent === resolvedSource;
-        if (isMatchingTarget) {
+        const cleanLink = currentLink.replace(/^\\\\\?\\|^\\\?\?\\/, '');
+        const resolvedCurrent = normalizePath(path.isAbsolute(cleanLink) ? cleanLink : path.join(path.dirname(targetPath), cleanLink));
+        const resolvedSource = normalizePath(sourcePath);
+        if (resolvedCurrent === resolvedSource && fs.existsSync(sourcePath)) {
           return;
         }
       } catch {}
-      fs.unlinkSync(targetPath);
+      removePathSafe(targetPath);
     } else {
-      fs.rmSync(targetPath, { recursive: true, force: true });
+      removePathSafe(targetPath);
     }
   }
 
-  const isDirectory = fs.statSync(sourcePath).isDirectory();
+  let sourceStat: fs.Stats;
+  try {
+    sourceStat = fs.statSync(sourcePath);
+  } catch {
+    return;
+  }
+
+  const isDirectory = sourceStat.isDirectory();
   if (process.platform === 'win32') {
     if (isDirectory) {
-      fs.symlinkSync(sourcePath, targetPath, 'junction');
+      try {
+        fs.symlinkSync(sourcePath, targetPath, 'junction');
+      } catch {
+        try {
+          fs.symlinkSync(sourcePath, targetPath, 'dir');
+        } catch {
+          try {
+            fs.cpSync(sourcePath, targetPath, { recursive: true });
+          } catch {}
+        }
+      }
     } else {
       try {
         fs.symlinkSync(sourcePath, targetPath, 'file');
@@ -102,7 +161,9 @@ function ensureSymlink(sourcePath: string, targetPath: string): void {
       }
     }
   } else {
-    fs.symlinkSync(sourcePath, targetPath, isDirectory ? 'dir' : 'file');
+    try {
+      fs.symlinkSync(sourcePath, targetPath, isDirectory ? 'dir' : 'file');
+    } catch {}
   }
 }
 
@@ -255,25 +316,43 @@ export async function setupEmbeddedEnvironment(
   }
 
   // 3. Setup SQLite Database Integration plugin
-  const sqlitePluginDir = path.join(wpContentDir, 'plugins', 'sqlite-database-integration');
-  if (!fs.existsSync(sqlitePluginDir)) {
+  const hostPluginsDir = path.join(hostWpDir, 'plugins');
+  if (!fs.existsSync(hostPluginsDir)) {
+    fs.mkdirSync(hostPluginsDir, { recursive: true });
+  }
+
+  const hostSqlitePluginDir = path.join(hostPluginsDir, 'sqlite-database-integration');
+  if (!fs.existsSync(hostSqlitePluginDir)) {
     const sqliteZipPath = path.join(embeddedDir, 'sqlite.zip');
     await downloadAndExtractZip(
       SQLITE_PLUGIN_URL,
       sqliteZipPath,
-      path.join(wpContentDir, 'plugins'),
+      hostPluginsDir,
       'SQLite Database Integration',
       onProgress,
       onDownloadProgress
     );
-
-    const dbCopy = path.join(sqlitePluginDir, 'db.copy');
-    const dbDest = path.join(wpContentDir, 'db.php');
-    if (fs.existsSync(dbCopy)) {
-      fs.copyFileSync(dbCopy, dbDest);
-    }
-    onProgress('SQLite integration installed.');
   }
+
+  const hostDbCopy = path.join(hostSqlitePluginDir, 'db.copy');
+  const hostDbDest = path.join(hostWpDir, 'db.php');
+  if (fs.existsSync(hostDbCopy) && !fs.existsSync(hostDbDest)) {
+    try {
+      fs.copyFileSync(hostDbCopy, hostDbDest);
+    } catch {}
+  }
+
+  const wpContentDb = path.join(wpContentDir, 'db.php');
+  if (fs.existsSync(hostDbDest)) {
+    try {
+      fs.copyFileSync(hostDbDest, wpContentDb);
+    } catch {}
+  } else if (fs.existsSync(hostDbCopy)) {
+    try {
+      fs.copyFileSync(hostDbCopy, wpContentDb);
+    } catch {}
+  }
+  onProgress('SQLite integration configured.');
 
   // 4. Setup wp-config.php for SQLite pointing to shared blackbox/ database
   const sharedDb = path.join(hostWpDir, 'database.sqlite');
@@ -358,18 +437,26 @@ require_once ABSPATH . 'wp-settings.php';
       const existingPluginEntries = fs.readdirSync(targetDir);
       for (const entry of existingPluginEntries) {
         const tpPath = path.join(targetDir, entry);
-        const entryStat = fs.lstatSync(tpPath, { throwIfNoEntry: false });
+        let entryStat: fs.Stats | undefined;
+        try {
+          entryStat = fs.lstatSync(tpPath, { throwIfNoEntry: false });
+        } catch {
+          removePathSafe(tpPath);
+          continue;
+        }
+
         const isSymlink = entryStat?.isSymbolicLink() ?? false;
         if (isSymlink) {
           try {
             const currentLink = fs.readlinkSync(tpPath);
-            const resolvedTarget = path.resolve(path.dirname(tpPath), currentLink);
+            const cleanLink = currentLink.replace(/^\\\\\?\\|^\\\?\?\\/, '');
+            const resolvedTarget = path.isAbsolute(cleanLink) ? cleanLink : path.resolve(path.dirname(tpPath), cleanLink);
             const isMissingTarget = !fs.existsSync(resolvedTarget);
             if (isMissingTarget) {
-              fs.unlinkSync(tpPath);
+              removePathSafe(tpPath);
             }
           } catch {
-            fs.unlinkSync(tpPath);
+            removePathSafe(tpPath);
           }
         }
       }

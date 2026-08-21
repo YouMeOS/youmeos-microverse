@@ -1,5 +1,6 @@
 import { app, BrowserWindow, ipcMain, shell, Tray, session } from 'electron';
 import path from 'path';
+import fs from 'fs';
 
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
 import { execFile } from 'child_process';
@@ -12,6 +13,7 @@ import {
   EngineStatusInfo
 } from './engine/types';
 import { createTray } from './tray';
+import { UpdaterManager } from './updater';
 
 const execFileAsync = promisify(execFile);
 
@@ -19,6 +21,7 @@ let mainWindow: BrowserWindow | null = null;
 let portalWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
 const engineManager = new EngineManager();
+const updaterManager = new UpdaterManager();
 let isQuitting = false;
 let isSessionConfigured = false;
 
@@ -240,10 +243,39 @@ const readyHandler = async () => {
     await shell.openExternal(url);
   };
 
+  const openBlackboxFolderHandler = async (_: unknown, subfolder?: string) => {
+    const isProduction = app.isPackaged || process.env.NODE_ENV === 'production' || __dirname.includes('app.asar');
+    const projectDir = isProduction ? app.getPath('userData') : path.join(__dirname, '..', '..', '..');
+    const blackboxDir = path.join(projectDir, 'blackbox');
+    const targetDir = subfolder ? path.join(blackboxDir, subfolder) : blackboxDir;
+
+    const dirsToEnsure = [
+      blackboxDir,
+      path.join(blackboxDir, 'plugins'),
+      path.join(blackboxDir, 'uploads'),
+      path.join(blackboxDir, 'mu-plugins'),
+      path.join(blackboxDir, 'themes')
+    ];
+
+    dirsToEnsure.forEach(dir => {
+      if (!fs.existsSync(dir)) {
+        try { fs.mkdirSync(dir, { recursive: true }); } catch {}
+      }
+    });
+
+    return shell.openPath(targetDir);
+  };
+
   ipcMain.handle('engine:open-portal', openPortalHandler);
   ipcMain.handle('engine:open-external', openExternalHandler);
   ipcMain.handle('engine:open-url', openPortalHandler);
   ipcMain.handle('engine:open-browser', openExternalHandler);
+  ipcMain.handle('engine:open-blackbox-folder', openBlackboxFolderHandler);
+
+  ipcMain.handle('updater:check', () => updaterManager.checkForUpdates());
+  ipcMain.handle('updater:download', () => updaterManager.downloadUpdate());
+  ipcMain.handle('updater:install', () => updaterManager.quitAndInstall());
+  ipcMain.handle('updater:get-status', () => updaterManager.getStatus());
 
   // Stripe Checkout Popup Window with Automatic Completion Capture
   ipcMain.handle('checkout:open-stripe', async (_, checkoutUrl: string) => {
@@ -312,6 +344,13 @@ const readyHandler = async () => {
   await createWindow();
   if (mainWindow) {
     tray = createTray(engineManager, mainWindow, (url) => openPortalWindow(url));
+    updaterManager.setTargetWindow(mainWindow);
+
+    if (app.isPackaged) {
+      setTimeout(() => {
+        updaterManager.checkForUpdates().catch(() => {});
+      }, 8000);
+    }
   }
 
   const activateHandler = () => {

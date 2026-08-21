@@ -44,6 +44,13 @@ export function createTray(
       }
     };
 
+    const openBlackboxHandler = () => {
+      const isProduction = app.isPackaged || process.env.NODE_ENV === 'production' || __dirname.includes('app.asar');
+      const projectDir = isProduction ? app.getPath('userData') : path.join(__dirname, '..', '..', '..');
+      const blackboxDir = path.join(projectDir, 'blackbox');
+      shell.openPath(blackboxDir);
+    };
+
     const quitHandler = () => app.quit();
 
     const contextMenu = Menu.buildFromTemplate([
@@ -51,6 +58,7 @@ export function createTray(
       { type: 'separator' },
       { label: 'Open Portal (Native Window)', click: openPortalHandler },
       { label: 'Open in Browser (Default Browser)', click: openBrowserHandler },
+      { label: 'Open Blackbox Folder (Plugins & Uploads)', click: openBlackboxHandler },
       { type: 'separator' },
       { label: 'Start Engine', click: startHandler },
       { label: 'Stop Engine', click: stopHandler },
