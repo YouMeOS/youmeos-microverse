@@ -99,10 +99,18 @@ export function openPortalWindow(targetUrl: string = 'https://my.youmeos.com'): 
   portalWindow.maximize();
 
   portalWindow.webContents.setWindowOpenHandler(({ url }) => {
-    const isFacebookAuth = url.includes('facebook.com') || url.includes('fb.com');
+    const isOAuth =
+      url.includes('discord.com') ||
+      url.includes('discordapp.com') ||
+      url.includes('google.com') ||
+      url.includes('accounts.google.com') ||
+      url.includes('facebook.com') ||
+      url.includes('fb.com') ||
+      url.includes('github.com') ||
+      url.includes('appleid.apple.com');
     const isYoumeos = url.includes('youmeos.com') || url.includes('umeos.com') || url.includes('localhost');
 
-    if (isFacebookAuth || isYoumeos) {
+    if (isOAuth || isYoumeos) {
       return {
         action: 'allow',
         overrideBrowserWindowOptions: {
