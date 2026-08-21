@@ -47,7 +47,8 @@ export class Architecture3DManager {
 
   // Layer 5: Bedrock Foundation Base Slab
   private bedrockSlab: THREE.Mesh | null = null;
-  private bedrockEdges: THREE.LineSegments | null = null;
+  // Layer 5: Web Server (Matrix Cyber Engine) elements
+  private serverLeds: THREE.Mesh[] = [];
 
   // Central Singularity Energy Spine
   private spineLine: THREE.Line | null = null;
@@ -84,7 +85,7 @@ export class Architecture3DManager {
   private currentCameraDist: number = 16.0;
 
   // Layer Height Offsets (Optimized vertical separation)
-  private readonly Y_COMPASS = 3.9;
+  private readonly Y_COMPASS = 4.35;
   private readonly Y_PORTAL = 2.6;
   private readonly Y_BEDROCK = 1.3;
   private readonly Y_CORE = 0.0;
@@ -183,7 +184,7 @@ export class Architecture3DManager {
   private buildSpine(): void {
     const points = [
       new THREE.Vector3(0, -3.9, 0),
-      new THREE.Vector3(0, 3.9, 0)
+      new THREE.Vector3(0, 4.35, 0)
     ];
     const spineGeo = new THREE.BufferGeometry().setFromPoints(points);
     const spineMat = new THREE.LineDashedMaterial({
@@ -197,11 +198,11 @@ export class Architecture3DManager {
     this.spineLine.computeLineDistances();
     this.stackGroup.add(this.spineLine);
 
-    // Flowing Data Cubes along the spine
-    const cubeGeo = new THREE.BoxGeometry(0.15, 0.15, 0.15);
+    // Subtle data energy micro-cubes floating up the spine
+    const cubeGeo = new THREE.BoxGeometry(0.08, 0.08, 0.08);
     const cubeMat = new THREE.MeshStandardMaterial({
       color: 0x62c9ff,
-      emissive: 0x2979ff,
+      emissive: 0x00e5ff,
       emissiveIntensity: 0.8,
       roughness: 0.2,
       metalness: 0.8
@@ -211,7 +212,7 @@ export class Architecture3DManager {
       const dbCube = new THREE.Mesh(cubeGeo, cubeMat);
       dbCube.position.set(
         (Math.random() - 0.5) * 0.2,
-        -3.9 + Math.random() * 7.8,
+        -3.9 + Math.random() * 8.25,
         (Math.random() - 0.5) * 0.2
       );
       this.stackGroup.add(dbCube);
@@ -292,28 +293,77 @@ export class Architecture3DManager {
     this.serverGroup = new THREE.Group();
     this.serverGroup.position.y = this.Y_SERVER;
 
-    // Web Server Block
-    const serverHeight = 0.8;
+    const serverHeight = 0.85;
+
+    // 1. Semi-transparent Cyberpunk Emerald Glass Chassis
     const cubeGeo = new THREE.BoxGeometry(this.BOX_FOOTPRINT, serverHeight, this.BOX_FOOTPRINT);
     const cubeMat = new THREE.MeshStandardMaterial({
-      color: 0x10b981, // Emerald green for server
-      roughness: 0.2,
-      metalness: 0.8,
-      emissive: 0x064e3b,
-      emissiveIntensity: 0.5
+      color: 0x021f12,
+      roughness: 0.18,
+      metalness: 0.88,
+      transparent: true,
+      opacity: 0.82,
+      emissive: 0x032d18,
+      emissiveIntensity: 0.65
     });
     const serverBlock = new THREE.Mesh(cubeGeo, cubeMat);
     this.serverGroup.add(serverBlock);
 
+    // 2. High-glow Neon Matrix Edges
     const edgesGeo = new THREE.EdgesGeometry(cubeGeo);
     const edgesMat = new THREE.LineBasicMaterial({
-      color: 0x6ee7b7,
+      color: 0x00ff88,
       transparent: true,
-      opacity: 0.9,
+      opacity: 0.95,
       linewidth: 1.5
     });
     const edges = new THREE.LineSegments(edgesGeo, edgesMat);
     this.serverGroup.add(edges);
+
+    // 3. Internal Matrix Server Blades (Horizontal glowing sub-planes)
+    const bladeGeo = new THREE.PlaneGeometry(this.BOX_FOOTPRINT * 0.92, this.BOX_FOOTPRINT * 0.92);
+    const bladeMat = new THREE.MeshBasicMaterial({
+      color: 0x059669,
+      transparent: true,
+      opacity: 0.22,
+      side: THREE.DoubleSide
+    });
+    for (let i = -1; i <= 1; i++) {
+      const blade = new THREE.Mesh(bladeGeo, bladeMat);
+      blade.rotation.x = Math.PI / 2;
+      blade.position.y = i * (serverHeight * 0.26);
+      this.serverGroup.add(blade);
+    }
+
+    // 4. Matrix Digital Grid Lattice on top & bottom faces
+    const topGrid = new THREE.GridHelper(this.BOX_FOOTPRINT, 6, 0x00ff88, 0x047857);
+    topGrid.position.y = serverHeight / 2 + 0.005;
+    (topGrid.material as THREE.Material).transparent = true;
+    (topGrid.material as THREE.Material).opacity = 0.55;
+    this.serverGroup.add(topGrid);
+
+    const bottomGrid = new THREE.GridHelper(this.BOX_FOOTPRINT, 6, 0x00ff88, 0x047857);
+    bottomGrid.position.y = -serverHeight / 2 - 0.005;
+    (bottomGrid.material as THREE.Material).transparent = true;
+    (bottomGrid.material as THREE.Material).opacity = 0.35;
+    this.serverGroup.add(bottomGrid);
+
+    // 5. Front Server Activity LED Array
+    const ledGeo = new THREE.BoxGeometry(0.06, 0.06, 0.02);
+    this.serverLeds = [];
+    const ledCount = 5;
+    for (let i = 0; i < ledCount; i++) {
+      const ledMat = new THREE.MeshBasicMaterial({
+        color: 0x00ff88,
+        transparent: true,
+        opacity: 0.9
+      });
+      const led = new THREE.Mesh(ledGeo, ledMat);
+      const xPos = ((i / (ledCount - 1)) - 0.5) * (this.BOX_FOOTPRINT * 0.7);
+      led.position.set(xPos, 0, this.BOX_FOOTPRINT / 2 + 0.01);
+      this.serverGroup.add(led);
+      this.serverLeds.push(led);
+    }
   }
 
   private buildNetworkLayer(): void {
@@ -379,7 +429,7 @@ export class Architecture3DManager {
     this.compassGroup.position.y = this.Y_COMPASS;
 
     // 1. Outer Gyro Gimbal Ring (Emerald Green - 0x3ecd74 matching Compass Admin Splash)
-    const outerRingGeo = new THREE.TorusGeometry(1.7, 0.035, 12, 64);
+    const outerRingGeo = new THREE.TorusGeometry(1.45, 0.032, 12, 64);
     const outerRingMat = new THREE.MeshBasicMaterial({
       color: 0x3ecd74,
       transparent: true,
@@ -390,7 +440,7 @@ export class Architecture3DManager {
     this.compassGroup.add(this.compassOuterRing);
 
     // 2. Inner Gyro Gimbal Ring (Blue/Cyan - 0x25a1c5 matching Compass Admin Splash)
-    const innerRingGeo = new THREE.TorusGeometry(1.3, 0.03, 12, 48);
+    const innerRingGeo = new THREE.TorusGeometry(1.12, 0.026, 12, 48);
     const innerRingMat = new THREE.MeshBasicMaterial({
       color: 0x25a1c5,
       transparent: true,
@@ -405,34 +455,34 @@ export class Architecture3DManager {
     const needleMatGold = new THREE.MeshStandardMaterial({ color: 0xffd599, roughness: 0.2, metalness: 0.8 });
 
     // North needle
-    const northCone = new THREE.ConeGeometry(0.25, 1.0, 4);
+    const northCone = new THREE.ConeGeometry(0.22, 0.85, 4);
     const northMesh = new THREE.Mesh(northCone, needleMatCyan);
-    northMesh.position.y = 0.5;
+    northMesh.position.y = 0.425;
     this.compassSparkStar.add(northMesh);
 
     // South needle
-    const southCone = new THREE.ConeGeometry(0.25, 1.0, 4);
+    const southCone = new THREE.ConeGeometry(0.22, 0.85, 4);
     const southMesh = new THREE.Mesh(southCone, needleMatGold);
-    southMesh.position.y = -0.5;
+    southMesh.position.y = -0.425;
     southMesh.rotation.z = Math.PI;
     this.compassSparkStar.add(southMesh);
 
     // East / West needles
-    const eastCone = new THREE.ConeGeometry(0.2, 0.7, 4);
+    const eastCone = new THREE.ConeGeometry(0.18, 0.60, 4);
     const eastMesh = new THREE.Mesh(eastCone, needleMatCyan);
-    eastMesh.position.x = 0.35;
+    eastMesh.position.x = 0.30;
     eastMesh.rotation.z = -Math.PI / 2;
     this.compassSparkStar.add(eastMesh);
 
-    const westCone = new THREE.ConeGeometry(0.2, 0.7, 4);
+    const westCone = new THREE.ConeGeometry(0.18, 0.60, 4);
     const westMesh = new THREE.Mesh(westCone, needleMatCyan);
-    westMesh.position.x = -0.35;
+    westMesh.position.x = -0.30;
     westMesh.rotation.z = Math.PI / 2;
     this.compassSparkStar.add(westMesh);
 
     // Center Core Spark Sphere
     const centerSphere = new THREE.Mesh(
-      new THREE.SphereGeometry(0.18, 16, 16),
+      new THREE.SphereGeometry(0.15, 16, 16),
       new THREE.MeshBasicMaterial({ color: 0xffffff })
     );
     this.compassSparkStar.add(centerSphere);
@@ -734,6 +784,15 @@ export class Architecture3DManager {
       this.compassSparkStar.scale.set(sparkScale, sparkScale, sparkScale);
     }
 
+    // 3. Matrix Web Server Animation (LED pulses)
+    if (this.serverLeds.length > 0) {
+      for (let i = 0; i < this.serverLeds.length; i++) {
+        const led = this.serverLeds[i];
+        const pulse = Math.sin(this.activeTime * (12 + i * 4)) > 0.1 ? 0.95 : 0.25;
+        (led.material as THREE.MeshBasicMaterial).opacity = pulse;
+      }
+    }
+
     // 4. SQLite Database Store Animation
     if (this.dbGroup) {
       this.dbGroup.rotation.y = this.activeTime * 0.2 * speedMultiplier;
@@ -748,7 +807,7 @@ export class Architecture3DManager {
           cube.position.y += speed;
           cube.rotation.x += 0.02 * speedMultiplier;
           cube.rotation.y += 0.02 * speedMultiplier;
-          if (cube.position.y > 3.9) {
+          if (cube.position.y > 4.35) {
             cube.position.y = -3.9;
           }
         }
