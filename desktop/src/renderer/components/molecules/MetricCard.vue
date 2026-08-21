@@ -61,13 +61,13 @@ defineEmits<{
 }>();
 
 const layerTagMap: Record<string, { tag: string; tagClass: string; defaultTitle: string }> = {
-  bedrock: { tag: 'Foundation', tagClass: 'blue-tag', defaultTitle: 'Blackbox Bedrock' },
-  database: { tag: 'Storage', tagClass: 'purple-tag', defaultTitle: 'SQLite Database' },
-  core: { tag: 'Kernel', tagClass: 'gold-tag', defaultTitle: 'Headless Core' },
-  server: { tag: 'Gateway', tagClass: 'emerald-tag', defaultTitle: 'Web Server' },
-  network: { tag: 'Mesh', tagClass: 'coral-tag', defaultTitle: 'Private Node (mDNS)' },
+  compass: { tag: 'Systems', tagClass: 'neon-tag', defaultTitle: 'My COMPASS' },
   portal: { tag: 'Portal', tagClass: 'cyan-tag', defaultTitle: 'Event Horizon' },
-  compass: { tag: 'Systems', tagClass: 'neon-tag', defaultTitle: 'My COMPASS' }
+  network: { tag: 'Mesh', tagClass: 'coral-tag', defaultTitle: 'Private Node (mDNS)' },
+  server: { tag: 'Gateway', tagClass: 'emerald-tag', defaultTitle: 'Web Server' },
+  core: { tag: 'Kernel', tagClass: 'gold-tag', defaultTitle: 'Headless Core' },
+  database: { tag: 'Storage', tagClass: 'purple-tag', defaultTitle: 'SQLite Database' },
+  bedrock: { tag: 'Foundation', tagClass: 'blue-tag', defaultTitle: 'Blackbox Bedrock' }
 };
 
 const normalizedId = computed(() => (props.layerId || props.dataLayer || '').toLowerCase());

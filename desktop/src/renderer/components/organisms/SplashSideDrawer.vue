@@ -120,13 +120,13 @@ const props = defineProps<{
 }>();
 
 const LAYER_ORDER: Record<string, number> = {
-  bedrock: 1,
-  database: 2,
-  core: 3,
+  compass: 1,
+  portal: 2,
+  network: 3,
   server: 4,
-  network: 5,
-  portal: 6,
-  compass: 7
+  core: 5,
+  database: 6,
+  bedrock: 7
 };
 
 const sortedStackLayers = computed(() => {

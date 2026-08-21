@@ -113,13 +113,13 @@ export class Architecture3DManager {
   private currentCameraDist: number = 16.0;
 
   // Layer Height Offsets (Chakra Alignment: Root to Crown bottom-up)
-  private readonly Y_COMPASS = 4.35; // Crown (7th Chakra - Apex)
-  private readonly Y_PORTAL = 2.6;   // Third Eye (6th Chakra)
-  private readonly Y_NETWORK = 1.3;  // Throat (5th Chakra)
-  private readonly Y_SERVER = 0.0;   // Heart (4th Chakra - Equilibrium)
-  private readonly Y_CORE = -1.3;    // Solar Plexus (3rd Chakra)
-  private readonly Y_DB = -2.6;      // Sacral (2nd Chakra)
-  private readonly Y_BEDROCK = -3.9; // Root (1st Chakra - Base Substrate)
+  private readonly Y_COMPASS = 3.65; // Crown (7th Chakra - Apex)
+  private readonly Y_PORTAL = 2.05;  // Third Eye (6th Chakra)
+  private readonly Y_NETWORK = 0.52; // Throat (5th Chakra - Protective Mesh sitting flush on top of Web Server)
+  private readonly Y_SERVER = 0.0;   // Heart (4th Chakra - Native Web Server Chassis)
+  private readonly Y_CORE = -1.2;    // Solar Plexus (3rd Chakra)
+  private readonly Y_DB = -2.4;      // Sacral (2nd Chakra)
+  private readonly Y_BEDROCK = -3.6; // Root (1st Chakra - Base Substrate)
 
   // Unified Monolithic Box Structure Footprint (Exploded Cube Architecture)
   private readonly BOX_FOOTPRINT = 2.6;
@@ -211,8 +211,8 @@ export class Architecture3DManager {
 
   private buildSpine(): void {
     const points = [
-      new THREE.Vector3(0, -3.9, 0),
-      new THREE.Vector3(0, 4.35, 0)
+      new THREE.Vector3(0, -3.7, 0),
+      new THREE.Vector3(0, 3.8, 0)
     ];
     const spineGeo = new THREE.BufferGeometry().setFromPoints(points);
     const spineMat = new THREE.LineDashedMaterial({
@@ -240,7 +240,7 @@ export class Architecture3DManager {
       const dbCube = new THREE.Mesh(cubeGeo, cubeMat);
       dbCube.position.set(
         (Math.random() - 0.5) * 0.2,
-        -3.9 + Math.random() * 8.25,
+        -3.7 + Math.random() * 7.5,
         (Math.random() - 0.5) * 0.2
       );
       this.stackGroup.add(dbCube);
@@ -398,30 +398,87 @@ export class Architecture3DManager {
     this.networkGroup = new THREE.Group();
     this.networkGroup.position.y = this.Y_NETWORK;
 
-    // Glowing network grid
-    const gridHelper = new THREE.GridHelper(this.BOX_FOOTPRINT * 1.5, 8, 0xef4444, 0x7f1d1d);
+    // 1. Protective Shield Slab (Matching exact box footprint of server)
+    const shieldHeight = 0.06;
+    const shieldGeo = new THREE.BoxGeometry(this.BOX_FOOTPRINT, shieldHeight, this.BOX_FOOTPRINT);
+    const shieldMat = new THREE.MeshStandardMaterial({
+      color: 0x1f080e,
+      roughness: 0.15,
+      metalness: 0.9,
+      transparent: true,
+      opacity: 0.55,
+      emissive: 0xf43f5e,
+      emissiveIntensity: 0.35
+    });
+    const shieldBlock = new THREE.Mesh(shieldGeo, shieldMat);
+    this.networkGroup.add(shieldBlock);
+
+    // 2. High-glow Coral / Crimson Protective Perimeter Edges
+    const edgesGeo = new THREE.EdgesGeometry(shieldGeo);
+    const edgesMat = new THREE.LineBasicMaterial({
+      color: 0xfb7185,
+      transparent: true,
+      opacity: 0.95,
+      linewidth: 1.5
+    });
+    const edges = new THREE.LineSegments(edgesGeo, edgesMat);
+    this.networkGroup.add(edges);
+
+    // 3. Security Mesh Digital Grid (Exact box footprint)
+    const gridHelper = new THREE.GridHelper(this.BOX_FOOTPRINT, 8, 0xfb7185, 0x881337);
+    gridHelper.position.y = shieldHeight / 2 + 0.005;
     (gridHelper.material as THREE.Material).transparent = true;
-    (gridHelper.material as THREE.Material).opacity = 0.6;
+    (gridHelper.material as THREE.Material).opacity = 0.75;
     this.networkGroup.add(gridHelper);
 
-    // Network nodes
-    const nodeGeo = new THREE.SphereGeometry(0.1, 8, 8);
+    // 4. Mesh Defense Nodes (Corner & Perimeter anchors within box footprint)
+    const nodeGeo = new THREE.SphereGeometry(0.065, 8, 8);
     const nodeMat = new THREE.MeshStandardMaterial({
-      color: 0xef4444,
-      emissive: 0xb91c1c,
-      emissiveIntensity: 0.8
+      color: 0xfecdd3,
+      emissive: 0xf43f5e,
+      emissiveIntensity: 1.0,
+      roughness: 0.2,
+      metalness: 0.8
     });
-    
+
+    const span = (this.BOX_FOOTPRINT / 2) * 0.88;
     const positions = [
-      [1, 0, 1], [-1, 0, 1], [1, 0, -1], [-1, 0, -1],
-      [0, 0, 0], [1.5, 0, 0], [-1.5, 0, 0], [0, 0, 1.5], [0, 0, -1.5]
+      [span, 0.04, span],
+      [-span, 0.04, span],
+      [span, 0.04, -span],
+      [-span, 0.04, -span],
+      [span, 0.04, 0],
+      [-span, 0.04, 0],
+      [0, 0.04, span],
+      [0, 0.04, -span],
+      [0, 0.04, 0]
     ];
-    
+
     positions.forEach(([x, y, z]) => {
       const node = new THREE.Mesh(nodeGeo, nodeMat);
       node.position.set(x, y, z);
       this.networkGroup.add(node);
     });
+
+    // 5. Interconnecting Laser Security Mesh Beams
+    const linePoints: THREE.Vector3[] = [];
+    linePoints.push(new THREE.Vector3(span, 0.04, span), new THREE.Vector3(-span, 0.04, span));
+    linePoints.push(new THREE.Vector3(-span, 0.04, span), new THREE.Vector3(-span, 0.04, -span));
+    linePoints.push(new THREE.Vector3(-span, 0.04, -span), new THREE.Vector3(span, 0.04, -span));
+    linePoints.push(new THREE.Vector3(span, 0.04, -span), new THREE.Vector3(span, 0.04, span));
+    linePoints.push(new THREE.Vector3(span, 0.04, 0), new THREE.Vector3(0, 0.04, span));
+    linePoints.push(new THREE.Vector3(0, 0.04, span), new THREE.Vector3(-span, 0.04, 0));
+    linePoints.push(new THREE.Vector3(-span, 0.04, 0), new THREE.Vector3(0, 0.04, -span));
+    linePoints.push(new THREE.Vector3(0, 0.04, -span), new THREE.Vector3(span, 0.04, 0));
+
+    const lineGeo = new THREE.BufferGeometry().setFromPoints(linePoints);
+    const lineMat = new THREE.LineBasicMaterial({
+      color: 0xf43f5e,
+      transparent: true,
+      opacity: 0.65
+    });
+    const networkBeams = new THREE.LineSegments(lineGeo, lineMat);
+    this.networkGroup.add(networkBeams);
   }
 
   private buildCoreLayer(): void {
@@ -960,8 +1017,8 @@ export class Architecture3DManager {
           cube.position.y += speed;
           cube.rotation.x += 0.02 * speedMultiplier;
           cube.rotation.y += 0.02 * speedMultiplier;
-          if (cube.position.y > 4.35) {
-            cube.position.y = -3.9;
+          if (cube.position.y > 3.8) {
+            cube.position.y = -3.7;
           }
         }
       }

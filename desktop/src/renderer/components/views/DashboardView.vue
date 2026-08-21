@@ -144,31 +144,33 @@
 
         <!-- Architecture Model Overview Grid -->
         <div class="dash-overview-grid">
-          <div class="dash-card glass-panel" :data-layer="'bedrock'">
+          <div class="dash-card glass-panel" :data-layer="'compass'" @click="$emit('openLicenseModal')">
             <div class="card-header">
-              <span class="dash-card-tag blue-tag">Layer 1</span>
-              <StatusDot :status="status" />
+              <span class="dash-card-tag neon-tag">Layer 1</span>
+              <span class="dash-card-tier" :style="{ color: currentTierColor.hex }">
+                {{ currentTierData.name }} Compass
+              </span>
             </div>
-            <h4 class="dash-block-title">Blackbox Bedrock</h4>
-            <p class="dash-block-sub">Genesis Wave foundation and blackbox/ storage container.</p>
+            <h4 class="dash-block-title">My COMPASS Sovereignty</h4>
+            <p class="dash-block-sub">XP gamification, 4D star navigation, and active sparks license.</p>
           </div>
 
-          <div class="dash-card glass-panel" :data-layer="'database'">
+          <div class="dash-card glass-panel" :data-layer="'portal'" @click="$emit('openUrl', currentGatewayUrl)">
             <div class="card-header">
-              <span class="dash-card-tag purple-tag">Layer 2</span>
+              <span class="dash-card-tag cyan-tag">Layer 2</span>
               <StatusDot :status="status" />
             </div>
-            <h4 class="dash-block-title">SQLite Database Store</h4>
-            <p class="dash-block-sub">Zero-configuration single-file database sandbox in blackbox/.</p>
+            <h4 class="dash-block-title">Event Horizon Portal</h4>
+            <p class="dash-block-sub">Sovereign personal desktop environment with detachable sparks.</p>
           </div>
 
-          <div class="dash-card glass-panel" :data-layer="'core'">
+          <div class="dash-card glass-panel" :data-layer="'network'">
             <div class="card-header">
-              <span class="dash-card-tag gold-tag">Layer 3</span>
+              <span class="dash-card-tag coral-tag">Layer 3</span>
               <StatusDot :status="status" />
             </div>
-            <h4 class="dash-block-title">Headless Core</h4>
-            <p class="dash-block-sub">Kernel headless runtime powering REST API and plugin pipelines.</p>
+            <h4 class="dash-block-title">Private Node Network</h4>
+            <p class="dash-block-sub">ZeroConf mDNS discovery mesh connecting sovereign nodes.</p>
           </div>
 
           <div class="dash-card glass-panel" :data-layer="'server'">
@@ -180,33 +182,31 @@
             <p class="dash-block-sub">FrankenPHP &amp; Caddy proxy routing ports 80 and 443 with TLS.</p>
           </div>
 
-          <div class="dash-card glass-panel" :data-layer="'network'">
+          <div class="dash-card glass-panel" :data-layer="'core'">
             <div class="card-header">
-              <span class="dash-card-tag coral-tag">Layer 5</span>
+              <span class="dash-card-tag gold-tag">Layer 5</span>
               <StatusDot :status="status" />
             </div>
-            <h4 class="dash-block-title">Private Node Network</h4>
-            <p class="dash-block-sub">ZeroConf mDNS discovery mesh connecting sovereign nodes.</p>
+            <h4 class="dash-block-title">Headless Core</h4>
+            <p class="dash-block-sub">Kernel headless runtime powering REST API and plugin pipelines.</p>
           </div>
 
-          <div class="dash-card glass-panel" :data-layer="'portal'" @click="$emit('openUrl', currentGatewayUrl)">
+          <div class="dash-card glass-panel" :data-layer="'database'">
             <div class="card-header">
-              <span class="dash-card-tag cyan-tag">Layer 6</span>
+              <span class="dash-card-tag purple-tag">Layer 6</span>
               <StatusDot :status="status" />
             </div>
-            <h4 class="dash-block-title">Event Horizon Portal</h4>
-            <p class="dash-block-sub">Sovereign personal desktop environment with detachable sparks.</p>
+            <h4 class="dash-block-title">SQLite Database Store</h4>
+            <p class="dash-block-sub">Zero-configuration single-file database sandbox in blackbox/.</p>
           </div>
 
-          <div class="dash-card glass-panel" :data-layer="'compass'" @click="$emit('openLicenseModal')">
+          <div class="dash-card glass-panel" :data-layer="'bedrock'">
             <div class="card-header">
-              <span class="dash-card-tag neon-tag">Layer 7</span>
-              <span class="dash-card-tier" :style="{ color: currentTierColor.hex }">
-                {{ currentTierData.name }} Compass
-              </span>
+              <span class="dash-card-tag blue-tag">Layer 7</span>
+              <StatusDot :status="status" />
             </div>
-            <h4 class="dash-block-title">My COMPASS Sovereignty</h4>
-            <p class="dash-block-sub">XP gamification, 4D star navigation, and active sparks license.</p>
+            <h4 class="dash-block-title">Blackbox Bedrock</h4>
+            <p class="dash-block-sub">Genesis Wave foundation and blackbox/ storage container.</p>
           </div>
         </div>
       </section>
@@ -482,13 +482,13 @@ const props = defineProps<{
 }>();
 
 const LAYER_ORDER: Record<string, number> = {
-  bedrock: 1,
-  database: 2,
-  core: 3,
+  compass: 1,
+  portal: 2,
+  network: 3,
   server: 4,
-  network: 5,
-  portal: 6,
-  compass: 7
+  core: 5,
+  database: 6,
+  bedrock: 7
 };
 
 const sortedStackLayers = computed(() => {
