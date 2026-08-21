@@ -1,4 +1,7 @@
 import type {
+  EngineStatus,
+  EngineType,
+  GatewayEndpoint,
   DownloadProgress,
   ServiceInfo,
   EngineStatusInfo,
@@ -46,6 +49,9 @@ export interface DesktopApi {
 }
 
 export type {
+  EngineStatus,
+  EngineType,
+  GatewayEndpoint,
   DownloadProgress,
   ServiceInfo,
   EngineStatusInfo,

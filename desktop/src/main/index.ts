@@ -14,6 +14,7 @@ import {
 } from './engine/types';
 import { createTray } from './tray';
 import { UpdaterManager } from './updater';
+import { DiagnosticsManager } from './engine/diagnostics';
 
 const execFileAsync = promisify(execFile);
 
@@ -22,6 +23,11 @@ let portalWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
 const engineManager = new EngineManager();
 const updaterManager = new UpdaterManager();
+
+const isProductionEnv = app?.isPackaged ?? (process.env.NODE_ENV === 'production' || __dirname.includes('app.asar'));
+const projectDir = isProductionEnv ? app.getPath('userData') : path.join(__dirname, '..', '..', '..');
+const diagnosticsManager = new DiagnosticsManager(projectDir);
+
 let isQuitting = false;
 let isSessionConfigured = false;
 
