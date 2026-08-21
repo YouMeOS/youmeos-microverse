@@ -15,7 +15,7 @@
     "dev": "concurrently -k -p \"[{name}]\" -n \"RENDERER,MAIN,APP\" -c \"cyan,magenta,green\" \"npm run dev:renderer\" \"npm run dev:main\" \"npm run dev:electron\"",
     "build:main": "tsc",
     "build:renderer": "vite build",
-    "build:assets": "node -e \"fs.cpSync('src/renderer/icon.png', 'dist/renderer/icon.png'); fs.cpSync('src/main/engine/Caddyfile', 'dist/main/engine/Caddyfile')\"",
+    "build:assets": "node -e \"fs.cpSync('src/renderer/icon.png', 'dist/renderer/icon.png'); fs.cpSync('assets', 'dist/assets', {recursive: true}); fs.cpSync('src/main/engine/Caddyfile', 'dist/main/engine/Caddyfile')\"",
     "build": "npm run build:main && npm run build:renderer && npm run build:assets",
     "update:plugins": "bash ../scripts/update-plugins.sh",
     "package": "electron-builder"

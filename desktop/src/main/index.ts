@@ -1,6 +1,11 @@
-import { app, BrowserWindow, ipcMain, shell, Tray, session } from 'electron';
+import { app, BrowserWindow, ipcMain, shell, Tray, session, nativeImage } from 'electron';
 import path from 'path';
 import fs from 'fs';
+
+app.setName('My YouMeOS Microverse');
+if (process.platform === 'win32') {
+  app.setAppUserModelId('com.youmeos.microverse');
+}
 
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true';
 import { execFile } from 'child_process';
@@ -17,6 +22,29 @@ import { UpdaterManager } from './updater';
 import { DiagnosticsManager } from './engine/diagnostics';
 
 const execFileAsync = promisify(execFile);
+
+export function getAppIcon(): Electron.NativeImage {
+  const possiblePaths = [
+    path.join(__dirname, '..', '..', 'assets', 'icon.png'),
+    path.join(__dirname, '..', 'assets', 'icon.png'),
+    path.join(__dirname, 'assets', 'icon.png'),
+    path.join(__dirname, '..', 'renderer', 'icon.png'),
+    path.join(app.getAppPath(), 'assets', 'icon.png'),
+    path.join(app.getAppPath(), 'dist', 'assets', 'icon.png'),
+    path.join(app.getAppPath(), 'dist', 'renderer', 'icon.png'),
+    path.join(process.resourcesPath, 'assets', 'icon.png')
+  ];
+
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p)) {
+      const img = nativeImage.createFromPath(p);
+      if (!img.isEmpty()) {
+        return img;
+      }
+    }
+  }
+  return nativeImage.createEmpty();
+}
 
 let mainWindow: BrowserWindow | null = null;
 let portalWindow: BrowserWindow | null = null;
@@ -87,6 +115,8 @@ export function openPortalWindow(targetUrl: string = 'https://my.youmeos.com'): 
 
   setupPortalSession();
 
+  const appIcon = getAppIcon();
+
   portalWindow = new BrowserWindow({
     width: 1280,
     height: 850,
@@ -94,7 +124,7 @@ export function openPortalWindow(targetUrl: string = 'https://my.youmeos.com'): 
     minHeight: 600,
     title: 'YouMeOS Portal',
     backgroundColor: '#0a0d14',
-    icon: path.join(__dirname, '..', '..', 'assets', 'icon.png'),
+    icon: appIcon,
     autoHideMenuBar: true,
     webPreferences: {
       partition: 'persist:youmeos',
@@ -103,6 +133,10 @@ export function openPortalWindow(targetUrl: string = 'https://my.youmeos.com'): 
       webviewTag: true
     }
   });
+
+  if (!appIcon.isEmpty()) {
+    portalWindow.setIcon(appIcon);
+  }
 
   portalWindow.setMenu(null);
   portalWindow.maximize();
@@ -148,6 +182,8 @@ export function openPortalWindow(targetUrl: string = 'https://my.youmeos.com'): 
 }
 
 async function createWindow(): Promise<void> {
+  const appIcon = getAppIcon();
+
   mainWindow = new BrowserWindow({
     width: 830,
     height: 860,
@@ -156,13 +192,17 @@ async function createWindow(): Promise<void> {
     resizable: true,
     title: 'My YouMeOS Microverse',
     backgroundColor: '#0a0d14',
-    icon: path.join(__dirname, '..', '..', 'assets', 'icon.png'),
+    icon: appIcon,
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload', 'index.js'),
       nodeIntegration: false,
       contextIsolation: true
     }
   });
+
+  if (!appIcon.isEmpty()) {
+    mainWindow.setIcon(appIcon);
+  }
 
   const devServerUrl = process.env.VITE_DEV_SERVER_URL;
   if (devServerUrl) {
@@ -288,6 +328,8 @@ const readyHandler = async () => {
     return new Promise((resolve) => {
       let isCompleted = false;
 
+      const appIcon = getAppIcon();
+
       const checkoutWin = new BrowserWindow({
         width: 580,
         height: 820,
@@ -297,12 +339,17 @@ const readyHandler = async () => {
         modal: true,
         title: 'Stripe Checkout - YouMeOS Sovereignty',
         backgroundColor: '#0a0d14',
+        icon: appIcon,
         autoHideMenuBar: true,
         webPreferences: {
           nodeIntegration: false,
           contextIsolation: true
         }
       });
+
+      if (!appIcon.isEmpty()) {
+        checkoutWin.setIcon(appIcon);
+      }
 
       const handleNavigation = (navUrl: string) => {
         try {

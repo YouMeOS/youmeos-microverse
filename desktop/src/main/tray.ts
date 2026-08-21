@@ -1,14 +1,34 @@
 import { Tray, Menu, BrowserWindow, nativeImage, app, shell } from 'electron';
 import { EngineManager } from './engine/manager';
 import path from 'path';
+import fs from 'fs';
 
 export function createTray(
   engineManager: EngineManager,
   mainWindow: BrowserWindow,
   onOpenPortal?: (url?: string) => void
 ): Tray {
-  const iconPath = path.join(__dirname, '..', '..', 'assets', 'icon.png');
-  const icon = nativeImage.createFromPath(iconPath);
+  const possiblePaths = [
+    path.join(__dirname, '..', '..', 'assets', 'icon.png'),
+    path.join(__dirname, '..', 'assets', 'icon.png'),
+    path.join(__dirname, 'assets', 'icon.png'),
+    path.join(__dirname, '..', 'renderer', 'icon.png'),
+    path.join(app.getAppPath(), 'assets', 'icon.png'),
+    path.join(app.getAppPath(), 'dist', 'assets', 'icon.png'),
+    path.join(app.getAppPath(), 'dist', 'renderer', 'icon.png'),
+    path.join(process.resourcesPath, 'assets', 'icon.png')
+  ];
+
+  let icon = nativeImage.createEmpty();
+  for (const p of possiblePaths) {
+    if (fs.existsSync(p)) {
+      const img = nativeImage.createFromPath(p);
+      if (!img.isEmpty()) {
+        icon = img;
+        break;
+      }
+    }
+  }
   const tray = new Tray(icon);
 
   const updateMenu = () => {
