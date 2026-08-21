@@ -90,7 +90,9 @@ export const BOX_TIERS: TierInfo[] = [
     target: 'Bloggers, Portfolio Owners, Freelancers, Solo Creators, Students, Hobbyists',
     specs: ['1 vCPU Dedicated Core', '512MB High-Speed RAM', '10GB Storage', '5TB Dedicated Bandwidth'],
     features: ['YouMeOS WebTop OS', 'Gamification & XP Engine', 'QA & Bug Reporting Net', 'Full Tesseract Framework'],
-    url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29371/302083/'
+    url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29371/302083/',
+    stripeWhiteGloveUrl: 'https://buy.stripe.com/whiteglove_quantum',
+    stripeLicenseUrl: 'https://buy.stripe.com/license_black'
   },
   {
     id: 'bronze',
@@ -104,7 +106,9 @@ export const BOX_TIERS: TierInfo[] = [
     target: 'Local Shops, Contractors, Salons, Cafes, Fitness Instructors, Tradespeople',
     specs: ['1 vCPU Dedicated Core', '1GB High-Speed RAM', '25GB Storage', '10TB Dedicated Bandwidth'],
     features: ['All Quantum Features', 'Questbook CRM Lead Capture', 'Bomb Bag Broadcasts', 'Automated Daily Safeguards'],
-    url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29501/302084/'
+    url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29501/302084/',
+    stripeWhiteGloveUrl: 'https://buy.stripe.com/whiteglove_bronze',
+    stripeLicenseUrl: 'https://buy.stripe.com/license_bronze'
   },
   {
     id: 'silver',
@@ -118,7 +122,9 @@ export const BOX_TIERS: TierInfo[] = [
     target: 'Consultants, Photographers, Digital Marketers, Web Designers, Content Creators',
     specs: ['2 vCPU Dedicated Cores', '2GB High-Speed RAM', '65GB NVMe Storage', '25TB Dedicated Bandwidth'],
     features: ['All Bronze Features', 'Magic Formula Automations', 'HoloShell CLI & System Monitor', 'Castle Walls WAF Defense'],
-    url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29504/302085/'
+    url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29504/302085/',
+    stripeWhiteGloveUrl: 'https://buy.stripe.com/whiteglove_silver',
+    stripeLicenseUrl: 'https://buy.stripe.com/license_silver'
   },
   {
     id: 'silver-enhanced',
@@ -132,7 +138,9 @@ export const BOX_TIERS: TierInfo[] = [
     target: 'Lawyers, Dentists, Accountants, Real Estate Agents, Private Clinics, Boutiques',
     specs: ['2 vCPU Dedicated Cores', '4GB High-Speed RAM', '128GB Storage', '25TB Dedicated Bandwidth'],
     features: ['All Silver Features', "Wizard's Tower Dev Studio", 'E-Commerce Storefront', 'High-Speed Page Cache'],
-    url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/42889/290370/'
+    url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/42889/290370/',
+    stripeWhiteGloveUrl: 'https://buy.stripe.com/whiteglove_silver_enhanced',
+    stripeLicenseUrl: 'https://buy.stripe.com/license_silver_enhanced'
   },
   {
     id: 'gold',
@@ -146,7 +154,9 @@ export const BOX_TIERS: TierInfo[] = [
     target: 'E-Commerce Brands, Software Startups, PR Agencies, Financial Advisors, Tech Firms',
     specs: ['4 vCPU Dedicated Cores', '8GB High-Speed RAM', '160GB NVMe Storage', '100TB Dedicated Bandwidth'],
     features: ['All Silver Enhanced Features', 'Logos Multiverse Command', 'Helios Media Studio', 'Automated Sales Funnels'],
-    url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29505/302086/'
+    url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29505/302086/',
+    stripeWhiteGloveUrl: 'https://buy.stripe.com/whiteglove_gold',
+    stripeLicenseUrl: 'https://buy.stripe.com/license_gold'
   },
   {
     id: 'gold-enhanced',
@@ -160,7 +170,9 @@ export const BOX_TIERS: TierInfo[] = [
     target: 'Mid-Size Agencies, Course Creators, Media Companies, SaaS Founders, Large Law Firms',
     specs: ['4 vCPU Dedicated Cores', '16GB High-Speed RAM', '384GB NVMe Storage', '100TB Dedicated Bandwidth'],
     features: ['All Gold Features', 'AI Content Generator Pipeline', 'Business Intelligence Telemetry', 'Multi-App Cluster Setup'],
-    url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/42890/290371/'
+    url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/42890/290371/',
+    stripeWhiteGloveUrl: 'https://buy.stripe.com/whiteglove_gold_enhanced',
+    stripeLicenseUrl: 'https://buy.stripe.com/license_gold_enhanced'
   },
   {
     id: 'platinum',
@@ -174,7 +186,9 @@ export const BOX_TIERS: TierInfo[] = [
     target: 'High-Volume Stores, B2B Enterprises, Digital Publishers, Investment Firms',
     specs: ['6 vCPU Dedicated Cores', '16GB High-Speed RAM', '320GB Storage', '200TB Dedicated Bandwidth'],
     features: ['All Gold Enhanced Features', 'Nexos Multi-Agent AI Network', 'Turn-Key Agency Hub', 'Custom Single Sign-On'],
-    url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29545/302087/'
+    url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29545/302087/',
+    stripeWhiteGloveUrl: 'https://buy.stripe.com/whiteglove_platinum',
+    stripeLicenseUrl: 'https://buy.stripe.com/license_platinum'
   },
   {
     id: 'platinum-enhanced',
@@ -188,7 +202,9 @@ export const BOX_TIERS: TierInfo[] = [
     target: 'Franchises, Marketing Networks, Healthcare Providers, Multi-Location Retailers',
     specs: ['6 vCPU Dedicated Cores', '24GB High-Speed RAM', '448GB Storage', '200TB Dedicated Bandwidth'],
     features: ['All Platinum Features', 'Noosphere Resonance Space', 'White-Label Branding Engine', 'High-Capacity Cluster'],
-    url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/42891/290372/'
+    url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/42891/290372/',
+    stripeWhiteGloveUrl: 'https://buy.stripe.com/whiteglove_platinum_enhanced',
+    stripeLicenseUrl: 'https://buy.stripe.com/license_platinum_enhanced'
   },
   {
     id: 'uranium',
@@ -202,7 +218,9 @@ export const BOX_TIERS: TierInfo[] = [
     target: 'Enterprise E-Commerce, Financial Institutions, Media Conglomerates, Global Agencies',
     specs: ['8 vCPU Dedicated Cores', '32GB High-Speed RAM', '640GB Storage', '250TB Dedicated Bandwidth'],
     features: ['All Platinum Enhanced Features', 'Enterprise Regulatory Compliance', 'Real-Time Threat Shield', 'Zero-Downtime Sandbox'],
-    url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29546/302088/'
+    url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29546/302088/',
+    stripeWhiteGloveUrl: 'https://buy.stripe.com/whiteglove_uranium',
+    stripeLicenseUrl: 'https://buy.stripe.com/license_uranium'
   },
   {
     id: 'titanium',
@@ -216,7 +234,9 @@ export const BOX_TIERS: TierInfo[] = [
     target: 'Multinational Corporations, Cloud SaaS Providers, High-Traffic News Outlets',
     specs: ['16 vCPU Dedicated Cores', '64GB High-Speed RAM', '1.28TB SSD', '250TB+ Dedicated Bandwidth'],
     features: ['All Uranium Features', 'BlackBOX Kernel Diagnostics', 'Auto-Scaling Engine', 'Self-Healing Infrastructure'],
-    url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29547/302089/'
+    url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29547/302089/',
+    stripeWhiteGloveUrl: 'https://buy.stripe.com/whiteglove_titanium',
+    stripeLicenseUrl: 'https://buy.stripe.com/license_titanium'
   },
   {
     id: 'palladium',
@@ -230,9 +250,13 @@ export const BOX_TIERS: TierInfo[] = [
     target: 'Global Enterprises, Infrastructure Providers, Fortune 500s, Massive User Networks',
     specs: ['24 vCPU Dedicated Cores', '96GB High-Speed RAM', '2.5TB+ SSD', 'Unlimited Global Bandwidth'],
     features: ['All Titanium Features', 'Omni-Sovereign Core Network API', 'Global Network Sync', '20h Principal Systems Retainer'],
-    url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29548/302090/'
+    url: 'https://w4.youmeos.com?_hub_client_page=1&_path=/hosting-create/29548/302090/',
+    stripeWhiteGloveUrl: 'https://buy.stripe.com/whiteglove_palladium',
+    stripeLicenseUrl: 'https://buy.stripe.com/license_palladium'
   }
 ];
+
+export const TESSERACT_SPARK_URL = 'https://www.youmeos.com/u/?sparks=tesseract&fullspark=true&name=The+Tesseract&icon=fad+fa-police-box&color=%23003b6f';
 
 export class LicenseCloudManager {
   private currentTier: string = 'black';
@@ -240,14 +264,8 @@ export class LicenseCloudManager {
   private currentStatus: 'active' | 'trial' | 'unverified' = 'active';
   private activeSparkFilter: 'all' | 'spark' | 'portal' = 'all';
 
-  // Cloud Hub State
-  private activeCloudMode: 'diy' | 'whiteglove' = 'diy';
-  private activeCloudTrack: 'all' | 'micro' | 'macro' | 'omni' = 'all';
-
   // DOM References
   private modalLicense = document.getElementById('modal-compass-license') as HTMLElement | null;
-  private modalCloud = document.getElementById('modal-cloud-boxes') as HTMLElement | null;
-  private modalDiyComingSoon = document.getElementById('modal-diy-coming-soon') as HTMLElement | null;
 
   // License Modal Elements
   private licenseActiveHero = document.getElementById('license-active-hero') as HTMLElement | null;
@@ -261,14 +279,9 @@ export class LicenseCloudManager {
   private inputLicenseKey = document.getElementById('input-license-key') as HTMLInputElement | null;
   private licenseFeedbackMsg = document.getElementById('license-feedback-msg') as HTMLElement | null;
 
-  // Header & FAB Pills
+  // Header Pill
   private headerLicenseLabel = document.getElementById('header-license-label') as HTMLElement | null;
   private headerLicenseDot = document.getElementById('header-license-dot') as HTMLElement | null;
-  private splashFabLicenseTitle = document.getElementById('splash-fab-license-title') as HTMLElement | null;
-
-  // Cloud Hub Elements
-  private cloudTiersGrid = document.getElementById('cloud-tiers-grid') as HTMLElement | null;
-  private modeBannerText = document.getElementById('mode-banner-text') as HTMLElement | null;
 
   constructor(
     private windowApi: DesktopApi,
@@ -277,7 +290,6 @@ export class LicenseCloudManager {
     this.loadPersistedState();
     this.setupEventListeners();
     this.renderLicenseUI();
-    this.renderCloudTiers();
   }
 
   private loadPersistedState(): void {
@@ -305,31 +317,17 @@ export class LicenseCloudManager {
     this.modalLicense.classList.add('hidden');
   }
 
-  public openCloudHub(mode: 'diy' | 'whiteglove' = 'whiteglove'): void {
-    if (mode === 'diy') {
-      this.openDiyComingSoonModal();
-      return;
+  public openTesseractCloud(): void {
+    try {
+      if (this.windowApi && typeof this.windowApi.openUrl === 'function') {
+        this.windowApi.openUrl(TESSERACT_SPARK_URL);
+      } else {
+        window.open(TESSERACT_SPARK_URL, '_blank');
+      }
+    } catch (e) {
+      console.error('Failed to open Tesseract URL:', e);
+      window.open(TESSERACT_SPARK_URL, '_blank');
     }
-    if (!this.modalCloud) return;
-    this.activeCloudMode = mode;
-    this.updateCloudModeToggleUI();
-    this.modalCloud.classList.remove('hidden');
-    this.renderCloudTiers();
-  }
-
-  public closeCloudHub(): void {
-    if (!this.modalCloud) return;
-    this.modalCloud.classList.add('hidden');
-  }
-
-  public openDiyComingSoonModal(): void {
-    if (!this.modalDiyComingSoon) return;
-    this.modalDiyComingSoon.classList.remove('hidden');
-  }
-
-  public closeDiyComingSoonModal(): void {
-    if (!this.modalDiyComingSoon) return;
-    this.modalDiyComingSoon.classList.add('hidden');
   }
 
   public setTier(tier: string, key?: string): void {
@@ -351,25 +349,11 @@ export class LicenseCloudManager {
     // Close buttons
     document.getElementById('btn-close-license-modal')?.addEventListener('click', () => this.closeLicenseModal());
     document.getElementById('btn-footer-close-license')?.addEventListener('click', () => this.closeLicenseModal());
-    document.getElementById('btn-close-cloud-modal')?.addEventListener('click', () => this.closeCloudHub());
-    document.getElementById('btn-footer-close-cloud')?.addEventListener('click', () => this.closeCloudHub());
 
-    // DIY Coming Soon modal listeners
-    document.getElementById('btn-close-coming-soon-modal')?.addEventListener('click', () => this.closeDiyComingSoonModal());
-    document.getElementById('btn-footer-close-coming-soon')?.addEventListener('click', () => this.closeDiyComingSoonModal());
-    
-    // Bridge from DIY Coming Soon directly into White Glove
-    const bridgeToWhiteGlove = () => {
-      this.closeDiyComingSoonModal();
-      this.openCloudHub('whiteglove');
-    };
-    document.getElementById('btn-bridge-to-whiteglove')?.addEventListener('click', bridgeToWhiteGlove);
-    document.getElementById('btn-coming-soon-whiteglove')?.addEventListener('click', bridgeToWhiteGlove);
-
-    // Switch from license modal to cloud modal
-    document.getElementById('btn-open-cloud-from-license')?.addEventListener('click', () => {
-      this.closeLicenseModal();
-      this.openCloudHub('whiteglove');
+    // Launch The Tesseract Spark from License Modal
+    document.getElementById('btn-open-tesseract-cloud')?.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.openTesseractCloud();
     });
 
     // License key activation
@@ -377,6 +361,76 @@ export class LicenseCloudManager {
     this.inputLicenseKey?.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') this.handleKeyActivation();
     });
+
+    // Direct Stripe Checkout from License Modal (Hero & Footer)
+    const triggerLicenseStripeCheckout = async (btn: HTMLButtonElement | null) => {
+      const tierKey = this.currentTier;
+      const tierData = BOX_TIERS.find(t => t.id === tierKey) || BOX_TIERS[0];
+      const tierName = tierData.name;
+      const priceStr = tierData.localPrice;
+      const parsedPrice = parseFloat(priceStr.replace(/[^0-9.]/g, '')) || 9.99;
+      const licenseName = `${tierName} Compass Software License`;
+      const productName = `YouMeOS Sovereignty - ${tierName} Compass License (${priceStr})`;
+
+      if (btn) {
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+      }
+
+      try {
+        const successUrl = `https://youmeos.com/callback/stripe?status=success&tier=${encodeURIComponent(tierKey)}&session_id={CHECKOUT_SESSION_ID}`;
+        const cancelUrl = `https://youmeos.com/callback/stripe?status=cancel&tier=${encodeURIComponent(tierKey)}`;
+
+        const response = await fetch('https://youmeos.com/wp-json/xophz/v1/stripe/checkout', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            price: parsedPrice,
+            license: licenseName,
+            product_name: productName,
+            tier: tierKey,
+            success_url: successUrl,
+            cancel_url: cancelUrl
+          })
+        });
+
+        const data = await response.json();
+        if (!response.ok || !data.url) {
+          const errorMsg = data.message || data.error || (typeof data === 'string' ? data : 'Stripe checkout initialization failed');
+          throw new Error(`Stripe Checkout Error (${response.status}): ${errorMsg}`);
+        }
+
+        const targetUrl = data.url;
+
+        if (this.windowApi && typeof this.windowApi.openStripeCheckout === 'function') {
+          const result = await this.windowApi.openStripeCheckout(targetUrl);
+          if (result && result.success && result.tier) {
+            this.setTier(result.tier, result.key);
+            this.showFeedback(`Payment verified! ${result.tier.toUpperCase()} Compass license activated.`, 'success');
+          }
+        } else if (this.windowApi && typeof this.windowApi.openUrl === 'function') {
+          this.windowApi.openUrl(targetUrl);
+        } else {
+          window.open(targetUrl, '_blank');
+        }
+      } catch (e: any) {
+        console.error('Stripe license checkout error:', e);
+        this.showFeedback(`Checkout Error: ${e.message || e}`, 'error');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.style.opacity = '1';
+        }
+      }
+    };
+
+    const heroStripeBtn = document.getElementById('btn-hero-stripe-checkout') as HTMLButtonElement | null;
+    const footerStripeBtn = document.getElementById('btn-footer-stripe-checkout') as HTMLButtonElement | null;
+
+    heroStripeBtn?.addEventListener('click', () => triggerLicenseStripeCheckout(heroStripeBtn));
+    footerStripeBtn?.addEventListener('click', () => triggerLicenseStripeCheckout(footerStripeBtn));
 
     // Tier preview selector buttons
     document.querySelectorAll<HTMLButtonElement>('.tier-select-btn').forEach(btn => {
@@ -399,32 +453,6 @@ export class LicenseCloudManager {
         btn.classList.add('active');
         this.activeSparkFilter = (btn.getAttribute('data-spark-type') as any) || 'all';
         this.renderSparksGrid();
-      });
-    });
-
-    // Cloud Hub Mode toggle (DIY vs White Glove)
-    document.querySelectorAll<HTMLButtonElement>('.funnel-toggle-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const mode = btn.getAttribute('data-mode') as 'diy' | 'whiteglove';
-        if (mode === 'diy') {
-          this.openDiyComingSoonModal();
-          return;
-        }
-        if (mode) {
-          this.activeCloudMode = mode;
-          this.updateCloudModeToggleUI();
-          this.renderCloudTiers();
-        }
-      });
-    });
-
-    // Cloud Hub Track filter
-    document.querySelectorAll<HTMLButtonElement>('.track-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.track-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        this.activeCloudTrack = (btn.getAttribute('data-track') as any) || 'all';
-        this.renderCloudTiers();
       });
     });
   }
@@ -462,21 +490,6 @@ export class LicenseCloudManager {
     }, 4000);
   }
 
-  private updateCloudModeToggleUI(): void {
-    document.querySelectorAll<HTMLButtonElement>('.funnel-toggle-btn').forEach(btn => {
-      const isCurrent = btn.getAttribute('data-mode') === this.activeCloudMode;
-      btn.classList.toggle('active', isCurrent);
-    });
-
-    if (this.modeBannerText) {
-      if (this.activeCloudMode === 'diy') {
-        this.modeBannerText.innerHTML = '<strong>DIY Cloud Boxes:</strong> Automated dedicated container provisioning on the w⁴ Hub. Includes isolated vCPU/RAM hardware resources + pre-installed Compass Spark suite.';
-      } else {
-        this.modeBannerText.innerHTML = '<strong>White Glove Service:</strong> Fully managed turnkey deployment + dedicated monthly concierge consulting retainer hours with our engineering team.';
-      }
-    }
-  }
-
   public renderLicenseUI(): void {
     const tierKey = this.currentTier;
     const tierData = BOX_TIERS.find(t => t.id === tierKey) || BOX_TIERS[0];
@@ -507,6 +520,16 @@ export class LicenseCloudManager {
       this.licenseActiveHero.style.borderColor = `${colorDef.hex}50`;
     }
 
+    // Update Stripe checkout button labels in hero and footer
+    const heroStripeLabel = document.getElementById('btn-hero-stripe-label');
+    if (heroStripeLabel) {
+      heroStripeLabel.textContent = `Buy ${tierData.name} (${tierData.localPrice})`;
+    }
+    const footerStripeLabel = document.getElementById('btn-footer-stripe-label');
+    if (footerStripeLabel) {
+      footerStripeLabel.innerHTML = `Stripe Checkout &bull; ${tierData.name} Compass (${tierData.localPrice})`;
+    }
+
     // Update quick switch selector active state
     document.querySelectorAll<HTMLButtonElement>('.tier-select-btn').forEach(btn => {
       const isTarget = btn.getAttribute('data-tier') === tierKey;
@@ -520,16 +543,13 @@ export class LicenseCloudManager {
       }
     });
 
-    // Update Header and Splash FAB indicators
+    // Update Header license indicators
     if (this.headerLicenseLabel) {
       this.headerLicenseLabel.textContent = `${tierData.name} Compass`;
     }
     if (this.headerLicenseDot) {
       this.headerLicenseDot.style.background = colorDef.hex;
       this.headerLicenseDot.style.boxShadow = `0 0 8px ${colorDef.hex}`;
-    }
-    if (this.splashFabLicenseTitle) {
-      this.splashFabLicenseTitle.textContent = `${tierData.name} Compass`;
     }
 
     this.renderSparksGrid();
@@ -550,26 +570,35 @@ export class LicenseCloudManager {
     let unlockedCount = 0;
 
     this.licenseSparksGrid.innerHTML = filteredPlugins.map(p => {
-      const minTierIdx = TIER_ORDER.indexOf(p.minTier);
-      const isUnlocked = currentTierIdx >= minTierIdx;
+      const requiredTierIdx = TIER_ORDER.indexOf(p.minTier);
+      const isUnlocked = currentTierIdx >= requiredTierIdx;
       if (isUnlocked) unlockedCount++;
 
-      const badgeClass = p.type === 'spark' ? 'spark-tag' : 'portal-tag';
-      const badgeLabel = p.type === 'spark' ? 'Spark (PWA)' : 'PHP Portal';
+      const isSpark = p.type === 'spark';
+      const badgeClass = isSpark ? 'badge-spark' : 'badge-portal';
+      const badgeLabel = isSpark ? 'SPARK (PWA)' : 'PHP PORTAL';
+      const statusIcon = isUnlocked 
+        ? `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#22c55e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>`
+        : `<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#64748b" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>`;
 
       return `
-        <div class="spark-item-card ${isUnlocked ? 'is-unlocked' : 'is-locked'}" title="${isUnlocked ? 'Unlocked in current tier' : `Requires ${p.minTier.toUpperCase()} tier or above`}">
-          <div class="spark-icon-tile" style="color: ${isUnlocked ? (p.type === 'spark' ? '#ff007a' : '#62c9ff') : '#64748b'};">
-            ${p.type === 'spark' 
-              ? '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg>'
-              : '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>'
-            }
-          </div>
-          <div class="spark-item-info">
-            <div class="spark-item-top">
-              <span class="spark-item-name">${p.name}</span>
-              <span class="spark-item-tag ${badgeClass}">${badgeLabel}</span>
+        <div class="spark-item-card ${isUnlocked ? 'unlocked' : 'locked'}">
+          <div class="spark-item-top">
+            <div class="spark-icon-box">
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M12 2v3m0 14v3M2 12h3m14 0h3"/>
+              </svg>
             </div>
+            <div class="spark-title-row">
+              <span class="spark-item-name">${p.name}</span>
+              <span class="spark-type-badge ${badgeClass}">${badgeLabel}</span>
+            </div>
+            <div class="spark-status-icon" title="${isUnlocked ? 'Unlocked in active tier' : `Requires ${p.minTier.toUpperCase()} Compass`}">
+              ${statusIcon}
+            </div>
+          </div>
+          <div class="spark-item-bottom">
             <span class="spark-item-desc">${p.tagline}</span>
           </div>
         </div>
@@ -579,106 +608,5 @@ export class LicenseCloudManager {
     if (this.sparksCountBadge) {
       this.sparksCountBadge.textContent = `${unlockedCount} of ${filteredPlugins.length} Active`;
     }
-  }
-
-  public renderCloudTiers(): void {
-    if (!this.cloudTiersGrid) return;
-
-    const track = this.activeCloudTrack;
-    const mode = this.activeCloudMode;
-
-    const filtered = BOX_TIERS.filter(t => {
-      if (track === 'all') return true;
-      return t.track === track;
-    });
-
-    this.cloudTiersGrid.innerHTML = filtered.map(t => {
-      const priceDisplay = mode === 'diy' ? t.cloudDiyPrice : t.whiteGlovePrice;
-      const subtitle = mode === 'diy' ? 'Self-Managed w⁴ Box (Coming Soon)' : `Includes ${t.whiteGloveHours}h Monthly Concierge Retainer`;
-      const btnClass = mode === 'diy' ? 'diy-btn' : 'whiteglove-btn';
-      const btnText = mode === 'diy' ? `DIY ${t.name}Box &bull; Coming Soon` : `Stripe Checkout &bull; Deploy White Glove (${priceDisplay})`;
-
-      // Stripe Checkout URL or configured link
-      const checkoutUrl = t.stripeWhiteGloveUrl || t.url || `https://buy.stripe.com/whiteglove_${t.id}`;
-
-      return `
-        <div class="cloud-tier-card" style="border-color: ${t.color}30;">
-          <div class="cloud-card-top">
-            <div class="cloud-card-header">
-              <span class="cloud-tier-name" style="color: ${t.color};">${t.name}BOX</span>
-              <span class="cloud-tier-track-badge" style="background: ${t.color}20; color: ${t.color}; border: 1px solid ${t.color}50;">
-                ${t.track.toUpperCase()}
-              </span>
-            </div>
-            <div class="cloud-tier-price" style="color: ${t.color};">
-              ${priceDisplay}
-            </div>
-            <div class="cloud-tier-target">
-              ${subtitle}
-            </div>
-
-            <div class="cloud-tier-specs">
-              ${t.specs.map(s => `
-                <div class="spec-bullet">
-                  <svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="${t.color}" stroke-width="2.5">
-                    <polyline points="20 6 9 17 4 12"/>
-                  </svg>
-                  <span>${s}</span>
-                </div>
-              `).join('')}
-            </div>
-          </div>
-
-          <div class="cloud-card-action">
-            <button class="btn-tier-action ${btnClass}" data-mode="${mode}" data-url="${checkoutUrl}" data-tier="${t.id}">
-              ${mode === 'diy' 
-                ? '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>'
-                : '<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>'
-              }
-              <span>${btnText}</span>
-            </button>
-          </div>
-        </div>
-      `;
-    }).join('');
-
-    // Attach click listeners to tier action buttons
-    this.cloudTiersGrid.querySelectorAll<HTMLButtonElement>('.btn-tier-action').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const actionBtnMode = btn.getAttribute('data-mode');
-        if (actionBtnMode === 'diy') {
-          this.openDiyComingSoonModal();
-          return;
-        }
-
-        const checkoutUrl = btn.getAttribute('data-url');
-        const tier = btn.getAttribute('data-tier') || 'gold';
-
-        if (this.windowApi.openStripeCheckout && checkoutUrl) {
-          btn.disabled = true;
-          btn.style.opacity = '0.7';
-          const originalText = btn.innerHTML;
-          btn.innerHTML = '<span>Opening Stripe Checkout...</span>';
-
-          try {
-            const result = await this.windowApi.openStripeCheckout(checkoutUrl);
-            if (result && result.success && result.tier) {
-              this.setTier(result.tier, result.key);
-              this.closeCloudHub();
-              this.showFeedback(`Payment verified! ${result.tier.toUpperCase()} Compass activated.`, 'success');
-            }
-          } catch (e) {
-            console.error('Stripe checkout error:', e);
-            this.windowApi.openUrl(checkoutUrl);
-          } finally {
-            btn.disabled = false;
-            btn.style.opacity = '1';
-            btn.innerHTML = originalText;
-          }
-        } else if (checkoutUrl) {
-          this.windowApi.openUrl(checkoutUrl);
-        }
-      });
-    });
   }
 }

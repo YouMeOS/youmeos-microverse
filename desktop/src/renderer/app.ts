@@ -27,10 +27,7 @@ const splashBtnDashboard = document.getElementById('splash-btn-dashboard') as HT
 const btnReturnSplash = document.getElementById('btn-return-splash') as HTMLButtonElement | null;
 const btnOpenSplash = document.getElementById('btn-open-splash') as HTMLButtonElement | null;
 
-// Splash Screen Floating Action Buttons (FABs)
-const splashFabCloud = document.getElementById('splash-fab-cloud') as HTMLButtonElement | null;
-const splashFabWhiteGlove = document.getElementById('splash-fab-whiteglove') as HTMLButtonElement | null;
-const splashFabLicense = document.getElementById('splash-fab-license') as HTMLButtonElement | null;
+// Header License Button
 const btnHeaderLicense = document.getElementById('btn-header-license') as HTMLButtonElement | null;
 
 // Dashboard 3D Canvas Container
@@ -335,22 +332,7 @@ async function init(): Promise<void> {
     });
   });
 
-  // 5. Floating Upsell FABs & Header License Pill Handlers
-  splashFabCloud?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    licenseCloudManager?.openDiyComingSoonModal();
-  });
-
-  splashFabWhiteGlove?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    licenseCloudManager?.openCloudHub('whiteglove');
-  });
-
-  splashFabLicense?.addEventListener('click', (e) => {
-    e.stopPropagation();
-    licenseCloudManager?.openLicenseModal();
-  });
-
+  // 5. Header License Pill Handler
   btnHeaderLicense?.addEventListener('click', (e) => {
     e.stopPropagation();
     licenseCloudManager?.openLicenseModal();
