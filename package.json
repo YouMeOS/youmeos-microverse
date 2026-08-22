@@ -11,13 +11,13 @@
   "scripts": {
     "dev:renderer": "vite",
     "dev:main": "tsc -w",
-    "dev:electron": "wait-on tcp:5173 && cross-env VITE_DEV_SERVER_URL=http://localhost:5173 electron .",
-    "dev": "concurrently -k -p \"[{name}]\" -n \"RENDERER,MAIN,APP\" -c \"cyan,magenta,green\" \"npm run dev:renderer\" \"npm run dev:main\" \"npm run dev:electron\"",
+    "dev:electron": "wait-on http://127.0.0.1:5173 dist/main/index.js && cross-env VITE_DEV_SERVER_URL=http://127.0.0.1:5173 electron .",
+    "dev": "concurrently -k -p \"[{name}]\" -n \"RENDERER,MAIN,APP\" -c \"cyan,magenta,green\" \"pnpm run dev:renderer\" \"pnpm run dev:main\" \"pnpm run dev:electron\"",
     "build:main": "tsc",
     "build:renderer": "vite build",
     "build:assets": "node -e \"fs.cpSync('src/renderer/icon.png', 'dist/renderer/icon.png'); fs.cpSync('assets', 'dist/assets', {recursive: true}); fs.cpSync('src/main/engine/Caddyfile', 'dist/main/engine/Caddyfile')\"",
-    "build": "npm run build:main && npm run build:renderer && npm run build:assets",
-    "update:plugins": "bash ../scripts/update-plugins.sh",
+    "build": "pnpm run build:main && pnpm run build:renderer && pnpm run build:assets",
+    "update:plugins": "bash scripts/update-plugins.sh",
     "package": "electron-builder"
   },
   "devDependencies": {

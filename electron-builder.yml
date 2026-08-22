@@ -3,17 +3,17 @@ productName: My YouMeOS Microverse
 directories:
   output: out
 extraResources:
-  - from: ../docker-compose.yml
+  - from: docker-compose.yml
     to: docker-compose.yml
-  - from: ../docker
+  - from: docker
     to: docker
     filter:
       - "**/*"
-  - from: ../blackbox
+  - from: blackbox
     to: blackbox
     filter:
       - "**/*"
-  - from: ../scripts
+  - from: scripts
     to: scripts
     filter:
       - "**/*"

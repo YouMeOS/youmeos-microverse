@@ -20,6 +20,7 @@ import {
 import { createTray } from './tray';
 import { UpdaterManager } from './updater';
 import { DiagnosticsManager } from './engine/diagnostics';
+import { getDevProjectDir } from './engine/base';
 
 const execFileAsync = promisify(execFile);
 
@@ -28,19 +29,15 @@ export function getAppIcon(): Electron.NativeImage {
     path.join(__dirname, '..', '..', 'assets', 'icon.png'),
     path.join(__dirname, '..', 'assets', 'icon.png'),
     path.join(__dirname, 'assets', 'icon.png'),
-    path.join(__dirname, '..', 'renderer', 'icon.png'),
+    path.join(process.resourcesPath || '', 'assets', 'icon.png'),
     path.join(app.getAppPath(), 'assets', 'icon.png'),
-    path.join(app.getAppPath(), 'dist', 'assets', 'icon.png'),
-    path.join(app.getAppPath(), 'dist', 'renderer', 'icon.png'),
-    path.join(process.resourcesPath, 'assets', 'icon.png')
+    path.join(app.getAppPath(), 'dist', 'renderer', 'icon.png')
   ];
 
   for (const p of possiblePaths) {
     if (fs.existsSync(p)) {
       const img = nativeImage.createFromPath(p);
-      if (!img.isEmpty()) {
-        return img;
-      }
+      if (!img.isEmpty()) return img;
     }
   }
   return nativeImage.createEmpty();
@@ -53,7 +50,7 @@ const engineManager = new EngineManager();
 const updaterManager = new UpdaterManager();
 
 const isProductionEnv = app?.isPackaged ?? (process.env.NODE_ENV === 'production' || __dirname.includes('app.asar'));
-const projectDir = isProductionEnv ? app.getPath('userData') : path.join(__dirname, '..', '..', '..');
+const projectDir = isProductionEnv ? app.getPath('userData') : getDevProjectDir(__dirname);
 const diagnosticsManager = new DiagnosticsManager(projectDir);
 
 let isQuitting = false;
@@ -277,8 +274,9 @@ const readyHandler = async () => {
   ipcMain.handle('app:version', () => app.getVersion());
 
   ipcMain.handle('engine:update-plugins', async () => {
-    const isProduction = app.isPackaged || process.env.NODE_ENV === 'production';
-    const scriptsDir = isProduction ? path.join(process.resourcesPath, 'scripts') : path.join(__dirname, '..', '..', '..', 'scripts');
+    const isProduction = app.isPackaged || process.env.NODE_ENV === 'production' || __dirname.includes('app.asar');
+    const projectDir = isProduction ? app.getPath('userData') : getDevProjectDir(__dirname);
+    const scriptsDir = isProduction ? path.join(process.resourcesPath, 'scripts') : path.join(projectDir, 'scripts');
     const scriptPath = path.join(scriptsDir, 'update-plugins.sh');
     return execFileAsync('bash', [scriptPath]);
   });
@@ -294,7 +292,7 @@ const readyHandler = async () => {
 
   const openBlackboxFolderHandler = async (_: unknown, subfolder?: string) => {
     const isProduction = app.isPackaged || process.env.NODE_ENV === 'production' || __dirname.includes('app.asar');
-    const projectDir = isProduction ? app.getPath('userData') : path.join(__dirname, '..', '..', '..');
+    const projectDir = isProduction ? app.getPath('userData') : getDevProjectDir(__dirname);
     const blackboxDir = path.join(projectDir, 'blackbox');
     const targetDir = subfolder ? path.join(blackboxDir, subfolder) : blackboxDir;
 

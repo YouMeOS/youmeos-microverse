@@ -13,6 +13,8 @@ certs/
 node_modules/
 desktop/node_modules/
 vendor/
+dist/
+out/
 desktop/dist/
 desktop/out/
 

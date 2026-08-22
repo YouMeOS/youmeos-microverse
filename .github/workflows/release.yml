@@ -42,7 +42,7 @@ jobs:
         with:
           node-version: 22
           cache: 'pnpm'
-          cache-dependency-path: desktop/pnpm-lock.yaml
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Cache Electron binaries
         uses: actions/cache@v4
@@ -54,20 +54,17 @@ jobs:
             ~/AppData/Local/electron-builder/Cache
             ~/Library/Caches/electron
             ~/Library/Caches/electron-builder
-          key: electron-cache-${{ matrix.os }}-${{ hashFiles('desktop/pnpm-lock.yaml') }}
+          key: electron-cache-${{ matrix.os }}-${{ hashFiles('pnpm-lock.yaml') }}
           restore-keys: |
             electron-cache-${{ matrix.os }}-
 
       - name: Install dependencies
-        working-directory: desktop
         run: pnpm install --frozen-lockfile
 
       - name: Build application
-        working-directory: desktop
         run: pnpm run build
 
       - name: Package installers
-        working-directory: desktop
         run: pnpm exec electron-builder --publish never
 
       - name: Upload installer artifacts
@@ -75,14 +72,14 @@ jobs:
         with:
           name: installers-${{ matrix.os }}
           path: |
-            desktop/out/*.exe
-            desktop/out/*.msi
-            desktop/out/*.dmg
-            desktop/out/*.AppImage
-            desktop/out/*.deb
-            desktop/out/*.zip
-            desktop/out/*.blockmap
-            desktop/out/latest*.yml
+            out/*.exe
+            out/*.msi
+            out/*.dmg
+            out/*.AppImage
+            out/*.deb
+            out/*.zip
+            out/*.blockmap
+            out/latest*.yml
           if-no-files-found: warn
 
   release:
@@ -97,7 +94,7 @@ jobs:
       - name: Read package version
         id: pkg
         run: |
-          VERSION=$(node -p "require('./desktop/package.json').version")
+          VERSION=$(node -p "require('./package.json').version")
           echo "version=v${VERSION}" >> $GITHUB_OUTPUT
 
       - name: Download all artifacts

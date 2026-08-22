@@ -1,1 +1,83 @@
-docker/docker-compose.yml
+services:
+  mariadb:
+    image: mariadb:11
+    restart: unless-stopped
+    command: ["--innodb-use-native-aio=0"]
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-somewordpress}
+      MYSQL_DATABASE: ${DB_NAME:-wordpress}
+      MYSQL_USER: ${DB_USER:-wordpress}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-wordpress}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-somewordpress}
+      MARIADB_DATABASE: ${DB_NAME:-wordpress}
+      MARIADB_USER: ${DB_USER:-wordpress}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-wordpress}
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - microverse
+
+  wordpress:
+    image: wordpress:php8.3-fpm
+    restart: unless-stopped
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      WORDPRESS_DB_HOST: mariadb:3306
+      WORDPRESS_DB_NAME: ${DB_NAME:-wordpress}
+      WORDPRESS_DB_USER: ${DB_USER:-wordpress}
+      WORDPRESS_DB_PASSWORD: ${DB_PASSWORD:-wordpress}
+      WORDPRESS_TABLE_PREFIX: ${WP_TABLE_PREFIX:-wp_}
+      WORDPRESS_CONFIG_EXTRA: |
+        $$is_https = (isset($$_SERVER['HTTPS']) && $$_SERVER['HTTPS'] === 'on') ||
+                    (isset($$_SERVER['HTTP_X_FORWARDED_PROTO']) && $$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https');
+        $$proto = $$is_https ? 'https://' : 'http://';
+        $$host = isset($$_SERVER['HTTP_HOST']) ? $$_SERVER['HTTP_HOST'] : 'localhost';
+        if (!defined('WP_HOME')) {
+            define('WP_HOME', $$proto . $$host);
+        }
+        if (!defined('WP_SITEURL')) {
+            define('WP_SITEURL', $$proto . $$host);
+        }
+    volumes:
+      - wp_files:/var/www/html
+      - ./blackbox:/var/www/html/wp-content
+    networks:
+      - microverse
+    depends_on:
+      - mariadb
+
+  nginx:
+    image: nginx:alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - wp_files:/var/www/html:ro
+      - ./blackbox:/var/www/html/wp-content:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./docker/nginx/certs:/etc/nginx/certs:ro
+    networks:
+      - microverse
+    depends_on:
+      - wordpress
+
+  avahi:
+    image: flungo/avahi
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      AVAHI_HOST_NAME: youmeos
+      AVAHI_DOMAIN_NAME: local
+
+volumes:
+  db_data:
+  wp_files:
+
+networks:
+  microverse:

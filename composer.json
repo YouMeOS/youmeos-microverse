@@ -9,28 +9,12 @@
       "url": "https://wpackagist.org"
     },
     {
-      "type": "package",
-      "package": {
-        "name": "hallofthegods/xophz-compass",
-        "version": "26.8.22",
-        "type": "wordpress-plugin",
-        "dist": {
-          "url": "https://github.com/HalloftheGods/xophz-compass/archive/refs/heads/main.zip",
-          "type": "zip"
-        }
-      }
+      "type": "vcs",
+      "url": "https://github.com/HalloftheGods/xophz-compass.git"
     },
     {
-      "type": "package",
-      "package": {
-        "name": "hallofthegods/xophz-compass-event-horizon",
-        "version": "26.8.22",
-        "type": "wordpress-plugin",
-        "dist": {
-          "url": "https://github.com/HalloftheGods/xophz-compass-event-horizon/archive/refs/heads/main.zip",
-          "type": "zip"
-        }
-      }
+      "type": "vcs",
+      "url": "https://github.com/HalloftheGods/xophz-compass-event-horizon.git"
     }
   ],
   "require": {

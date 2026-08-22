@@ -1,3 +1,5 @@
+import fs from 'fs';
+import path from 'path';
 import {
   MicroverseEngine,
   EngineStatusInfo,
@@ -10,6 +12,17 @@ import {
   LogCallback,
   StatusCallback
 } from './types';
+
+export function getDevProjectDir(startDir: string = __dirname): string {
+  let cur = startDir;
+  while (cur && cur !== path.dirname(cur)) {
+    if (fs.existsSync(path.join(cur, 'docker-compose.yml')) || fs.existsSync(path.join(cur, 'package.json'))) {
+      return cur;
+    }
+    cur = path.dirname(cur);
+  }
+  return path.resolve(startDir, '../..');
+}
 
 export abstract class BaseEngine implements MicroverseEngine {
   abstract readonly type: EngineType;

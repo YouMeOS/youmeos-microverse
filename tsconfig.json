@@ -9,5 +9,14 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": ["src/main/**/*", "src/preload/**/*", "src/renderer/**/*"]
+  "include": ["src/main/**/*", "src/preload/**/*"],
+  "exclude": [
+    "node_modules",
+    "desktop",
+    "blackbox",
+    "vendor",
+    "data",
+    "dist",
+    "out"
+  ]
 }

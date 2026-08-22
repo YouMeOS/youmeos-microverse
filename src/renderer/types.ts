@@ -60,6 +60,8 @@ export interface DesktopApi {
   onUpdateStatus?: (callback: (status: AppUpdateStatus) => void) => () => void;
 }
 
+export type AutolaunchTarget = 'webview' | 'browser';
+
 export type {
   EngineStatus,
   EngineType,

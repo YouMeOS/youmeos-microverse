@@ -2,7 +2,7 @@ import { app } from 'electron';
 import { execFile, spawn, ChildProcess } from 'child_process';
 import { promisify } from 'util';
 import path from 'path';
-import { BaseEngine } from './base';
+import { BaseEngine, getDevProjectDir } from './base';
 import {
   EngineStatusInfo,
   ServiceInfo,
@@ -70,8 +70,8 @@ export class DockerEngine extends BaseEngine {
   constructor() {
     super();
     const isProduction = app?.isPackaged ?? (process.env.NODE_ENV === 'production' || __dirname.includes('app.asar'));
-    this.projectDir = isProduction ? app.getPath('userData') : path.join(__dirname, '..', '..', '..', '..');
-    this.resourcesDir = isProduction ? process.resourcesPath : path.join(__dirname, '..', '..', '..', '..');
+    this.projectDir = isProduction ? app.getPath('userData') : getDevProjectDir(__dirname);
+    this.resourcesDir = isProduction ? process.resourcesPath : getDevProjectDir(__dirname);
     this.composePath = path.join(this.projectDir, 'docker-compose.yml');
   }
 

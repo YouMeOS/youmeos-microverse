@@ -1,5 +1,6 @@
 import { Tray, Menu, BrowserWindow, nativeImage, app, shell } from 'electron';
 import { EngineManager } from './engine/manager';
+import { getDevProjectDir } from './engine/base';
 import path from 'path';
 import fs from 'fs';
 
@@ -66,7 +67,7 @@ export function createTray(
 
     const openBlackboxHandler = () => {
       const isProduction = app.isPackaged || process.env.NODE_ENV === 'production' || __dirname.includes('app.asar');
-      const projectDir = isProduction ? app.getPath('userData') : path.join(__dirname, '..', '..', '..');
+      const projectDir = isProduction ? app.getPath('userData') : getDevProjectDir(__dirname);
       const blackboxDir = path.join(projectDir, 'blackbox');
       shell.openPath(blackboxDir);
     };

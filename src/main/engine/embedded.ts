@@ -3,7 +3,7 @@ import { spawn, ChildProcess } from 'child_process';
 import path from 'path';
 import fs from 'fs';
 import http from 'http';
-import { BaseEngine } from './base';
+import { BaseEngine, getDevProjectDir } from './base';
 import {
   EngineStatusInfo,
   ServiceInfo,
@@ -29,8 +29,8 @@ export class EmbeddedEngine extends BaseEngine {
   constructor() {
     super();
     const isProduction = app?.isPackaged ?? (process.env.NODE_ENV === 'production' || __dirname.includes('app.asar'));
-    this.projectDir = isProduction ? app.getPath('userData') : path.join(__dirname, '..', '..', '..', '..');
-    this.resourcesDir = isProduction ? process.resourcesPath : path.join(__dirname, '..', '..', '..', '..');
+    this.projectDir = isProduction ? app.getPath('userData') : getDevProjectDir(__dirname);
+    this.resourcesDir = isProduction ? process.resourcesPath : getDevProjectDir(__dirname);
   }
 
   async isAvailable(): Promise<boolean> {
