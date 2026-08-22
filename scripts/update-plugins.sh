@@ -92,8 +92,19 @@ if command -v composer &> /dev/null; then
     composer update --prefer-dist --no-interaction 2>&1
 elif command -v docker &> /dev/null; then
     echo "  • Running Composer via Docker container..."
+    GH_TOKEN="${GITHUB_TOKEN:-}"
+    if [ -z "$GH_TOKEN" ] && command -v gh &> /dev/null; then
+        GH_TOKEN=$(gh auth token 2>/dev/null || true)
+    fi
+
+    AUTH_ENV=()
+    if [ -n "$GH_TOKEN" ]; then
+        AUTH_ENV=(--env "COMPOSER_AUTH={\"github-oauth\":{\"github.com\":\"${GH_TOKEN}\"}}")
+    fi
+
     docker run --rm \
         --env COMPOSER_ALLOW_SUPERUSER=1 \
+        "${AUTH_ENV[@]}" \
         -v "${REPO_ROOT}:/app" \
         -w /app \
         composer:2 sh -c "git config --global --add safe.directory /app && composer update --prefer-dist --no-interaction --ignore-platform-reqs" 2>&1

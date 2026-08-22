@@ -60,14 +60,14 @@ defineEmits<{
   (e: 'mouseleave'): void;
 }>();
 
-const layerTagMap: Record<string, { tag: string; tagClass: string; defaultTitle: string }> = {
-  compass: { tag: 'Systems', tagClass: 'neon-tag', defaultTitle: 'My COMPASS Software Suite' },
-  portal: { tag: 'Portal', tagClass: 'cyan-tag', defaultTitle: 'YouMeOS' },
-  network: { tag: 'Mesh', tagClass: 'coral-tag', defaultTitle: 'Private W4 Protocol Network' },
-  server: { tag: 'Gateway', tagClass: 'emerald-tag', defaultTitle: 'W4 Tesseract Server' },
-  core: { tag: 'Kernel', tagClass: 'gold-tag', defaultTitle: 'Headless WP Core' },
-  database: { tag: 'Storage', tagClass: 'purple-tag', defaultTitle: 'SQLite Database' },
-  bedrock: { tag: 'Foundation', tagClass: 'blue-tag', defaultTitle: 'BlackBOX Bedrock' }
+const layerTagMap: Record<string, { tag: string; tagClass: string }> = {
+  compass: { tag: 'Systems', tagClass: 'neon-tag' },
+  portal: { tag: 'Portal', tagClass: 'cyan-tag' },
+  network: { tag: 'Mesh', tagClass: 'coral-tag' },
+  server: { tag: 'Gateway', tagClass: 'emerald-tag' },
+  core: { tag: 'Kernel', tagClass: 'gold-tag' },
+  database: { tag: 'Storage', tagClass: 'purple-tag' },
+  bedrock: { tag: 'Foundation', tagClass: 'blue-tag' }
 };
 
 const normalizedId = computed(() => (props.layerId || props.dataLayer || '').toLowerCase());
@@ -90,8 +90,6 @@ const tagMeta = computed(() => {
 });
 
 const displayTitle = computed(() => {
-  const match = layerTagMap[normalizedId.value];
-  if (match) return match.defaultTitle;
   return props.title || 'Stack Component';
 });
 

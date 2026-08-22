@@ -57,7 +57,7 @@
             title="Open Gateway in Default Browser"
             @click.prevent="$emit('openUrl', currentGatewayUrl)"
           >
-            {{ currentGatewayUrl }}
+            {{ displayGatewayUrl }}
             <BaseIcon name="external" :size="12" />
           </a>
           <button
@@ -98,13 +98,14 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import BaseIcon from '../atoms/BaseIcon.vue';
 import StatusDot from '../atoms/StatusDot.vue';
 import EngineSelector from '../molecules/EngineSelector.vue';
 import type { EngineStatus, EngineType } from '../../types';
 import type { TierInfo } from '../../license-cloud-manager';
 
-defineProps<{
+const props = defineProps<{
   status: EngineStatus;
   statusLabel: string;
   engineType: EngineType;
@@ -123,4 +124,9 @@ defineEmits<{
   (e: 'openUrl', url: string): void;
   (e: 'copyGateway'): void;
 }>();
+
+const displayGatewayUrl = computed(() => {
+  if (!props.currentGatewayUrl) return '';
+  return props.currentGatewayUrl.replace(/^https?:\/\//i, '');
+});
 </script>

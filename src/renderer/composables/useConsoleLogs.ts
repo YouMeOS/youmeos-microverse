@@ -28,7 +28,7 @@ export function useConsoleLogs() {
       if (cat !== 'all') {
         const serviceLower = (entry.service || '').toLowerCase();
         if (cat === 'gateway' && !serviceLower.includes('caddy') && !serviceLower.includes('gateway') && !serviceLower.includes('franken')) return false;
-        if (cat === 'core' && !serviceLower.includes('wp') && !serviceLower.includes('php') && !serviceLower.includes('core') && !serviceLower.includes('sqlite') && !serviceLower.includes('db') && !serviceLower.includes('setup') && !serviceLower.includes('system')) return false;
+        if (cat === 'core' && !serviceLower.includes('wp') && !serviceLower.includes('php') && !serviceLower.includes('core') && !serviceLower.includes('sqlite') && !serviceLower.includes('db') && !serviceLower.includes('setup') && !serviceLower.includes('system') && !serviceLower.includes('updater') && !serviceLower.includes('plugin')) return false;
         if (cat === 'node' && !serviceLower.includes('node') && !serviceLower.includes('embedded') && !serviceLower.includes('docker')) return false;
         if (cat === 'network' && !serviceLower.includes('net') && !serviceLower.includes('port') && !serviceLower.includes('bridge') && !serviceLower.includes('mesh')) return false;
       }

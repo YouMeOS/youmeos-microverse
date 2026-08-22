@@ -22,6 +22,25 @@ import type {
   DbHealthResult
 } from '../main/engine/diagnostics';
 
+export interface PluginUpdateDetail {
+  slug: string;
+  name: string;
+  prevVersion: string;
+  newVersion: string;
+  status: 'updated' | 'unchanged' | 'installed' | 'error';
+  error?: string;
+}
+
+export interface PluginUpdateResult {
+  success: boolean;
+  updatedCount: number;
+  totalCount: number;
+  details: PluginUpdateDetail[];
+  error?: string;
+  stdout?: string;
+  stderr?: string;
+}
+
 export interface DesktopApi {
   start: () => Promise<void>;
   stop: () => Promise<void>;
@@ -43,7 +62,7 @@ export interface DesktopApi {
     reason?: string;
   }>;
   setEngineType: (type: string) => Promise<void>;
-  updatePlugins: () => Promise<{ stdout?: string; stderr?: string }>;
+  updatePlugins: () => Promise<PluginUpdateResult>;
   getVersion?: () => Promise<string>;
   listUsers?: () => Promise<WpUser[]>;
   resetPassword?: (userId?: number, customPassword?: string) => Promise<PasswordResetResult>;

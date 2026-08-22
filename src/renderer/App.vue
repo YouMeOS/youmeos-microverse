@@ -50,6 +50,7 @@
       :current-tier-data="license.currentTierData.value"
       :current-tier-color="license.currentTierColor.value"
       :version="state.version.value"
+      :stack-layers="state.stackLayers.value"
       :stay-on-splash="state.stayOnSplash.value"
       :autolaunch="state.autolaunch.value"
       :autolaunch-target="state.autolaunchTarget.value"

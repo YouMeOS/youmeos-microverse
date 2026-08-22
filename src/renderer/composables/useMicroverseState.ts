@@ -1,5 +1,5 @@
-import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useMicroverseApi } from './useMicroverseApi';
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import { useMicroverseApi } from "./useMicroverseApi";
 import type {
   EngineStatus,
   EngineType,
@@ -8,43 +8,57 @@ import type {
   GatewayEndpoint,
   DownloadProgress,
   EngineStatusInfo,
-  AutolaunchTarget
-} from '../types';
+  AutolaunchTarget,
+} from "../types";
 
 export function useMicroverseState() {
   const api = useMicroverseApi();
 
   // 1. Reactive Primitives
-  const status = ref<EngineStatus>('stopped');
-  const engineType = ref<EngineType>('embedded');
+  const status = ref<EngineStatus>("stopped");
+  const engineType = ref<EngineType>("embedded");
   const services = ref<ServiceInfo[]>([]);
   const stackLayers = ref<StackLayerStatus[]>([]);
   const gateways = ref<GatewayEndpoint[]>([]);
-  const currentGatewayUrl = ref<string>('https://my.youmeos.com');
+  const currentGatewayUrl = ref<string>("https://my.youmeos.com");
   const downloadProgress = ref<DownloadProgress | null>(null);
-  const statusMessage = ref<string>('');
-  const version = ref<string>('1.0.0');
+  const statusMessage = ref<string>("");
+  const version = ref<string>("1.0.0");
   const isActionPending = ref<boolean>(false);
-  const activeView = ref<'splash' | 'dashboard'>('splash');
+  const activeView = ref<"splash" | "dashboard">("splash");
   const isSideDrawerOpen = ref<boolean>(true);
-  const activeTab = ref<string>('tab-overview');
-  const stayOnSplash = ref<boolean>(localStorage.getItem('youmeos_stay_splash') === 'true');
+  const activeTab = ref<string>("tab-overview");
+  const stayOnSplash = ref<boolean>(
+    localStorage.getItem("youmeos_stay_splash") === "true",
+  );
   const autolaunch = ref<boolean>(
-    localStorage.getItem('youmeos_autolaunch') !== null
-      ? localStorage.getItem('youmeos_autolaunch') === 'true'
-      : true
+    localStorage.getItem("youmeos_autolaunch") !== null
+      ? localStorage.getItem("youmeos_autolaunch") === "true"
+      : true,
   );
   const autolaunchTarget = ref<AutolaunchTarget>(
-    (localStorage.getItem('youmeos_autolaunch_target') as AutolaunchTarget) || 'webview'
+    (localStorage.getItem("youmeos_autolaunch_target") as AutolaunchTarget) ||
+      "webview",
   );
 
   // Diagnostic states
   const isAutoLoggingIn = ref<boolean>(false);
-  const autoLoginError = ref<string>('');
+  const autoLoginError = ref<string>("");
   const isResettingPassword = ref<boolean>(false);
-  const passwordResetResult = ref<{ success: boolean; userLogin?: string; newPassword?: string; error?: string } | null>(null);
+  const passwordResetResult = ref<{
+    success: boolean;
+    userLogin?: string;
+    newPassword?: string;
+    error?: string;
+  } | null>(null);
   const isCheckingDb = ref<boolean>(false);
-  const dbHealthResult = ref<{ status: string; integrity: string; userCount: number; sizeBytes: number; error?: string } | null>(null);
+  const dbHealthResult = ref<{
+    status: string;
+    integrity: string;
+    userCount: number;
+    sizeBytes: number;
+    error?: string;
+  } | null>(null);
 
   let hasAutoTransitioned = false;
   let hasAutoLaunchedGateway = false;
@@ -53,10 +67,12 @@ export function useMicroverseState() {
   let unsubscribeStatus: (() => void) | null = null;
 
   // 2. Computed State
-  const isRunning = computed(() => status.value === 'running');
-  const isStopped = computed(() => status.value === 'stopped');
-  const isTransitioning = computed(() => status.value === 'starting' || status.value === 'stopping');
-  const isError = computed(() => status.value === 'error');
+  const isRunning = computed(() => status.value === "running");
+  const isStopped = computed(() => status.value === "stopped");
+  const isTransitioning = computed(
+    () => status.value === "starting" || status.value === "stopping",
+  );
+  const isError = computed(() => status.value === "error");
 
   const statusLabel = computed(() => {
     const s = status.value;
@@ -64,7 +80,7 @@ export function useMicroverseState() {
   });
 
   const verifiedLayersCount = computed(() => {
-    return stackLayers.value.filter(l => l.active || l.installed).length;
+    return stackLayers.value.filter((l) => l.active || l.installed).length;
   });
 
   const totalLayersCount = computed(() => {
@@ -78,30 +94,15 @@ export function useMicroverseState() {
     server: 4,
     core: 5,
     database: 6,
-    bedrock: 7
-  };
-
-  const LAYER_NAMES: Record<string, string> = {
-    compass: 'My COMPASS Software Suite',
-    portal: 'YouMeOS',
-    network: 'Private W4 Protocol Network',
-    server: 'W4 Tesseract Server',
-    core: 'Headless WP Core',
-    database: 'Database',
-    bedrock: 'Bedrock'
+    bedrock: 7,
   };
 
   const sortStackLayers = (layers: StackLayerStatus[]): StackLayerStatus[] => {
-    return [...layers]
-      .map(l => ({
-        ...l,
-        name: LAYER_NAMES[l.id?.toLowerCase()] || l.name
-      }))
-      .sort((a, b) => {
-        const orderA = LAYER_ORDER[a.id?.toLowerCase()] || 99;
-        const orderB = LAYER_ORDER[b.id?.toLowerCase()] || 99;
-        return orderA - orderB;
-      });
+    return [...layers].sort((a, b) => {
+      const orderA = LAYER_ORDER[a.id?.toLowerCase()] || 99;
+      const orderB = LAYER_ORDER[b.id?.toLowerCase()] || 99;
+      return orderA - orderB;
+    });
   };
 
   // 3. Helper Methods & Event Handlers
@@ -112,11 +113,12 @@ export function useMicroverseState() {
     if (info.stackLayers) stackLayers.value = sortStackLayers(info.stackLayers);
     if (info.gateways) gateways.value = info.gateways;
     if (info.url) currentGatewayUrl.value = info.url;
-    if (info.downloadProgress !== undefined) downloadProgress.value = info.downloadProgress;
+    if (info.downloadProgress !== undefined)
+      downloadProgress.value = info.downloadProgress;
     if (info.message !== undefined) statusMessage.value = info.message;
 
     // Reset auto triggers on stop
-    if (status.value === 'stopped') {
+    if (status.value === "stopped") {
       hasAutoTransitioned = false;
       hasAutoLaunchedGateway = false;
     }
@@ -124,7 +126,7 @@ export function useMicroverseState() {
     // Auto-launch WebTop if enabled
     if (isRunning.value && !hasAutoLaunchedGateway && autolaunch.value) {
       hasAutoLaunchedGateway = true;
-      if (autolaunchTarget.value === 'browser') {
+      if (autolaunchTarget.value === "browser") {
         api.openBrowser(currentGatewayUrl.value);
       } else {
         api.openUrl(currentGatewayUrl.value);
@@ -136,7 +138,7 @@ export function useMicroverseState() {
       hasAutoTransitioned = true;
       setTimeout(() => {
         if (!stayOnSplash.value) {
-          activeView.value = 'dashboard';
+          activeView.value = "dashboard";
         }
       }, 1200);
     }
@@ -147,19 +149,19 @@ export function useMicroverseState() {
       const info = await api.getStatus();
       updateFromStatusInfo(info);
     } catch (e: any) {
-      status.value = 'error';
-      statusMessage.value = e?.message || 'Status poll failed';
+      status.value = "error";
+      statusMessage.value = e?.message || "Status poll failed";
     }
   };
 
   const start = async () => {
     isActionPending.value = true;
-    status.value = 'starting';
+    status.value = "starting";
     try {
       await api.start();
     } catch (e: any) {
-      status.value = 'error';
-      statusMessage.value = e?.message || 'Start failed';
+      status.value = "error";
+      statusMessage.value = e?.message || "Start failed";
     } finally {
       isActionPending.value = false;
       await pollStatus();
@@ -168,12 +170,12 @@ export function useMicroverseState() {
 
   const stop = async () => {
     isActionPending.value = true;
-    status.value = 'stopping';
+    status.value = "stopping";
     try {
       await api.stop();
     } catch (e: any) {
-      status.value = 'error';
-      statusMessage.value = e?.message || 'Stop failed';
+      status.value = "error";
+      statusMessage.value = e?.message || "Stop failed";
     } finally {
       isActionPending.value = false;
       await pollStatus();
@@ -182,12 +184,12 @@ export function useMicroverseState() {
 
   const restart = async () => {
     isActionPending.value = true;
-    status.value = 'starting';
+    status.value = "starting";
     try {
       await api.restart();
     } catch (e: any) {
-      status.value = 'error';
-      statusMessage.value = e?.message || 'Restart failed';
+      status.value = "error";
+      statusMessage.value = e?.message || "Restart failed";
     } finally {
       isActionPending.value = false;
       await pollStatus();
@@ -200,27 +202,28 @@ export function useMicroverseState() {
       engineType.value = type;
       await pollStatus();
     } catch (e: any) {
-      console.error('Failed to set engine type', e);
+      console.error("Failed to set engine type", e);
     }
   };
 
   const setStayOnSplash = (val: boolean) => {
     stayOnSplash.value = val;
-    localStorage.setItem('youmeos_stay_splash', val ? 'true' : 'false');
+    localStorage.setItem("youmeos_stay_splash", val ? "true" : "false");
   };
 
   const setAutolaunch = (val: boolean) => {
     autolaunch.value = val;
-    localStorage.setItem('youmeos_autolaunch', val ? 'true' : 'false');
+    localStorage.setItem("youmeos_autolaunch", val ? "true" : "false");
   };
 
   const setAutolaunchTarget = (val: AutolaunchTarget) => {
     autolaunchTarget.value = val;
-    localStorage.setItem('youmeos_autolaunch_target', val);
+    localStorage.setItem("youmeos_autolaunch_target", val);
   };
 
   const toggleSideDrawer = (forceState?: boolean) => {
-    isSideDrawerOpen.value = forceState !== undefined ? forceState : !isSideDrawerOpen.value;
+    isSideDrawerOpen.value =
+      forceState !== undefined ? forceState : !isSideDrawerOpen.value;
   };
 
   const openUrl = (url?: string) => {
@@ -241,7 +244,7 @@ export function useMicroverseState() {
     try {
       return await api.updatePlugins();
     } catch (e: any) {
-      console.error('Failed to update plugins', e);
+      console.error("Failed to update plugins", e);
       return { stderr: e?.message };
     }
   };
@@ -321,6 +324,6 @@ export function useMicroverseState() {
     openBrowser,
     openBlackbox,
     updatePlugins,
-    pollStatus
+    pollStatus,
   };
 }

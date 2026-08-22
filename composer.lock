@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "f6192177e6ccfc32095e724afb3b7b89",
+    "content-hash": "a4efd29d07b4a1100eeea4f209190cb6",
     "packages": [
         {
             "name": "composer/installers",
@@ -155,20 +155,74 @@
         {
             "name": "hallofthegods/xophz-compass",
             "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:HalloftheGods/xophz-compass.git",
+                "reference": "a194b4f2dd168b26063d294658c3672600c2f825"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/HalloftheGods/xophz-compass/archive/refs/heads/main.zip"
+                "url": "https://api.github.com/repos/HalloftheGods/xophz-compass/zipball/a194b4f2dd168b26063d294658c3672600c2f825",
+                "reference": "a194b4f2dd168b26063d294658c3672600c2f825",
+                "shasum": ""
             },
-            "type": "wordpress-plugin"
+            "require": {
+                "composer/installers": "^1.0 || ^2.0"
+            },
+            "default-branch": true,
+            "type": "wordpress-plugin",
+            "autoload": {
+                "files": [
+                    "xophz-compass.php"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Hall of the Gods, Inc.",
+                    "homepage": "https://www.hallofthegods.com"
+                }
+            ],
+            "description": "It's dangerous to go alone! Explore your site with COMPASS.",
+            "time": "2026-08-22T06:19:20+00:00"
         },
         {
             "name": "hallofthegods/xophz-compass-event-horizon",
             "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "git@github.com:HalloftheGods/xophz-compass-event-horizon.git",
+                "reference": "1ea4e2a5018950625acddf6b798eb072b3e823a8"
+            },
             "dist": {
                 "type": "zip",
-                "url": "https://github.com/HalloftheGods/xophz-compass-event-horizon/archive/refs/heads/main.zip"
+                "url": "https://api.github.com/repos/HalloftheGods/xophz-compass-event-horizon/zipball/1ea4e2a5018950625acddf6b798eb072b3e823a8",
+                "reference": "1ea4e2a5018950625acddf6b798eb072b3e823a8",
+                "shasum": ""
             },
-            "type": "wordpress-plugin"
+            "require": {
+                "composer/installers": "^1.0 || ^2.0"
+            },
+            "default-branch": true,
+            "type": "wordpress-plugin",
+            "autoload": {
+                "files": [
+                    "xophz-compass-event-horizon.php"
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Hall of the Gods, Inc.",
+                    "homepage": "https://www.hallofthegods.com"
+                }
+            ],
+            "description": "Bring transparency to your user-to-media connectivity by observing a real life 3D interactive heat map. From micro to macro and unto the avoided.",
+            "time": "2026-08-22T06:18:48+00:00"
         }
     ],
     "packages-dev": [],

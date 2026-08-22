@@ -22,6 +22,6 @@ export function useMicroverseApi(): DesktopApi {
     openUrl: async () => {},
     openBrowser: async () => {},
     setEngineType: async () => {},
-    updatePlugins: async () => ({})
+    updatePlugins: async () => ({ success: true, updatedCount: 0, totalCount: 0, details: [] })
   };
 }

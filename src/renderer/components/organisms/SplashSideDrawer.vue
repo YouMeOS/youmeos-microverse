@@ -4,11 +4,16 @@
     <div class="splash-side-header">
       <div class="splash-brand">
         <div class="brand-badge">
-          <BaseIcon name="brand" :size="16" class="brand-icon" :spinning="isTransitioning" />
+          <BaseIcon
+            name="brand"
+            :size="16"
+            class="brand-icon"
+            :spinning="isTransitioning"
+          />
         </div>
         <div class="splash-title-group">
-          <h2 class="splash-title">YouMeOS Microverse</h2>
-          <span class="splash-subtitle">Harmonic 3D Matrix</span>
+          <h2 class="splash-title">My YouMeOS Microverse</h2>
+          <span class="splash-subtitle">Local Destkop Engine </span>
         </div>
       </div>
 
@@ -18,7 +23,10 @@
         title="Collapse HUD Panel"
         @click="$emit('close')"
       >
-        <BaseIcon name="close" :size="14" />
+        <BaseIcon
+          name="close"
+          :size="14"
+        />
       </button>
     </div>
 
@@ -34,7 +42,7 @@
     <!-- Component Verification HUD Body -->
     <div class="splash-side-body custom-scrollbar">
       <div class="telemetry-header">
-        <span class="telemetry-title">Component Verification</span>
+        <span class="telemetry-title">Stack Verification</span>
         <span class="verification-badge">{{ verifiedCount }} / {{ totalCount }} Verified</span>
       </div>
 
@@ -60,7 +68,10 @@
 
       <!-- Stay on Splash & Autolaunch Preferences -->
       <div class="splash-prefs-box">
-        <label class="pref-toggle-label" title="Keep 3D splash screen open even after engine starts">
+        <label
+          class="pref-toggle-label"
+          title="Keep 3D splash screen open even after engine starts"
+        >
           <input
             type="checkbox"
             :checked="stayOnSplash"
@@ -69,7 +80,10 @@
           />
           <span class="pref-text">Stay on 3D Matrix on Start</span>
         </label>
-        <label class="pref-toggle-label" title="Automatically open WebTop when cluster starts">
+        <label
+          class="pref-toggle-label"
+          title="Automatically open WebTop when cluster starts"
+        >
           <input
             type="checkbox"
             :checked="autolaunch"
@@ -80,8 +94,14 @@
         </label>
 
         <!-- Destination Selection Radio Group -->
-        <div class="pref-radio-group" :class="{ 'is-disabled': !autolaunch }">
-          <label class="pref-radio-label" title="Launch inside native app window">
+        <div
+          class="pref-radio-group"
+          :class="{ 'is-disabled': !autolaunch }"
+        >
+          <label
+            class="pref-radio-label"
+            title="Launch inside native app window"
+          >
             <input
               type="radio"
               name="splash-autolaunch-target"
@@ -93,7 +113,10 @@
             />
             <span class="pref-text">Native Window</span>
           </label>
-          <label class="pref-radio-label" title="Launch in system web browser">
+          <label
+            class="pref-radio-label"
+            title="Launch in system web browser"
+          >
             <input
               type="radio"
               name="splash-autolaunch-target"
@@ -158,27 +181,12 @@ const LAYER_ORDER: Record<string, number> = {
   bedrock: 7
 };
 
-const LAYER_NAMES: Record<string, string> = {
-  compass: 'My COMPASS Software Suite',
-  portal: 'YouMeOS',
-  network: 'Private W4 Protocol Network',
-  server: 'W4 Tesseract Server',
-  core: 'Headless WP Core',
-  database: 'Database',
-  bedrock: 'Bedrock'
-};
-
 const sortedStackLayers = computed(() => {
-  return [...props.stackLayers]
-    .map(l => ({
-      ...l,
-      name: LAYER_NAMES[l.id?.toLowerCase()] || l.name
-    }))
-    .sort((a, b) => {
-      const orderA = LAYER_ORDER[a.id?.toLowerCase()] || 99;
-      const orderB = LAYER_ORDER[b.id?.toLowerCase()] || 99;
-      return orderA - orderB;
-    });
+  return [...props.stackLayers].sort((a, b) => {
+    const orderA = LAYER_ORDER[a.id?.toLowerCase()] || 99;
+    const orderB = LAYER_ORDER[b.id?.toLowerCase()] || 99;
+    return orderA - orderB;
+  });
 });
 
 defineEmits<{

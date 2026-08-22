@@ -46,12 +46,18 @@
     <!-- Tab Contents Container -->
     <main class="app-content custom-scrollbar">
       <!-- 1. TAB: OVERVIEW -->
-      <section v-show="activeTab === 'tab-overview'" class="tab-content">
+      <section
+        v-show="activeTab === 'tab-overview'"
+        class="tab-content"
+      >
         <!-- Tape Deck Transport Controls Card -->
         <div class="dash-card glass-panel transport-card">
           <div class="card-header">
             <div class="card-title-group">
-              <BaseIcon name="brand" :size="16" />
+              <BaseIcon
+                name="brand"
+                :size="16"
+              />
               <h3 class="card-title">Cluster Transport Controls</h3>
             </div>
             <StatusBadge :status="status" />
@@ -64,7 +70,10 @@
               :disabled="isActionPending || isRunning || isTransitioning"
               @click="$emit('start')"
             >
-              <BaseIcon name="start" :size="14" />
+              <BaseIcon
+                name="start"
+                :size="14"
+              />
               <span>Start</span>
             </button>
 
@@ -74,7 +83,10 @@
               :disabled="isActionPending || isStopped || isTransitioning || isError"
               @click="$emit('stop')"
             >
-              <BaseIcon name="stop" :size="14" />
+              <BaseIcon
+                name="stop"
+                :size="14"
+              />
               <span>Stop</span>
             </button>
 
@@ -84,7 +96,10 @@
               :disabled="isActionPending || isStopped || isTransitioning || isError"
               @click="$emit('restart')"
             >
-              <BaseIcon name="refresh" :size="14" />
+              <BaseIcon
+                name="refresh"
+                :size="14"
+              />
               <span>Restart</span>
             </button>
 
@@ -96,7 +111,10 @@
               :disabled="!isRunning"
               @click="$emit('openUrl', currentGatewayUrl)"
             >
-              <BaseIcon name="external" :size="14" />
+              <BaseIcon
+                name="external"
+                :size="14"
+              />
               <span>Open WebTop</span>
             </button>
 
@@ -105,7 +123,10 @@
               class="btn-transport btn-aux-browser"
               @click="$emit('openBrowser')"
             >
-              <BaseIcon name="browser" :size="14" />
+              <BaseIcon
+                name="browser"
+                :size="14"
+              />
               <span>Browser</span>
             </button>
 
@@ -114,7 +135,10 @@
               class="btn-transport btn-aux-blackbox"
               @click="$emit('openBlackbox')"
             >
-              <BaseIcon name="folder" :size="14" />
+              <BaseIcon
+                name="folder"
+                :size="14"
+              />
               <span>Blackbox</span>
             </button>
           </div>
@@ -122,10 +146,17 @@
 
         <!-- Architecture Model Overview Grid -->
         <div class="dash-overview-grid">
-          <div class="dash-card glass-panel" :data-layer="'compass'" @click="$emit('openLicenseModal')">
+          <div
+            class="dash-card glass-panel"
+            :data-layer="'compass'"
+            @click="$emit('openLicenseModal')"
+          >
             <div class="card-header">
               <span class="dash-card-tag neon-tag">Layer 1</span>
-              <span class="dash-card-tier" :style="{ color: currentTierColor.hex }">
+              <span
+                class="dash-card-tier"
+                :style="{ color: currentTierColor.hex }"
+              >
                 {{ currentTierData.name }} Compass
               </span>
             </div>
@@ -133,7 +164,11 @@
             <p class="dash-block-sub">XP gamification, 4D star navigation, and active sparks license.</p>
           </div>
 
-          <div class="dash-card glass-panel" :data-layer="'portal'" @click="$emit('openUrl', currentGatewayUrl)">
+          <div
+            class="dash-card glass-panel"
+            :data-layer="'portal'"
+            @click="$emit('openUrl', currentGatewayUrl)"
+          >
             <div class="card-header">
               <span class="dash-card-tag cyan-tag">Layer 2</span>
               <StatusDot :status="status" />
@@ -142,25 +177,34 @@
             <p class="dash-block-sub">Sovereign personal desktop environment with detachable sparks.</p>
           </div>
 
-          <div class="dash-card glass-panel" :data-layer="'network'">
+          <div
+            class="dash-card glass-panel"
+            :data-layer="'network'"
+          >
             <div class="card-header">
               <span class="dash-card-tag coral-tag">Layer 3</span>
               <StatusDot :status="status" />
             </div>
-            <h4 class="dash-block-title">Private W4 Protocol Network</h4>
+            <h4 class="dash-block-title">Private w⁴ Protocol Network</h4>
             <p class="dash-block-sub">ZeroConf mDNS discovery mesh connecting sovereign nodes.</p>
           </div>
 
-          <div class="dash-card glass-panel" :data-layer="'server'">
+          <div
+            class="dash-card glass-panel"
+            :data-layer="'server'"
+          >
             <div class="card-header">
               <span class="dash-card-tag emerald-tag">Layer 4</span>
               <StatusDot :status="status" />
             </div>
-            <h4 class="dash-block-title">W4 Tesseract Server</h4>
+            <h4 class="dash-block-title">w⁴ Tesseract Server</h4>
             <p class="dash-block-sub">FrankenPHP &amp; Caddy proxy routing ports 80 and 443 with TLS.</p>
           </div>
 
-          <div class="dash-card glass-panel" :data-layer="'core'">
+          <div
+            class="dash-card glass-panel"
+            :data-layer="'core'"
+          >
             <div class="card-header">
               <span class="dash-card-tag gold-tag">Layer 5</span>
               <StatusDot :status="status" />
@@ -169,7 +213,10 @@
             <p class="dash-block-sub">Kernel headless runtime powering REST API and plugin pipelines.</p>
           </div>
 
-          <div class="dash-card glass-panel" :data-layer="'database'">
+          <div
+            class="dash-card glass-panel"
+            :data-layer="'database'"
+          >
             <div class="card-header">
               <span class="dash-card-tag purple-tag">Layer 6</span>
               <StatusDot :status="status" />
@@ -178,7 +225,10 @@
             <p class="dash-block-sub">Zero-configuration single-file database sandbox in blackbox/.</p>
           </div>
 
-          <div class="dash-card glass-panel" :data-layer="'bedrock'">
+          <div
+            class="dash-card glass-panel"
+            :data-layer="'bedrock'"
+          >
             <div class="card-header">
               <span class="dash-card-tag blue-tag">Layer 7</span>
               <StatusDot :status="status" />
@@ -190,17 +240,24 @@
       </section>
 
       <!-- 2. TAB: DIAGNOSTICS -->
-      <section v-show="activeTab === 'tab-diagnostics'" class="tab-content">
+      <section
+        v-show="activeTab === 'tab-diagnostics'"
+        class="tab-content"
+      >
         <div class="dash-diagnostics-grid">
           <!-- 1-Click Auto Login -->
           <div class="dash-card glass-panel">
             <div class="card-header">
               <div class="card-title-group">
-                <BaseIcon name="key" :size="16" />
+                <BaseIcon
+                  name="key"
+                  :size="16"
+                />
                 <h3 class="card-title">1-Click Auto Login</h3>
               </div>
             </div>
-            <p class="dash-card-desc">Generate an instant sovereign admin session and login to the WebTop directly without typing credentials.</p>
+            <p class="dash-card-desc">Generate an instant sovereign admin session and login to the WebTop directly
+              without typing credentials.</p>
             <div class="diag-action-stack">
               <button
                 type="button"
@@ -208,11 +265,23 @@
                 :disabled="!isRunning || isAutoLoggingIn"
                 @click="handleAutoLogin"
               >
-                <BaseIcon v-if="isAutoLoggingIn" name="spin" :size="14" :spinning="true" />
-                <BaseIcon v-else name="external" :size="14" />
+                <BaseIcon
+                  v-if="isAutoLoggingIn"
+                  name="spin"
+                  :size="14"
+                  :spinning="true"
+                />
+                <BaseIcon
+                  v-else
+                  name="external"
+                  :size="14"
+                />
                 <span>{{ isAutoLoggingIn ? 'Logging In...' : 'Launch Authenticated Portal' }}</span>
               </button>
-              <span v-if="autoLoginError" class="feedback-error">{{ autoLoginError }}</span>
+              <span
+                v-if="autoLoginError"
+                class="feedback-error"
+              >{{ autoLoginError }}</span>
             </div>
           </div>
 
@@ -220,16 +289,30 @@
           <div class="dash-card glass-panel">
             <div class="card-header">
               <div class="card-title-group">
-                <BaseIcon name="lock" :size="16" />
+                <BaseIcon
+                  name="lock"
+                  :size="16"
+                />
                 <h3 class="card-title">Password Reset &amp; Credentials</h3>
               </div>
             </div>
-            <p class="dash-card-desc">Reset the password directly in the sovereign database for any registered WordPress user.</p>
+            <p class="dash-card-desc">Reset the password directly in the sovereign database for any registered WordPress
+              user.</p>
             <div class="diag-form-stack">
-              <div v-if="userList.length > 0" class="diag-field">
+              <div
+                v-if="userList.length > 0"
+                class="diag-field"
+              >
                 <label class="diag-label">Target User</label>
-                <select v-model="selectedUserId" class="diag-select">
-                  <option v-for="u in userList" :key="u.id" :value="u.id">
+                <select
+                  v-model="selectedUserId"
+                  class="diag-select"
+                >
+                  <option
+                    v-for="u in userList"
+                    :key="u.id"
+                    :value="u.id"
+                  >
                     {{ u.login }} ({{ u.email || 'No email' }}) [ID: {{ u.id }}]
                   </option>
                 </select>
@@ -243,7 +326,11 @@
                     placeholder="Leave empty to auto-generate"
                     class="diag-input"
                   />
-                  <button type="button" class="btn-modal-aux" @click="generateRandomPassword">
+                  <button
+                    type="button"
+                    class="btn-modal-aux"
+                    @click="generateRandomPassword"
+                  >
                     Random
                   </button>
                 </div>
@@ -254,16 +341,35 @@
                 :disabled="isResettingPassword"
                 @click="handlePasswordReset"
               >
-                <BaseIcon v-if="isResettingPassword" name="spin" :size="14" :spinning="true" />
-                <BaseIcon v-else name="refresh" :size="14" />
+                <BaseIcon
+                  v-if="isResettingPassword"
+                  name="spin"
+                  :size="14"
+                  :spinning="true"
+                />
+                <BaseIcon
+                  v-else
+                  name="refresh"
+                  :size="14"
+                />
                 <span>{{ isResettingPassword ? 'Resetting...' : 'Reset & Copy Password' }}</span>
               </button>
-              <div v-if="passwordResetResult" class="credentials-box">
-                <span v-if="passwordResetResult.success" class="cred-success">
-                  User: <code>{{ passwordResetResult.userLogin }}</code> | Pass: <code>{{ passwordResetResult.newPassword }}</code>
+              <div
+                v-if="passwordResetResult"
+                class="credentials-box"
+              >
+                <span
+                  v-if="passwordResetResult.success"
+                  class="cred-success"
+                >
+                  User: <code>{{ passwordResetResult.userLogin }}</code> | Pass:
+                  <code>{{ passwordResetResult.newPassword }}</code>
                   <span class="cred-copied-badge">&check; Copied!</span>
                 </span>
-                <span v-else class="cred-error">{{ passwordResetResult.error }}</span>
+                <span
+                  v-else
+                  class="cred-error"
+                >{{ passwordResetResult.error }}</span>
               </div>
             </div>
           </div>
@@ -272,29 +378,48 @@
           <div class="dash-card glass-panel">
             <div class="card-header">
               <div class="card-title-group">
-                <BaseIcon name="brand" :size="16" />
+                <BaseIcon
+                  name="brand"
+                  :size="16"
+                />
                 <h3 class="card-title">Session &amp; Cookies Flush</h3>
               </div>
             </div>
-            <p class="dash-card-desc">Clear cached portal session cookies and web storage partition to fix stuck auth states or redirect loops.</p>
+            <p class="dash-card-desc">Clear cached portal session cookies and web storage partition to fix stuck auth
+              states or redirect loops.</p>
             <button
               type="button"
               class="btn-modal-aux"
               :disabled="isFlushingSession"
               @click="handleFlushSession"
             >
-              <BaseIcon v-if="isFlushingSession" name="spin" :size="14" :spinning="true" />
-              <BaseIcon v-else name="trash" :size="14" />
+              <BaseIcon
+                v-if="isFlushingSession"
+                name="spin"
+                :size="14"
+                :spinning="true"
+              />
+              <BaseIcon
+                v-else
+                name="trash"
+                :size="14"
+              />
               <span>{{ isFlushingSession ? 'Flushing...' : 'Clear Portal Session' }}</span>
             </button>
-            <span v-if="flushSessionFeedback" class="feedback-msg">{{ flushSessionFeedback }}</span>
+            <span
+              v-if="flushSessionFeedback"
+              class="feedback-msg"
+            >{{ flushSessionFeedback }}</span>
           </div>
 
           <!-- Database Integrity Health -->
           <div class="dash-card glass-panel">
             <div class="card-header">
               <div class="card-title-group">
-                <BaseIcon name="database" :size="16" />
+                <BaseIcon
+                  name="database"
+                  :size="16"
+                />
                 <h3 class="card-title">Database Integrity Health</h3>
               </div>
             </div>
@@ -305,20 +430,36 @@
               :disabled="isCheckingDb"
               @click="handleCheckDbHealth"
             >
-              <BaseIcon v-if="isCheckingDb" name="spin" :size="14" :spinning="true" />
-              <BaseIcon v-else name="check" :size="14" />
+              <BaseIcon
+                v-if="isCheckingDb"
+                name="spin"
+                :size="14"
+                :spinning="true"
+              />
+              <BaseIcon
+                v-else
+                name="check"
+                :size="14"
+              />
               <span>{{ isCheckingDb ? 'Checking...' : 'Check Database Health' }}</span>
             </button>
-            <div v-if="dbHealthResult" class="db-health-result">
+            <div
+              v-if="dbHealthResult"
+              class="db-health-result"
+            >
               <span>Status: <strong>{{ dbHealthResult.status }}</strong> ({{ dbHealthResult.integrity }})</span>
-              <span>Users: {{ dbHealthResult.userCount }} | Size: {{ Math.round(dbHealthResult.sizeBytes / 1024) }} KB</span>
+              <span>Users: {{ dbHealthResult.userCount }} | Size: {{ Math.round(dbHealthResult.sizeBytes / 1024) }}
+                KB</span>
             </div>
           </div>
         </div>
       </section>
 
       <!-- 3. TAB: SETTINGS -->
-      <section v-show="activeTab === 'tab-settings'" class="tab-content">
+      <section
+        v-show="activeTab === 'tab-settings'"
+        class="tab-content"
+      >
         <div class="dash-settings-grid">
           <div class="dash-card glass-panel">
             <h3 class="card-title">Microverse Engine Configuration</h3>
@@ -353,8 +494,14 @@
                 <span class="pref-text">Auto-launch WebTop on Start</span>
               </label>
 
-              <div class="pref-radio-group settings-sub-options" :class="{ 'is-disabled': !autolaunch }">
-                <label class="pref-radio-label" title="Launch inside native app window">
+              <div
+                class="pref-radio-group settings-sub-options"
+                :class="{ 'is-disabled': !autolaunch }"
+              >
+                <label
+                  class="pref-radio-label"
+                  title="Launch inside native app window"
+                >
                   <input
                     type="radio"
                     name="dash-autolaunch-target"
@@ -366,7 +513,10 @@
                   />
                   <span class="pref-text">Native Window</span>
                 </label>
-                <label class="pref-radio-label" title="Launch in system web browser">
+                <label
+                  class="pref-radio-label"
+                  title="Launch in system web browser"
+                >
                   <input
                     type="radio"
                     name="dash-autolaunch-target"
@@ -391,11 +541,23 @@
               :disabled="isUpdatingPlugins"
               @click="handleUpdatePlugins"
             >
-              <BaseIcon v-if="isUpdatingPlugins" name="spin" :size="14" :spinning="true" />
-              <BaseIcon v-else name="refresh" :size="14" />
+              <BaseIcon
+                v-if="isUpdatingPlugins"
+                name="spin"
+                :size="14"
+                :spinning="true"
+              />
+              <BaseIcon
+                v-else
+                name="refresh"
+                :size="14"
+              />
               <span>{{ isUpdatingPlugins ? 'Updating Plugins...' : 'Update Plugins Suite' }}</span>
             </button>
-            <span v-if="pluginUpdateFeedback" class="feedback-msg">{{ pluginUpdateFeedback }}</span>
+            <span
+              v-if="pluginUpdateFeedback"
+              class="feedback-msg"
+            >{{ pluginUpdateFeedback }}</span>
           </div>
         </div>
       </section>
@@ -419,7 +581,7 @@ import TabItem from '../atoms/TabItem.vue';
 import EngineSelector from '../molecules/EngineSelector.vue';
 import AppHeader from '../organisms/AppHeader.vue';
 import AppFooter from '../organisms/AppFooter.vue';
-import type { DesktopApi, EngineStatus, EngineType, WpUser, AutolaunchTarget } from '../../types';
+import type { DesktopApi, EngineStatus, EngineType, WpUser, AutolaunchTarget, StackLayerStatus } from '../../types';
 import type { TierInfo } from '../../license-cloud-manager';
 
 const props = defineProps<{
@@ -432,6 +594,7 @@ const props = defineProps<{
   currentTierData: TierInfo;
   currentTierColor: { hex: string; three: number };
   version: string;
+  stackLayers?: StackLayerStatus[];
   stayOnSplash: boolean;
   autolaunch: boolean;
   autolaunchTarget: AutolaunchTarget;
@@ -592,9 +755,16 @@ const handleCheckDbHealth = async () => {
 const handleUpdatePlugins = async () => {
   isUpdatingPlugins.value = true;
   pluginUpdateFeedback.value = '';
+  emit('toggleConsole');
   try {
     const res = await props.api.updatePlugins();
-    pluginUpdateFeedback.value = res?.stderr ? `Warning: ${res.stderr}` : 'Plugins successfully synchronized.';
+    if (res?.success) {
+      pluginUpdateFeedback.value = res.updatedCount > 0
+        ? `Successfully updated ${res.updatedCount} plugin(s).`
+        : 'All plugins are up to date.';
+    } else {
+      pluginUpdateFeedback.value = `Update completed with warnings: ${res?.error || res?.stderr || 'Check console logs for details.'}`;
+    }
   } catch (e: any) {
     pluginUpdateFeedback.value = `Update failed: ${e?.message || e}`;
   } finally {

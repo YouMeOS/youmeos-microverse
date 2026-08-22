@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, shell, Tray, session, nativeImage } from 'electron';
+import { app, BrowserWindow, Menu, MenuItemConstructorOptions, ipcMain, shell, Tray, session, nativeImage } from 'electron';
 import path from 'path';
 import fs from 'fs';
 
@@ -20,6 +20,7 @@ import {
 import { createTray } from './tray';
 import { UpdaterManager } from './updater';
 import { DiagnosticsManager } from './engine/diagnostics';
+import { PluginUpdater } from './engine/plugin-updater';
 import { getDevProjectDir } from './engine/base';
 
 const execFileAsync = promisify(execFile);
@@ -190,15 +191,12 @@ async function createWindow(): Promise<void> {
     title: 'My YouMeOS Microverse',
     backgroundColor: '#0a0d14',
     icon: appIcon,
-    autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, '..', 'preload', 'index.js'),
       nodeIntegration: false,
       contextIsolation: true
     }
   });
-
-  mainWindow.setMenu(null);
 
   if (!appIcon.isEmpty()) {
     mainWindow.setIcon(appIcon);
@@ -276,9 +274,12 @@ const readyHandler = async () => {
   ipcMain.handle('engine:update-plugins', async () => {
     const isProduction = app.isPackaged || process.env.NODE_ENV === 'production' || __dirname.includes('app.asar');
     const projectDir = isProduction ? app.getPath('userData') : getDevProjectDir(__dirname);
-    const scriptsDir = isProduction ? path.join(process.resourcesPath, 'scripts') : path.join(projectDir, 'scripts');
-    const scriptPath = path.join(scriptsDir, 'update-plugins.sh');
-    return execFileAsync('bash', [scriptPath]);
+    const updater = new PluginUpdater(projectDir, (log) => {
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('engine:log', log);
+      }
+    });
+    return await updater.updateAll();
   });
 
   const openPortalHandler = (_: unknown, targetUrl?: string) => {
@@ -429,6 +430,131 @@ const readyHandler = async () => {
   if (mainWindow) {
     tray = createTray(engineManager, mainWindow, (url) => openPortalWindow(url));
     updaterManager.setTargetWindow(mainWindow);
+
+    const isMac = process.platform === 'darwin';
+    const menuTemplate: MenuItemConstructorOptions[] = [
+      ...(isMac
+        ? [
+            {
+              label: app.name,
+              submenu: [
+                { role: 'about' as const },
+                { type: 'separator' as const },
+                { role: 'services' as const },
+                { type: 'separator' as const },
+                { role: 'hide' as const },
+                { role: 'hideOthers' as const },
+                { role: 'unhide' as const },
+                { type: 'separator' as const },
+                { role: 'quit' as const }
+              ]
+            }
+          ]
+        : []),
+      {
+        label: 'File',
+        submenu: [
+          {
+            label: 'Open WebTop in Browser',
+            accelerator: 'CmdOrCtrl+O',
+            click: () => {
+              shell.openExternal('https://my.youmeos.com');
+            }
+          },
+          {
+            label: 'Open Portal Window',
+            accelerator: 'CmdOrCtrl+Shift+P',
+            click: () => {
+              openPortalWindow('https://my.youmeos.com');
+            }
+          },
+          {
+            label: 'Open Blackbox Folder',
+            click: () => {
+              const pDir = app.isPackaged || process.env.NODE_ENV === 'production' || __dirname.includes('app.asar')
+                ? app.getPath('userData')
+                : getDevProjectDir(__dirname);
+              shell.openPath(path.join(pDir, 'blackbox'));
+            }
+          },
+          { type: 'separator' },
+          isMac ? { role: 'close' } : { role: 'quit' }
+        ]
+      },
+      {
+        label: 'Edit',
+        submenu: [
+          { role: 'undo' },
+          { role: 'redo' },
+          { type: 'separator' },
+          { role: 'cut' },
+          { role: 'copy' },
+          { role: 'paste' },
+          { role: 'selectAll' }
+        ]
+      },
+      {
+        label: 'Cluster',
+        submenu: [
+          {
+            label: 'Start Engine',
+            click: () => engineManager.start()
+          },
+          {
+            label: 'Stop Engine',
+            click: () => engineManager.stop()
+          },
+          {
+            label: 'Restart Engine',
+            click: () => engineManager.restart()
+          }
+        ]
+      },
+      {
+        label: 'View',
+        submenu: [
+          { role: 'reload' },
+          { role: 'forceReload' },
+          { role: 'toggleDevTools' },
+          { type: 'separator' },
+          { role: 'resetZoom' },
+          { role: 'zoomIn' },
+          { role: 'zoomOut' },
+          { type: 'separator' },
+          { role: 'togglefullscreen' }
+        ]
+      },
+      {
+        label: 'Window',
+        submenu: [
+          { role: 'minimize' },
+          ...(isMac
+            ? [
+                { type: 'separator' as const },
+                { role: 'front' as const },
+                { type: 'separator' as const },
+                { role: 'window' as const }
+              ]
+            : [{ role: 'close' as const }])
+        ]
+      },
+      {
+        role: 'help',
+        submenu: [
+          {
+            label: 'Check for Updates...',
+            click: () => updaterManager.checkForUpdates()
+          },
+          {
+            label: 'Documentation & Support',
+            click: () => shell.openExternal('https://my.youmeos.com')
+          }
+        ]
+      }
+    ];
+
+    const appMenu = Menu.buildFromTemplate(menuTemplate);
+    Menu.setApplicationMenu(appMenu);
 
     if (app.isPackaged) {
       setTimeout(() => {
