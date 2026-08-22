@@ -193,7 +193,7 @@ export async function inspectStackLayers(
     },
     {
       id: "database",
-      name: "Database",
+      name: "SQLite Database",
       category: "Encrypted VFS Persistent Storage",
       installed: isDbInstalled,
       active: isDbActive,
