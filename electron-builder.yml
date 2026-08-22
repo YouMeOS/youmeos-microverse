@@ -17,6 +17,10 @@ extraResources:
     to: scripts
     filter:
       - "**/*"
+  - from: bin
+    to: bin
+    filter:
+      - "**/*"
 publish:
   provider: github
   owner: YouMeOS
@@ -35,9 +39,12 @@ nsis:
   createDesktopShortcut: always
   createStartMenuShortcut: true
 linux:
-  maintainer: YouMeOS <contact@youmeos.com>
+  maintainer: YouMeOS <youmeos@xophz.com>
   category: Utility
   icon: assets/icon.png
   target:
     - AppImage
     - deb
+deb:
+  packageName: my-youmeos-microverse
+  artifactName: "my-youmeos-microverse_${version}_${arch}.${ext}"

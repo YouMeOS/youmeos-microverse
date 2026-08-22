@@ -237,7 +237,29 @@ export async function setupEmbeddedEnvironment(
   const frankenBinaryName = process.platform === 'win32' ? 'frankenphp.exe' : 'frankenphp';
   const frankenPath = path.join(binDir, frankenBinaryName);
 
-  // 1. Download FrankenPHP binary if missing
+  // 1. Check if FrankenPHP is already bundled in resources or root bin directory
+  if (!fs.existsSync(frankenPath)) {
+    const candidateBundledPaths = [
+      resourcesDir ? path.join(resourcesDir, 'bin', frankenBinaryName) : '',
+      path.join(projectDir, 'bin', frankenBinaryName),
+      path.join(__dirname, '..', '..', '..', 'bin', frankenBinaryName)
+    ].filter(Boolean);
+
+    for (const bundledCandidate of candidateBundledPaths) {
+      if (fs.existsSync(bundledCandidate)) {
+        try {
+          fs.copyFileSync(bundledCandidate, frankenPath);
+          if (process.platform !== 'win32') {
+            fs.chmodSync(frankenPath, 0o755);
+          }
+          onProgress(`Initialized ${frankenBinaryName} from bundled resources.`);
+          break;
+        } catch {}
+      }
+    }
+  }
+
+  // 2. Download FrankenPHP binary if missing from bundle
   if (!fs.existsSync(frankenPath)) {
     const url = getFrankenPhpUrl();
     if (process.platform === 'win32') {

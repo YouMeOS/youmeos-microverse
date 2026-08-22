@@ -15,6 +15,7 @@ desktop/node_modules/
 vendor/
 dist/
 out/
+bin/
 desktop/dist/
 desktop/out/
 
