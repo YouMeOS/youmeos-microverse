@@ -1,6 +1,10 @@
 name: Release
 
 on:
+  workflow_run:
+    workflows: ["Auto Version", "Daily Final Version"]
+    types:
+      - completed
   push:
     tags:
       - 'v*'
@@ -15,6 +19,7 @@ permissions:
 
 jobs:
   build:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
     strategy:
       fail-fast: false
       matrix:
@@ -24,6 +29,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && 'main' || github.ref }}
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -84,6 +91,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event_name == 'workflow_run' && 'main' || github.ref }}
 
       - name: Read package version
         id: pkg
@@ -100,10 +109,10 @@ jobs:
       - name: Create or update GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || steps.pkg.outputs.version }}
-          name: ${{ github.ref_type == 'tag' && github.ref_name || steps.pkg.outputs.version }}
+          tag_name: ${{ steps.pkg.outputs.version }}
+          name: ${{ steps.pkg.outputs.version }}
           draft: false
-          prerelease: false
+          prerelease: ${{ contains(steps.pkg.outputs.version, '-') }}
           generate_release_notes: true
           files: release-artifacts/*
         env:
