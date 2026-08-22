@@ -7,7 +7,8 @@ import type {
   StackLayerStatus,
   GatewayEndpoint,
   DownloadProgress,
-  EngineStatusInfo
+  EngineStatusInfo,
+  AutolaunchTarget
 } from '../types';
 
 export function useMicroverseState() {
@@ -32,6 +33,9 @@ export function useMicroverseState() {
     localStorage.getItem('youmeos_autolaunch') !== null
       ? localStorage.getItem('youmeos_autolaunch') === 'true'
       : true
+  );
+  const autolaunchTarget = ref<AutolaunchTarget>(
+    (localStorage.getItem('youmeos_autolaunch_target') as AutolaunchTarget) || 'webview'
   );
 
   // Diagnostic states
@@ -117,10 +121,14 @@ export function useMicroverseState() {
       hasAutoLaunchedGateway = false;
     }
 
-    // Auto-launch gateway in browser if enabled
+    // Auto-launch WebTop if enabled
     if (isRunning.value && !hasAutoLaunchedGateway && autolaunch.value) {
       hasAutoLaunchedGateway = true;
-      api.openUrl(currentGatewayUrl.value);
+      if (autolaunchTarget.value === 'browser') {
+        api.openBrowser(currentGatewayUrl.value);
+      } else {
+        api.openUrl(currentGatewayUrl.value);
+      }
     }
 
     // Auto-transition to dashboard if running and not locked on splash
@@ -206,6 +214,11 @@ export function useMicroverseState() {
     localStorage.setItem('youmeos_autolaunch', val ? 'true' : 'false');
   };
 
+  const setAutolaunchTarget = (val: AutolaunchTarget) => {
+    autolaunchTarget.value = val;
+    localStorage.setItem('youmeos_autolaunch_target', val);
+  };
+
   const toggleSideDrawer = (forceState?: boolean) => {
     isSideDrawerOpen.value = forceState !== undefined ? forceState : !isSideDrawerOpen.value;
   };
@@ -282,6 +295,7 @@ export function useMicroverseState() {
     activeTab,
     stayOnSplash,
     autolaunch,
+    autolaunchTarget,
     isRunning,
     isStopped,
     isTransitioning,
@@ -301,6 +315,7 @@ export function useMicroverseState() {
     setEngineType,
     setStayOnSplash,
     setAutolaunch,
+    setAutolaunchTarget,
     toggleSideDrawer,
     openUrl,
     openBrowser,

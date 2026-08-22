@@ -69,15 +69,43 @@
           />
           <span class="pref-text">Stay on 3D Matrix on Start</span>
         </label>
-        <label class="pref-toggle-label" title="Automatically open WebTop URL in default browser when cluster starts">
+        <label class="pref-toggle-label" title="Automatically open WebTop when cluster starts">
           <input
             type="checkbox"
             :checked="autolaunch"
             class="pref-checkbox"
             @change="$emit('setAutolaunch', ($event.target as HTMLInputElement).checked)"
           />
-          <span class="pref-text">Auto-launch WebTop in Browser</span>
+          <span class="pref-text">Auto-launch WebTop on Start</span>
         </label>
+
+        <!-- Destination Selection Radio Group -->
+        <div class="pref-radio-group" :class="{ 'is-disabled': !autolaunch }">
+          <label class="pref-radio-label" title="Launch inside native app window">
+            <input
+              type="radio"
+              name="splash-autolaunch-target"
+              value="webview"
+              :checked="autolaunchTarget === 'webview'"
+              :disabled="!autolaunch"
+              class="pref-radio"
+              @change="$emit('setAutolaunchTarget', 'webview')"
+            />
+            <span class="pref-text">Native Window</span>
+          </label>
+          <label class="pref-radio-label" title="Launch in system web browser">
+            <input
+              type="radio"
+              name="splash-autolaunch-target"
+              value="browser"
+              :checked="autolaunchTarget === 'browser'"
+              :disabled="!autolaunch"
+              class="pref-radio"
+              @change="$emit('setAutolaunchTarget', 'browser')"
+            />
+            <span class="pref-text">Browser</span>
+          </label>
+        </div>
       </div>
     </div>
 
@@ -103,7 +131,7 @@ import StatusBadge from '../atoms/StatusBadge.vue';
 import EngineSelector from '../molecules/EngineSelector.vue';
 import MetricCard from '../molecules/MetricCard.vue';
 import QuickActionBar from '../molecules/QuickActionBar.vue';
-import type { EngineStatus, EngineType, StackLayerStatus } from '../../types';
+import type { EngineStatus, EngineType, StackLayerStatus, AutolaunchTarget } from '../../types';
 
 const props = defineProps<{
   isOpen: boolean;
@@ -114,6 +142,7 @@ const props = defineProps<{
   totalCount: number;
   stayOnSplash: boolean;
   autolaunch: boolean;
+  autolaunchTarget: AutolaunchTarget;
   isRunning: boolean;
   isTransitioning: boolean;
   isActionPending: boolean;
@@ -157,6 +186,7 @@ defineEmits<{
   (e: 'setEngineType', val: EngineType): void;
   (e: 'setStayOnSplash', val: boolean): void;
   (e: 'setAutolaunch', val: boolean): void;
+  (e: 'setAutolaunchTarget', val: AutolaunchTarget): void;
   (e: 'highlightLayer', layerId: string | null): void;
   (e: 'selectLayer', layerId: string): void;
   (e: 'start'): void;

@@ -350,8 +350,35 @@
                   class="pref-checkbox"
                   @change="$emit('setAutolaunch', ($event.target as HTMLInputElement).checked)"
                 />
-                <span class="pref-text">Auto-launch WebTop in Browser when Cluster Starts</span>
+                <span class="pref-text">Auto-launch WebTop on Start</span>
               </label>
+
+              <div class="pref-radio-group settings-sub-options" :class="{ 'is-disabled': !autolaunch }">
+                <label class="pref-radio-label" title="Launch inside native app window">
+                  <input
+                    type="radio"
+                    name="dash-autolaunch-target"
+                    value="webview"
+                    :checked="autolaunchTarget === 'webview'"
+                    :disabled="!autolaunch"
+                    class="pref-radio"
+                    @change="$emit('setAutolaunchTarget', 'webview')"
+                  />
+                  <span class="pref-text">Native Window</span>
+                </label>
+                <label class="pref-radio-label" title="Launch in system web browser">
+                  <input
+                    type="radio"
+                    name="dash-autolaunch-target"
+                    value="browser"
+                    :checked="autolaunchTarget === 'browser'"
+                    :disabled="!autolaunch"
+                    class="pref-radio"
+                    @change="$emit('setAutolaunchTarget', 'browser')"
+                  />
+                  <span class="pref-text">System Browser</span>
+                </label>
+              </div>
             </div>
           </div>
 
@@ -392,7 +419,7 @@ import TabItem from '../atoms/TabItem.vue';
 import EngineSelector from '../molecules/EngineSelector.vue';
 import AppHeader from '../organisms/AppHeader.vue';
 import AppFooter from '../organisms/AppFooter.vue';
-import type { DesktopApi, EngineStatus, EngineType, WpUser } from '../../types';
+import type { DesktopApi, EngineStatus, EngineType, WpUser, AutolaunchTarget } from '../../types';
 import type { TierInfo } from '../../license-cloud-manager';
 
 const props = defineProps<{
@@ -407,6 +434,7 @@ const props = defineProps<{
   version: string;
   stayOnSplash: boolean;
   autolaunch: boolean;
+  autolaunchTarget: AutolaunchTarget;
   isRunning: boolean;
   isStopped: boolean;
   isTransitioning: boolean;
@@ -422,6 +450,7 @@ const emit = defineEmits<{
   (e: 'setEngineType', val: EngineType): void;
   (e: 'setStayOnSplash', val: boolean): void;
   (e: 'setAutolaunch', val: boolean): void;
+  (e: 'setAutolaunchTarget', val: AutolaunchTarget): void;
   (e: 'toggleConsole'): void;
   (e: 'openLicenseModal'): void;
   (e: 'openSplash'): void;

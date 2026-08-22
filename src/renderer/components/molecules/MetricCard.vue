@@ -66,8 +66,8 @@ const layerTagMap: Record<string, { tag: string; tagClass: string; defaultTitle:
   network: { tag: 'Mesh', tagClass: 'coral-tag', defaultTitle: 'Private W4 Protocol Network' },
   server: { tag: 'Gateway', tagClass: 'emerald-tag', defaultTitle: 'W4 Tesseract Server' },
   core: { tag: 'Kernel', tagClass: 'gold-tag', defaultTitle: 'Headless WP Core' },
-  database: { tag: 'Storage', tagClass: 'purple-tag', defaultTitle: 'Database' },
-  bedrock: { tag: 'Foundation', tagClass: 'blue-tag', defaultTitle: 'Bedrock' }
+  database: { tag: 'Storage', tagClass: 'purple-tag', defaultTitle: 'SQLite Database' },
+  bedrock: { tag: 'Foundation', tagClass: 'blue-tag', defaultTitle: 'BlackBOX Bedrock' }
 };
 
 const normalizedId = computed(() => (props.layerId || props.dataLayer || '').toLowerCase());

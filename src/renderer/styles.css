@@ -1050,6 +1050,47 @@ body {
   cursor: pointer;
 }
 
+.pref-radio-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: 22px;
+  margin-top: 3px;
+  transition: opacity 0.2s ease;
+}
+
+.pref-radio-group.is-disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
+
+.pref-radio-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  transition: color 0.2s ease;
+}
+
+.pref-radio-label:hover {
+  color: var(--text-primary);
+}
+
+.pref-radio {
+  accent-color: var(--accent-cyan);
+  width: 13px;
+  height: 13px;
+  cursor: pointer;
+}
+
+.settings-sub-options {
+  margin-top: 6px;
+  margin-left: 22px;
+  gap: 16px;
+}
+
 .pref-text {
   user-select: none;
 }
