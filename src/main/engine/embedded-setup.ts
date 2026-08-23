@@ -163,7 +163,15 @@ function ensureSymlink(sourcePath: string, targetPath: string): void {
   } else {
     try {
       fs.symlinkSync(sourcePath, targetPath, isDirectory ? 'dir' : 'file');
-    } catch {}
+    } catch {
+      try {
+        if (isDirectory) {
+          fs.cpSync(sourcePath, targetPath, { recursive: true });
+        } else {
+          fs.copyFileSync(sourcePath, targetPath);
+        }
+      } catch {}
+    }
   }
 }
 
@@ -191,7 +199,18 @@ export async function setupEmbeddedEnvironment(
     const bundledBlackbox = path.join(resourcesDir, 'blackbox');
     if (fs.existsSync(bundledBlackbox)) {
       try {
-        fs.cpSync(bundledBlackbox, hostWpDir, { recursive: true, errorOnExist: false });
+        fs.cpSync(bundledBlackbox, hostWpDir, {
+          recursive: true,
+          errorOnExist: false,
+          filter: (src) => {
+            const rel = path.relative(bundledBlackbox, src);
+            if (rel === 'database.sqlite' || rel.startsWith('database.sqlite-')) {
+              const destFile = path.join(hostWpDir, rel);
+              return !fs.existsSync(destFile);
+            }
+            return true;
+          }
+        });
         onProgress('Initialized blackbox workspace from bundled resources.');
       } catch {}
     }

@@ -290,7 +290,8 @@ async function init(): Promise<void> {
 
   // 2. Initialize Stay on Splash & Auto-launch Preferences
   if (chkStaySplash) {
-    chkStaySplash.checked = localStorage.getItem('youmeos_stay_splash') === 'true';
+    const savedStaySplash = localStorage.getItem('youmeos_stay_splash');
+    chkStaySplash.checked = savedStaySplash !== null ? savedStaySplash === 'true' : true;
     chkStaySplash.addEventListener('change', () => {
       localStorage.setItem('youmeos_stay_splash', chkStaySplash.checked ? 'true' : 'false');
     });

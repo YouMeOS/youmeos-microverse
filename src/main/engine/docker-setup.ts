@@ -45,7 +45,22 @@ export async function setupDockerEnvironment(
       const src = path.join(resourcesDir, d);
       const dest = path.join(projectDir, d);
       if (fs.existsSync(src)) {
-        try { fs.cpSync(src, dest, { recursive: true, errorOnExist: false }); } catch {}
+        try {
+          fs.cpSync(src, dest, {
+            recursive: true,
+            errorOnExist: false,
+            filter: (sourcePath) => {
+              if (d === 'blackbox') {
+                const rel = path.relative(src, sourcePath);
+                if (rel === 'database.sqlite' || rel.startsWith('database.sqlite-')) {
+                  const destFile = path.join(dest, rel);
+                  return !fs.existsSync(destFile);
+                }
+              }
+              return true;
+            }
+          });
+        } catch {}
       }
     }
   }

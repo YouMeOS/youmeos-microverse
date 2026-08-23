@@ -10,9 +10,10 @@
 add_filter( 'plugins_url', function( $url, $path, $plugin ) {
 	// Check if the generated URL accidentally leaked the host absolute path
 	// This happens when plugin_basename() fails to strip the base directory because of symlinks.
-	if ( strpos( $url, '/wp-content/plugins/home/' ) !== false || strpos( $url, '/wp-content/plugins/var/www/' ) !== false ) {
+	if ( preg_match( '#/wp-content/plugins/(?:home|Users|var/www|private|[a-zA-Z]:)/#i', $url ) ||
+	     preg_match( '/(?:plugins|mu-plugins)\/.*?(?:plugins|mu-plugins)\//i', $url ) ) {
 		// Extract the actual relative path after 'plugins/' or 'mu-plugins/'
-		if ( preg_match( '/(?:plugins|mu-plugins)\/.*?(?:plugins|mu-plugins)\/(.*)$/', $url, $matches ) ) {
+		if ( preg_match( '/(?:plugins|mu-plugins)\/.*?(?:plugins|mu-plugins)\/(.*)$/i', $url, $matches ) ) {
 			// We need to determine if it was originally an mu-plugin or a standard plugin.
 			// If the original $plugin path contained 'mu-plugins', route it there.
 			if ( strpos( $plugin, 'mu-plugins' ) !== false ) {

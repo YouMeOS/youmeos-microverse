@@ -28,8 +28,9 @@ export function useMicroverseState() {
   const activeView = ref<"splash" | "dashboard">("splash");
   const isSideDrawerOpen = ref<boolean>(true);
   const activeTab = ref<string>("tab-overview");
+  const savedStaySplash = localStorage.getItem("youmeos_stay_splash");
   const stayOnSplash = ref<boolean>(
-    localStorage.getItem("youmeos_stay_splash") === "true",
+    savedStaySplash !== null ? savedStaySplash === "true" : true,
   );
   const isLaunchPromptOpen = ref<boolean>(false);
 
