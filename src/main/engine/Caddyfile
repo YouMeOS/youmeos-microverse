@@ -8,8 +8,8 @@
 
 # HTTPS Gateway
 https://my.youmeos.com:{$HTTPS_PORT:443}, https://my.umeos.com:{$HTTPS_PORT:443} {
-	tls {$TLS_CERT:internal} {$TLS_KEY}
-	root * {$WP_ROOT}
+	{$TLS_DIRECTIVE:tls internal}
+	root * "{$WP_ROOT}"
 	encode zstd br gzip
 	php_server
 	log {
@@ -20,7 +20,7 @@ https://my.youmeos.com:{$HTTPS_PORT:443}, https://my.umeos.com:{$HTTPS_PORT:443}
 
 # HTTP Gateway
 :{$PORT:80}, http://my.youmeos.com:{$PORT:80}, http://youmeos.localhost:{$PORT:80}, http://youmeos.local:{$PORT:80}, http://localhost:{$PORT:80}, http://127.0.0.1:{$PORT:80} {
-	root * {$WP_ROOT}
+	root * "{$WP_ROOT}"
 	encode zstd br gzip
 	php_server
 	log {

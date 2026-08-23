@@ -16,6 +16,7 @@ const openStripeCheckoutHandler = (url: string) => ipcRenderer.invoke('checkout:
 const setEngineTypeHandler = (type: string) => ipcRenderer.invoke('engine:set-type', type);
 const updatePluginsHandler = () => ipcRenderer.invoke('engine:update-plugins');
 const getVersionHandler = () => ipcRenderer.invoke('app:version');
+const minimizeToTrayHandler = () => ipcRenderer.invoke('window:minimize-to-tray');
 
 const listUsersHandler = () => ipcRenderer.invoke('diagnostics:list-users');
 const resetPasswordHandler = (userId?: number, customPassword?: string) => ipcRenderer.invoke('diagnostics:reset-password', userId, customPassword);
@@ -77,6 +78,7 @@ contextBridge.exposeInMainWorld('api', {
   setEngineType: setEngineTypeHandler,
   updatePlugins: updatePluginsHandler,
   getVersion: getVersionHandler,
+  minimizeToTray: minimizeToTrayHandler,
   listUsers: listUsersHandler,
   resetPassword: resetPasswordHandler,
   autoLogin: autoLoginHandler,

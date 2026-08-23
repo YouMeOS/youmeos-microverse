@@ -21,8 +21,8 @@ export const DEFAULT_CADDYFILE = `{
 
 # HTTPS Gateway
 https://my.youmeos.com:{$HTTPS_PORT:443}, https://my.umeos.com:{$HTTPS_PORT:443} {
-	tls {$TLS_CERT:internal} {$TLS_KEY}
-	root * {$WP_ROOT}
+	{$TLS_DIRECTIVE:tls internal}
+	root * "{$WP_ROOT}"
 	encode zstd br gzip
 	php_server
 	log {
@@ -33,7 +33,7 @@ https://my.youmeos.com:{$HTTPS_PORT:443}, https://my.umeos.com:{$HTTPS_PORT:443}
 
 # HTTP Gateway
 :{$PORT:80}, http://my.youmeos.com:{$PORT:80}, http://youmeos.localhost:{$PORT:80}, http://youmeos.local:{$PORT:80}, http://localhost:{$PORT:80}, http://127.0.0.1:{$PORT:80} {
-	root * {$WP_ROOT}
+	root * "{$WP_ROOT}"
 	encode zstd br gzip
 	php_server
 	log {
@@ -198,7 +198,7 @@ export async function setupEmbeddedEnvironment(
 
     const bundledDocker = path.join(resourcesDir, 'docker');
     const hostDocker = path.join(projectDir, 'docker');
-    if (fs.existsSync(bundledDocker) && !fs.existsSync(hostDocker)) {
+    if (fs.existsSync(bundledDocker)) {
       try {
         fs.cpSync(bundledDocker, hostDocker, { recursive: true, errorOnExist: false });
         onProgress('Initialized certificates from bundled resources.');
@@ -207,16 +207,25 @@ export async function setupEmbeddedEnvironment(
   }
 
   const targetCaddyfile = path.join(embeddedDir, 'Caddyfile');
-  if (!fs.existsSync(targetCaddyfile)) {
+  const needsCaddyfileUpdate = !fs.existsSync(targetCaddyfile) || (() => {
+    try {
+      const existing = fs.readFileSync(targetCaddyfile, 'utf8');
+      return existing.includes('root * {$WP_ROOT}') || !existing.includes('root * "{$WP_ROOT}"');
+    } catch {
+      return true;
+    }
+  })();
+
+  if (needsCaddyfileUpdate) {
     let caddyContent = DEFAULT_CADDYFILE;
     const candidates = [
       path.join(__dirname, 'Caddyfile'),
       path.join(__dirname, '..', 'engine', 'Caddyfile'),
-      resourcesDir ? path.join(resourcesDir, 'desktop', 'dist', 'main', 'engine', 'Caddyfile') : '',
+      resourcesDir ? path.join(resourcesDir, 'dist', 'main', 'engine', 'Caddyfile') : '',
       resourcesDir ? path.join(resourcesDir, 'Caddyfile') : '',
       path.join(projectDir, 'Caddyfile'),
       path.join(__dirname, '..', '..', 'src', 'main', 'engine', 'Caddyfile'),
-      path.join(projectDir, 'desktop', 'src', 'main', 'engine', 'Caddyfile')
+      path.join(projectDir, 'src', 'main', 'engine', 'Caddyfile')
     ].filter(Boolean);
 
     for (const c of candidates) {
@@ -239,20 +248,21 @@ export async function setupEmbeddedEnvironment(
 
   // 1. Check if FrankenPHP is already bundled in resources or root bin directory
   if (!fs.existsSync(frankenPath)) {
-    const candidateBundledPaths = [
-      resourcesDir ? path.join(resourcesDir, 'bin', frankenBinaryName) : '',
-      path.join(projectDir, 'bin', frankenBinaryName),
-      path.join(__dirname, '..', '..', '..', 'bin', frankenBinaryName)
+    const candidateBundledDirs = [
+      resourcesDir ? path.join(resourcesDir, 'bin') : '',
+      path.join(projectDir, 'bin'),
+      path.join(__dirname, '..', '..', '..', 'bin')
     ].filter(Boolean);
 
-    for (const bundledCandidate of candidateBundledPaths) {
-      if (fs.existsSync(bundledCandidate)) {
+    for (const bundledDir of candidateBundledDirs) {
+      const candidateBinary = path.join(bundledDir, frankenBinaryName);
+      if (fs.existsSync(candidateBinary)) {
         try {
-          fs.copyFileSync(bundledCandidate, frankenPath);
+          fs.cpSync(bundledDir, binDir, { recursive: true, errorOnExist: false });
           if (process.platform !== 'win32') {
             fs.chmodSync(frankenPath, 0o755);
           }
-          onProgress(`Initialized ${frankenBinaryName} from bundled resources.`);
+          onProgress(`Initialized ${frankenBinaryName} and dependencies from bundled resources.`);
           break;
         } catch {}
       }

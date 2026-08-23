@@ -145,13 +145,25 @@ export class EmbeddedEngine extends BaseEngine {
 
     this.pushLog('frankenphp', `Starting FrankenPHP native engine on ports 80/443 (Gateway: https://my.youmeos.com)...`);
 
+    const tlsDirective = hasCerts
+      ? `tls "${activeCert.replace(/\\/g, '/')}" "${activeKey.replace(/\\/g, '/')}"`
+      : 'tls internal';
+
+    const binDir = path.dirname(frankenPath);
+    const envPath = process.platform === 'win32'
+      ? `${binDir};${process.env.PATH || ''}`
+      : `${binDir}:${process.env.PATH || ''}`;
+
     try {
       this.serverProcess = spawn(frankenPath, ['run', '--config', caddyfilePath], {
+        cwd: binDir,
         env: {
           ...process.env,
+          PATH: envPath,
           WP_ROOT: wpCoreDir.replace(/\\/g, '/'),
           PORT: this.activePort.toString(),
           HTTPS_PORT: '443',
+          TLS_DIRECTIVE: tlsDirective,
           TLS_CERT: hasCerts ? activeCert.replace(/\\/g, '/') : 'internal',
           TLS_KEY: hasCerts ? activeKey.replace(/\\/g, '/') : ''
         }
@@ -211,7 +223,12 @@ export class EmbeddedEngine extends BaseEngine {
         if (this.currentStatus !== 'stopping' && this.currentStatus !== 'stopped') {
           this.currentStatus = code === 0 ? 'stopped' : 'error';
           if (code !== 0 && !this.lastErrorMessage) {
-            this.lastErrorMessage = `FrankenPHP exited unexpectedly with code ${code}. Check if port ${this.activePort} is available.`;
+            if (code === 3221225781 || code === -1073741515) {
+              this.lastErrorMessage = 'Missing Windows C++ Runtime. Please install Microsoft Visual C++ 2015-2022 Redistributable (x64): https://aka.ms/vs/17/release/vc_redist.x64.exe';
+              this.pushLog('core', this.lastErrorMessage, 'error');
+            } else {
+              this.lastErrorMessage = `FrankenPHP exited unexpectedly with code ${code}. Check if port ${this.activePort} is available.`;
+            }
           }
         } else {
           this.currentStatus = 'stopped';

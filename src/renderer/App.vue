@@ -17,8 +17,6 @@
       :verified-count="state.verifiedLayersCount.value"
       :total-count="state.totalLayersCount.value"
       :stay-on-splash="state.stayOnSplash.value"
-      :autolaunch="state.autolaunch.value"
-      :autolaunch-target="state.autolaunchTarget.value"
       :is-running="state.isRunning.value"
       :is-transitioning="state.isTransitioning.value"
       :is-action-pending="state.isActionPending.value"
@@ -26,8 +24,7 @@
       @toggle-side-drawer="state.toggleSideDrawer"
       @set-engine-type="state.setEngineType"
       @set-stay-on-splash="state.setStayOnSplash"
-      @set-autolaunch="state.setAutolaunch"
-      @set-autolaunch-target="state.setAutolaunchTarget"
+      @launch-webtop="state.launchWebtop"
       @highlight-layer="handleHighlightLayer"
       @select-layer="handleSelectLayer"
       @start="state.start"
@@ -52,8 +49,6 @@
       :version="state.version.value"
       :stack-layers="state.stackLayers.value"
       :stay-on-splash="state.stayOnSplash.value"
-      :autolaunch="state.autolaunch.value"
-      :autolaunch-target="state.autolaunchTarget.value"
       :is-running="state.isRunning.value"
       :is-stopped="state.isStopped.value"
       :is-transitioning="state.isTransitioning.value"
@@ -65,8 +60,6 @@
       @set-tab="handleSetTab"
       @set-engine-type="state.setEngineType"
       @set-stay-on-splash="state.setStayOnSplash"
-      @set-autolaunch="state.setAutolaunch"
-      @set-autolaunch-target="state.setAutolaunchTarget"
       @toggle-console="logs.toggle"
       @open-license-modal="license.openModal"
       @open-splash="handleSwitchView('splash')"
@@ -233,6 +226,18 @@ const handleCopyGateway = async () => {
   } catch {}
 };
 
+const handleVisibilityChange = () => {
+  if (document.hidden) {
+    smokeEngine?.pause();
+    architecture3D?.pause();
+  } else {
+    smokeEngine?.resume();
+    if (state.activeView.value === 'splash') {
+      architecture3D?.resume();
+    }
+  }
+};
+
 // 4. Watchers
 watch(
   () => state.isRunning.value,
@@ -245,6 +250,17 @@ watch(
   () => state.isSideDrawerOpen.value,
   (open) => {
     architecture3D?.setSidePanelOpen(open);
+  }
+);
+
+watch(
+  () => state.activeView.value,
+  (view) => {
+    if (view === 'splash' && !document.hidden) {
+      architecture3D?.resume();
+    } else {
+      architecture3D?.pause();
+    }
   }
 );
 
@@ -264,9 +280,12 @@ onMounted(() => {
     architecture3D.setCompassTier(license.currentTier.value);
     architecture3D.setRunning(state.isRunning.value);
   }
+
+  document.addEventListener('visibilitychange', handleVisibilityChange);
 });
 
 onUnmounted(() => {
+  document.removeEventListener('visibilitychange', handleVisibilityChange);
   if (smokeEngine) smokeEngine.destroy();
   if (architecture3D) architecture3D.destroy();
 });

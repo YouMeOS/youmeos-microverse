@@ -36,16 +36,13 @@
       :verified-count="verifiedCount"
       :total-count="totalCount"
       :stay-on-splash="stayOnSplash"
-      :autolaunch="autolaunch"
-      :autolaunch-target="autolaunchTarget"
       :is-running="isRunning"
       :is-transitioning="isTransitioning"
       :is-action-pending="isActionPending"
       @close="$emit('toggleSideDrawer', false)"
       @set-engine-type="$emit('setEngineType', $event)"
       @set-stay-on-splash="$emit('setStayOnSplash', $event)"
-      @set-autolaunch="$emit('setAutolaunch', $event)"
-      @set-autolaunch-target="$emit('setAutolaunchTarget', $event)"
+      @launch-webtop="$emit('launchWebtop', $event)"
       @highlight-layer="$emit('highlightLayer', $event)"
       @select-layer="$emit('selectLayer', $event)"
       @start="$emit('start')"
@@ -63,7 +60,7 @@ import { ref } from 'vue';
 import BaseIcon from '../atoms/BaseIcon.vue';
 import StatusDot from '../atoms/StatusDot.vue';
 import SplashSideDrawer from '../organisms/SplashSideDrawer.vue';
-import type { EngineStatus, EngineType, StackLayerStatus, AutolaunchTarget } from '../../types';
+import type { EngineStatus, EngineType, StackLayerStatus, WebtopLaunchTarget } from '../../types';
 
 defineProps<{
   isActive: boolean;
@@ -73,8 +70,6 @@ defineProps<{
   verifiedCount: number;
   totalCount: number;
   stayOnSplash: boolean;
-  autolaunch: boolean;
-  autolaunchTarget: AutolaunchTarget;
   isRunning: boolean;
   isTransitioning: boolean;
   isActionPending: boolean;
@@ -85,8 +80,7 @@ defineEmits<{
   (e: 'toggleSideDrawer', forceState?: boolean): void;
   (e: 'setEngineType', val: EngineType): void;
   (e: 'setStayOnSplash', val: boolean): void;
-  (e: 'setAutolaunch', val: boolean): void;
-  (e: 'setAutolaunchTarget', val: AutolaunchTarget): void;
+  (e: 'launchWebtop', target: WebtopLaunchTarget): void;
   (e: 'highlightLayer', layerId: string | null): void;
   (e: 'selectLayer', layerId: string): void;
   (e: 'start'): void;

@@ -8,7 +8,7 @@ import type {
   GatewayEndpoint,
   DownloadProgress,
   EngineStatusInfo,
-  AutolaunchTarget,
+  WebtopLaunchTarget,
 } from "../types";
 
 export function useMicroverseState() {
@@ -31,15 +31,7 @@ export function useMicroverseState() {
   const stayOnSplash = ref<boolean>(
     localStorage.getItem("youmeos_stay_splash") === "true",
   );
-  const autolaunch = ref<boolean>(
-    localStorage.getItem("youmeos_autolaunch") !== null
-      ? localStorage.getItem("youmeos_autolaunch") === "true"
-      : true,
-  );
-  const autolaunchTarget = ref<AutolaunchTarget>(
-    (localStorage.getItem("youmeos_autolaunch_target") as AutolaunchTarget) ||
-      "webview",
-  );
+  const isLaunchPromptOpen = ref<boolean>(false);
 
   // Diagnostic states
   const isAutoLoggingIn = ref<boolean>(false);
@@ -61,7 +53,7 @@ export function useMicroverseState() {
   } | null>(null);
 
   let hasAutoTransitioned = false;
-  let hasAutoLaunchedGateway = false;
+  let hasPromptedLaunch = false;
   let pollInterval: any = null;
   let unsubscribeProgress: (() => void) | null = null;
   let unsubscribeStatus: (() => void) | null = null;
@@ -120,17 +112,14 @@ export function useMicroverseState() {
     // Reset auto triggers on stop
     if (status.value === "stopped") {
       hasAutoTransitioned = false;
-      hasAutoLaunchedGateway = false;
+      hasPromptedLaunch = false;
+      isLaunchPromptOpen.value = false;
     }
 
-    // Auto-launch WebTop if enabled
-    if (isRunning.value && !hasAutoLaunchedGateway && autolaunch.value) {
-      hasAutoLaunchedGateway = true;
-      if (autolaunchTarget.value === "browser") {
-        api.openBrowser(currentGatewayUrl.value);
-      } else {
-        api.openUrl(currentGatewayUrl.value);
-      }
+    // Prompt user to launch WebTop upon successful stack start
+    if (isRunning.value && !hasPromptedLaunch) {
+      hasPromptedLaunch = true;
+      isSideDrawerOpen.value = true;
     }
 
     // Auto-transition to dashboard if running and not locked on splash
@@ -211,27 +200,42 @@ export function useMicroverseState() {
     localStorage.setItem("youmeos_stay_splash", val ? "true" : "false");
   };
 
-  const setAutolaunch = (val: boolean) => {
-    autolaunch.value = val;
-    localStorage.setItem("youmeos_autolaunch", val ? "true" : "false");
-  };
-
-  const setAutolaunchTarget = (val: AutolaunchTarget) => {
-    autolaunchTarget.value = val;
-    localStorage.setItem("youmeos_autolaunch_target", val);
-  };
-
   const toggleSideDrawer = (forceState?: boolean) => {
     isSideDrawerOpen.value =
       forceState !== undefined ? forceState : !isSideDrawerOpen.value;
   };
 
-  const openUrl = (url?: string) => {
-    api.openUrl(url || currentGatewayUrl.value);
+  const launchWebtop = (
+    target: "webview" | "browser" = "webview",
+    minimize: boolean = true,
+  ) => {
+    isLaunchPromptOpen.value = false;
+    if (target === "browser") {
+      api.openBrowser(currentGatewayUrl.value);
+    } else {
+      api.openUrl(currentGatewayUrl.value);
+    }
+    if (minimize && api.minimizeToTray) {
+      api.minimizeToTray();
+    }
   };
 
-  const openBrowser = () => {
+  const closeLaunchPrompt = () => {
+    isLaunchPromptOpen.value = false;
+  };
+
+  const openUrl = (url?: string, minimize: boolean = false) => {
+    api.openUrl(url || currentGatewayUrl.value);
+    if (minimize && api.minimizeToTray) {
+      api.minimizeToTray();
+    }
+  };
+
+  const openBrowser = (minimize: boolean = false) => {
     api.openBrowser(currentGatewayUrl.value);
+    if (minimize && api.minimizeToTray) {
+      api.minimizeToTray();
+    }
   };
 
   const openBlackbox = (subfolder?: string) => {
@@ -297,8 +301,7 @@ export function useMicroverseState() {
     isSideDrawerOpen,
     activeTab,
     stayOnSplash,
-    autolaunch,
-    autolaunchTarget,
+    isLaunchPromptOpen,
     isRunning,
     isStopped,
     isTransitioning,
@@ -317,8 +320,8 @@ export function useMicroverseState() {
     restart,
     setEngineType,
     setStayOnSplash,
-    setAutolaunch,
-    setAutolaunchTarget,
+    launchWebtop,
+    closeLaunchPrompt,
     toggleSideDrawer,
     openUrl,
     openBrowser,

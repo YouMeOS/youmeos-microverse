@@ -319,6 +319,9 @@ const readyHandler = async () => {
   ipcMain.handle('engine:open-url', openPortalHandler);
   ipcMain.handle('engine:open-browser', openExternalHandler);
   ipcMain.handle('engine:open-blackbox-folder', openBlackboxFolderHandler);
+  ipcMain.handle('window:minimize-to-tray', () => {
+    mainWindow?.hide();
+  });
 
   // Diagnostic & Auto-Login Handlers
   ipcMain.handle('engine:auto-login', async (_, userId?: number, redirectTo?: string) => {

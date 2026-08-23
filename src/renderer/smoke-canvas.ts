@@ -244,11 +244,21 @@ export class SmokeCanvasEngine {
     }
   };
 
-  public destroy(): void {
+  public pause(): void {
     if (this.animFrameId !== null) {
       cancelAnimationFrame(this.animFrameId);
       this.animFrameId = null;
     }
+  }
+
+  public resume(): void {
+    if (this.animFrameId === null && this.ctx && this.canvas) {
+      this.animFrameId = requestAnimationFrame(this.animate);
+    }
+  }
+
+  public destroy(): void {
+    this.pause();
     window.removeEventListener('resize', this.handleResize);
   }
 }

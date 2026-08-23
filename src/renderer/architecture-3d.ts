@@ -1032,10 +1032,22 @@ export class Architecture3DManager {
     }
   };
 
-  public destroy(): void {
+  public pause(): void {
     if (this.animFrameId !== null) {
       cancelAnimationFrame(this.animFrameId);
+      this.animFrameId = null;
     }
+  }
+
+  public resume(): void {
+    if (this.animFrameId === null && this.renderer && this.camera) {
+      this.lastTime = performance.now() * 0.001;
+      this.animFrameId = requestAnimationFrame(this.animate);
+    }
+  }
+
+  public destroy(): void {
+    this.pause();
     this.renderer?.dispose();
   }
 }

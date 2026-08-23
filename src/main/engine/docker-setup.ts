@@ -1,7 +1,11 @@
 import fs from 'fs';
 import path from 'path';
+import { execFile } from 'child_process';
+import { promisify } from 'util';
 import { ProgressCallback, SimpleLogCallback } from './types';
 import { downloadAndExtractZip } from './download';
+
+const execFileAsync = promisify(execFile);
 
 const SQLITE_PLUGIN_URL = 'https://downloads.wordpress.org/plugin/sqlite-database-integration.zip';
 
@@ -40,8 +44,71 @@ export async function setupDockerEnvironment(
     for (const d of dirsToCopy) {
       const src = path.join(resourcesDir, d);
       const dest = path.join(projectDir, d);
-      if (fs.existsSync(src) && !fs.existsSync(dest)) {
+      if (fs.existsSync(src)) {
         try { fs.cpSync(src, dest, { recursive: true, errorOnExist: false }); } catch {}
+      }
+    }
+  }
+
+  // Ensure SSL certificates exist for Nginx gateway
+  const certsDir = path.join(projectDir, 'docker', 'nginx', 'certs');
+  const certFile = path.join(certsDir, 'cert.pem');
+  const keyFile = path.join(certsDir, 'key.pem');
+
+  if (!fs.existsSync(certFile) || !fs.existsSync(keyFile)) {
+    const candidateCertDirs = [
+      resourcesDir ? path.join(resourcesDir, 'docker', 'nginx', 'certs') : '',
+      path.join(__dirname, '..', '..', 'docker', 'nginx', 'certs'),
+      path.join(__dirname, '..', '..', '..', 'docker', 'nginx', 'certs')
+    ].filter(Boolean);
+
+    for (const candDir of candidateCertDirs) {
+      const candCert = path.join(candDir, 'cert.pem');
+      const candKey = path.join(candDir, 'key.pem');
+      if (fs.existsSync(candCert) && fs.existsSync(candKey)) {
+        try {
+          if (!fs.existsSync(certsDir)) fs.mkdirSync(certsDir, { recursive: true });
+          fs.copyFileSync(candCert, certFile);
+          fs.copyFileSync(candKey, keyFile);
+          onProgress('Initialized SSL certificates for Nginx gateway.');
+          break;
+        } catch {}
+      }
+    }
+
+    // Auto-generate self-signed SSL certificate if missing from bundle
+    if (!fs.existsSync(certFile) || !fs.existsSync(keyFile)) {
+      try {
+        if (!fs.existsSync(certsDir)) fs.mkdirSync(certsDir, { recursive: true });
+        const san = 'subjectAltName=DNS:my.youmeos.com,DNS:*.my.youmeos.com,DNS:my.umeos.com,DNS:*.my.umeos.com,DNS:microverse.youmeos.com,DNS:localhost,DNS:youmeos.local,IP:127.0.0.1';
+        await execFileAsync('openssl', [
+          'req',
+          '-x509',
+          '-newkey', 'rsa:2048',
+          '-nodes',
+          '-keyout', keyFile,
+          '-out', certFile,
+          '-days', '3650',
+          '-subj', '/CN=my.youmeos.com',
+          '-addext', san
+        ]);
+        onProgress('Generated self-signed SSL certificates for Nginx gateway.');
+      } catch {
+        try {
+          await execFileAsync('openssl', [
+            'req',
+            '-x509',
+            '-newkey', 'rsa:2048',
+            '-nodes',
+            '-keyout', keyFile,
+            '-out', certFile,
+            '-days', '3650',
+            '-subj', '/CN=my.youmeos.com'
+          ]);
+          onProgress('Generated standard SSL certificates for Nginx gateway.');
+        } catch (err: any) {
+          console.warn('Failed to auto-generate SSL certificates via openssl:', err?.message || err);
+        }
       }
     }
   }

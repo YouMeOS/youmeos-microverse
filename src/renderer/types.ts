@@ -64,6 +64,7 @@ export interface DesktopApi {
   setEngineType: (type: string) => Promise<void>;
   updatePlugins: () => Promise<PluginUpdateResult>;
   getVersion?: () => Promise<string>;
+  minimizeToTray?: () => Promise<void>;
   listUsers?: () => Promise<WpUser[]>;
   resetPassword?: (userId?: number, customPassword?: string) => Promise<PasswordResetResult>;
   autoLogin?: (userId?: number, redirectTo?: string) => Promise<AutoLoginResult>;
@@ -79,6 +80,7 @@ export interface DesktopApi {
   onUpdateStatus?: (callback: (status: AppUpdateStatus) => void) => () => void;
 }
 
+export type WebtopLaunchTarget = 'webview' | 'browser';
 export type AutolaunchTarget = 'webview' | 'browser';
 
 export type {
