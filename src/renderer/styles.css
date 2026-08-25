@@ -3461,6 +3461,63 @@ body {
   transform: translateY(-1px);
 }
 
+.btn-modal-danger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  border: 1px solid #f87171;
+  color: #fff;
+  padding: 8px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(248, 113, 113, 0.3);
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.btn-modal-danger:hover:not(:disabled) {
+  background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
+  box-shadow: 0 0 20px rgba(248, 113, 113, 0.55);
+  transform: translateY(-1px);
+}
+
+.btn-modal-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.dash-card.danger-panel {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: linear-gradient(180deg, rgba(239, 68, 68, 0.06) 0%, rgba(10, 16, 28, 0.85) 100%);
+}
+
+.warning-confirm-box {
+  background: rgba(220, 38, 38, 0.12);
+  border: 1px solid rgba(248, 113, 113, 0.4);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.warning-confirm-text {
+  font-size: 0.76rem;
+  color: #fca5a5;
+  line-height: 1.4;
+}
+
+.warning-btn-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+
 /* =========================================================
    COMPASS License 2-Panel HUD & Upsell Store Styles
    ========================================================= */

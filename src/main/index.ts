@@ -340,6 +340,9 @@ const readyHandler = async () => {
   ipcMain.handle('engine:db-health', async () => {
     return diagnosticsManager.checkDatabaseHealth();
   });
+  ipcMain.handle('engine:reset-database', async () => {
+    return diagnosticsManager.resetDatabase();
+  });
 
   ipcMain.handle('updater:check', () => updaterManager.checkForUpdates());
   ipcMain.handle('updater:download', () => updaterManager.downloadUpdate());
@@ -357,6 +360,7 @@ const readyHandler = async () => {
   });
   ipcMain.handle('diagnostics:flush-session', () => diagnosticsManager.flushPortalSession());
   ipcMain.handle('diagnostics:db-health', () => diagnosticsManager.checkDatabaseHealth());
+  ipcMain.handle('diagnostics:reset-database', () => diagnosticsManager.resetDatabase());
 
   // Stripe Checkout Popup Window with Automatic Completion Capture
   ipcMain.handle('checkout:open-stripe', async (_, checkoutUrl: string) => {

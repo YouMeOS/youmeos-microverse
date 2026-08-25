@@ -19,7 +19,8 @@ import type {
   WpUser,
   PasswordResetResult,
   AutoLoginResult,
-  DbHealthResult
+  DbHealthResult,
+  DbResetResult
 } from '../main/engine/diagnostics';
 
 export interface PluginUpdateDetail {
@@ -70,6 +71,7 @@ export interface DesktopApi {
   autoLogin?: (userId?: number, redirectTo?: string) => Promise<AutoLoginResult>;
   flushSession?: () => Promise<boolean>;
   checkDbHealth?: () => Promise<DbHealthResult>;
+  resetDatabase?: () => Promise<DbResetResult>;
   checkForUpdates?: () => Promise<AppUpdateStatus>;
   downloadUpdate?: () => Promise<void>;
   installUpdate?: () => Promise<void>;
@@ -99,5 +101,6 @@ export type {
   WpUser,
   PasswordResetResult,
   AutoLoginResult,
-  DbHealthResult
+  DbHealthResult,
+  DbResetResult
 };

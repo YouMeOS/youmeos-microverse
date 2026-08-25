@@ -452,6 +452,77 @@
                 KB</span>
             </div>
           </div>
+
+          <!-- Destructive: Database Reset & Wipe Tool -->
+          <div class="dash-card glass-panel danger-panel">
+            <div class="card-header">
+              <div class="card-title-group">
+                <BaseIcon
+                  name="trash"
+                  :size="16"
+                  style="color: #f87171;"
+                />
+                <h3 class="card-title" style="color: #fca5a5;">Database Reset (Destructive)</h3>
+              </div>
+            </div>
+            <p class="dash-card-desc">Wipe local SQLite tables and reset WordPress to a clean slate. Use if database corruption or plugin collisions lock the portal.</p>
+            
+            <div v-if="!showDbResetConfirm" class="diag-action-stack">
+              <button
+                type="button"
+                class="btn-modal-danger"
+                :disabled="isResettingDb"
+                @click="showDbResetConfirm = true"
+              >
+                <BaseIcon
+                  name="trash"
+                  :size="14"
+                />
+                <span>Reset Database...</span>
+              </button>
+            </div>
+
+            <div v-else class="warning-confirm-box">
+              <div class="warning-confirm-text">
+                <strong>WARNING:</strong> This action will permanently erase all SQLite database tables, users, and options. This cannot be undone!
+              </div>
+              <div class="warning-btn-row">
+                <button
+                  type="button"
+                  class="btn-modal-danger"
+                  :disabled="isResettingDb"
+                  @click="handleResetDatabase"
+                >
+                  <BaseIcon
+                    v-if="isResettingDb"
+                    name="spin"
+                    :size="14"
+                    :spinning="true"
+                  />
+                  <BaseIcon
+                    v-else
+                    name="trash"
+                    :size="14"
+                  />
+                  <span>{{ isResettingDb ? 'Wiping Database...' : 'Confirm & Wipe Database' }}</span>
+                </button>
+                <button
+                  type="button"
+                  class="btn-modal-aux"
+                  :disabled="isResettingDb"
+                  @click="showDbResetConfirm = false"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+
+            <span
+              v-if="dbResetFeedback"
+              class="feedback-msg"
+              :style="{ color: dbResetSuccess ? '#34d399' : '#f87171', marginTop: '6px', display: 'block' }"
+            >{{ dbResetFeedback }}</span>
+          </div>
         </div>
       </section>
 
@@ -586,6 +657,10 @@ const isFlushingSession = ref<boolean>(false);
 const flushSessionFeedback = ref<string>('');
 const isCheckingDb = ref<boolean>(false);
 const dbHealthResult = ref<{ status: string; integrity: string; userCount: number; sizeBytes: number } | null>(null);
+const showDbResetConfirm = ref<boolean>(false);
+const isResettingDb = ref<boolean>(false);
+const dbResetFeedback = ref<string>('');
+const dbResetSuccess = ref<boolean>(false);
 const isUpdatingPlugins = ref<boolean>(false);
 const pluginUpdateFeedback = ref<string>('');
 
@@ -697,6 +772,36 @@ const handleCheckDbHealth = async () => {
     dbHealthResult.value = { status: 'error', integrity: 'Error', userCount: 0, sizeBytes: 0, error: e?.message };
   } finally {
     isCheckingDb.value = false;
+  }
+};
+
+const handleResetDatabase = async () => {
+  isResettingDb.value = true;
+  dbResetFeedback.value = '';
+  dbResetSuccess.value = false;
+  try {
+    if (props.api.resetDatabase) {
+      const res = await props.api.resetDatabase();
+      if (res.success) {
+        dbResetSuccess.value = true;
+        dbResetFeedback.value = res.message || 'Database reset successfully.';
+        showDbResetConfirm.value = false;
+        userList.value = [];
+        dbHealthResult.value = null;
+      } else {
+        dbResetSuccess.value = false;
+        dbResetFeedback.value = `Reset failed: ${res.error || res.message}`;
+      }
+    } else {
+      dbResetSuccess.value = true;
+      dbResetFeedback.value = 'Database reset simulated.';
+      showDbResetConfirm.value = false;
+    }
+  } catch (e: any) {
+    dbResetSuccess.value = false;
+    dbResetFeedback.value = `Reset error: ${e?.message || e}`;
+  } finally {
+    isResettingDb.value = false;
   }
 };
 

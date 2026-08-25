@@ -35,6 +35,12 @@ export interface DbHealthResult {
   error?: string;
 }
 
+export interface DbResetResult {
+  success: boolean;
+  message: string;
+  error?: string;
+}
+
 export class DiagnosticsManager {
   private projectDir: string;
 
@@ -214,4 +220,59 @@ export class DiagnosticsManager {
       return { status: 'error', integrity: 'Error', userCount: 0, sizeBytes: stat.size, error: e?.message };
     }
   }
+
+  async resetDatabase(): Promise<DbResetResult> {
+    try {
+      const dbPath = this.getDbPath();
+      const blackboxDir = path.dirname(dbPath);
+      const shmPath = `${dbPath}-shm`;
+      const walPath = `${dbPath}-wal`;
+
+      if (fs.existsSync(dbPath)) {
+        try {
+          fs.unlinkSync(dbPath);
+        } catch {
+          fs.rmSync(dbPath, { force: true });
+        }
+      }
+      if (fs.existsSync(shmPath)) {
+        try {
+          fs.unlinkSync(shmPath);
+        } catch {}
+      }
+      if (fs.existsSync(walPath)) {
+        try {
+          fs.unlinkSync(walPath);
+        } catch {}
+      }
+
+      const muPluginsDir = path.join(blackboxDir, 'mu-plugins');
+      if (fs.existsSync(muPluginsDir)) {
+        try {
+          const files = fs.readdirSync(muPluginsDir);
+          for (const file of files) {
+            if (file.startsWith('_token_') && file.endsWith('.php')) {
+              try {
+                fs.unlinkSync(path.join(muPluginsDir, file));
+              } catch {}
+            }
+          }
+        } catch {}
+      }
+
+      await this.flushPortalSession();
+
+      return {
+        success: true,
+        message: 'Database files wiped. A fresh instance will provision on next boot.'
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        message: 'Failed to reset database',
+        error: err?.message || String(err)
+      };
+    }
+  }
 }
+

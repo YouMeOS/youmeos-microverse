@@ -23,6 +23,7 @@ const resetPasswordHandler = (userId?: number, customPassword?: string) => ipcRe
 const autoLoginHandler = (userId?: number, redirectTo?: string) => ipcRenderer.invoke('diagnostics:auto-login', userId, redirectTo);
 const flushSessionHandler = () => ipcRenderer.invoke('diagnostics:flush-session');
 const checkDbHealthHandler = () => ipcRenderer.invoke('diagnostics:db-health');
+const resetDatabaseHandler = () => ipcRenderer.invoke('diagnostics:reset-database');
 
 const checkUpdatesHandler = () => ipcRenderer.invoke('updater:check');
 const downloadUpdateHandler = () => ipcRenderer.invoke('updater:download');
@@ -84,6 +85,7 @@ contextBridge.exposeInMainWorld('api', {
   autoLogin: autoLoginHandler,
   flushSession: flushSessionHandler,
   checkDbHealth: checkDbHealthHandler,
+  resetDatabase: resetDatabaseHandler,
   checkForUpdates: checkUpdatesHandler,
   downloadUpdate: downloadUpdateHandler,
   installUpdate: installUpdateHandler,
