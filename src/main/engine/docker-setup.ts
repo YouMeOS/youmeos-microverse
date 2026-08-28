@@ -40,17 +40,18 @@ export async function setupDockerEnvironment(
         try { fs.copyFileSync(src, dest); } catch {}
       }
     }
-    const dirsToCopy = ['docker', 'blackbox'];
+    const dirsToCopy = ['docker', 'wp-content', 'blackbox'];
     for (const d of dirsToCopy) {
       const src = path.join(resourcesDir, d);
-      const dest = path.join(projectDir, d);
+      const targetDirName = d === 'blackbox' ? 'wp-content' : d;
+      const dest = path.join(projectDir, targetDirName);
       if (fs.existsSync(src)) {
         try {
           fs.cpSync(src, dest, {
             recursive: true,
             errorOnExist: false,
             filter: (sourcePath) => {
-              if (d === 'blackbox') {
+              if (d === 'wp-content' || d === 'blackbox') {
                 const rel = path.relative(src, sourcePath);
                 if (rel === 'database.sqlite' || rel.startsWith('database.sqlite-')) {
                   const destFile = path.join(dest, rel);
@@ -128,7 +129,11 @@ export async function setupDockerEnvironment(
     }
   }
 
-  const hostWpDir = path.join(projectDir, 'blackbox');
+  const legacyWpDir = path.join(projectDir, 'blackbox');
+  const hostWpDir = path.join(projectDir, 'wp-content');
+  if (!fs.existsSync(hostWpDir) && fs.existsSync(legacyWpDir)) {
+    try { fs.renameSync(legacyWpDir, hostWpDir); } catch {}
+  }
   const pluginsDir = path.join(hostWpDir, 'plugins');
   const dbDest = path.join(hostWpDir, 'db.php');
 
@@ -171,7 +176,7 @@ export async function setupDockerEnvironment(
   if (fs.existsSync(dbCopy) && !fs.existsSync(dbDest)) {
     fs.copyFileSync(dbCopy, dbDest);
     try { fs.chmodSync(dbDest, 0o666); } catch {}
-    onProgress('SQLite drop-in (db.php) active in blackbox/ for shared Docker/Embedded database.');
+    onProgress('SQLite drop-in (db.php) active in wp-content/ for shared Docker/Embedded database.');
   }
 
   const sqliteFiles = ['database.sqlite', 'database.sqlite-shm', 'database.sqlite-wal'];

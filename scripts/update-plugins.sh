@@ -54,7 +54,7 @@ declare -A PLUGIN_NAMES
 scan_plugins() {
     local is_initial="$1"
     
-    for dir in "${REPO_ROOT}/blackbox/plugins"/* "${REPO_ROOT}/blackbox/mu-plugins"/* "${REPO_ROOT}/blackbox/themes"/*; do
+    for dir in "${REPO_ROOT}/wp-content/plugins"/* "${REPO_ROOT}/wp-content/mu-plugins"/* "${REPO_ROOT}/wp-content/themes"/*; do
         if [ -d "$dir" ]; then
             local slug
             slug=$(basename "$dir")
@@ -116,4 +116,4 @@ fi
 echo "==> [3/4] Inspecting plugin versions and verifying assets..."
 scan_plugins "false"
 
-echo "==> [4/4] Plugin update check complete. All packages verified in blackbox/plugins/"
+echo "==> [4/4] Plugin update check complete. All packages verified in wp-content/plugins/"

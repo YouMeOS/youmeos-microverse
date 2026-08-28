@@ -9,8 +9,8 @@ extraResources:
     to: docker
     filter:
       - "**/*"
-  - from: blackbox
-    to: blackbox
+  - from: wp-content
+    to: wp-content
     filter:
       - "**/*"
   - from: scripts

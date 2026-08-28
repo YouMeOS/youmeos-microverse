@@ -141,13 +141,14 @@
             <button
               type="button"
               class="btn-transport btn-aux-blackbox"
+              title="Open Contents Folder"
               @click="$emit('openBlackbox')"
             >
               <BaseIcon
                 name="folder"
                 :size="14"
               />
-              <span>Blackbox</span>
+              <span>Contents</span>
             </button>
           </div>
         </div>
@@ -230,7 +231,7 @@
               <StatusDot :status="status" />
             </div>
             <h4 class="dash-block-title">Database</h4>
-            <p class="dash-block-sub">Zero-configuration single-file database sandbox in blackbox/.</p>
+            <p class="dash-block-sub">Zero-configuration single-file database sandbox in wp-content/.</p>
           </div>
 
           <div
@@ -242,7 +243,7 @@
               <StatusDot :status="status" />
             </div>
             <h4 class="dash-block-title">Bedrock</h4>
-            <p class="dash-block-sub">Genesis Wave foundation and blackbox/ storage container.</p>
+            <p class="dash-block-sub">Genesis Wave foundation and wp-content/ storage container.</p>
           </div>
         </div>
       </section>

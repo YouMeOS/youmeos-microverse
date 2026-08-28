@@ -27,29 +27,13 @@ const KNOWN_SERVICES: Record<
     specs?: string[];
   }
 > = {
-  nginx: {
-    displayName: 'Web Gateway (Nginx)',
-    role: 'Reverse Proxy & SSL Gateway',
+  youmeos: {
+    displayName: 'YouMeOS Unified Engine',
+    role: 'FrankenPHP Gateway & Core',
     defaultPorts: ['80', '443'],
     isRequired: true,
-    category: 'Edge Routing & SSL',
-    specs: ['HTTP/2 · TLS 1.3', 'Reverse Proxy', 'SSL Offloader']
-  },
-  wordpress: {
-    displayName: 'Core Engine (WordPress & SQLite)',
-    role: 'PHP 8.3 FPM & Unified SQLite Store',
-    defaultPorts: ['9000'],
-    isRequired: true,
     category: 'Application Kernel',
-    specs: ['PHP 8.3 FPM', 'SQLite VFS Engine', 'REST & GraphQL']
-  },
-  avahi: {
-    displayName: 'Local Node Discovery',
-    role: 'ZeroConf Network Mesh (youmeos.local)',
-    defaultPorts: ['5353'],
-    isRequired: false,
-    category: 'Local Mesh & Discovery',
-    specs: ['mDNS / DNS-SD', 'ZeroConf', 'Peer Broadcast']
+    specs: ['HTTP/3', 'PHP 8.3', 'SQLite VFS']
   }
 };
 
@@ -328,14 +312,15 @@ export class DockerEngine extends BaseEngine {
           const rawName: string = (item.Name || '').toLowerCase();
           let serviceKey = rawService;
 
-          if (rawService.includes('nginx') || rawService.includes('server') || rawName.includes('nginx') || rawName.includes('gateway')) {
-            serviceKey = 'nginx';
+          if (rawService.includes('nginx') || rawService.includes('server') || rawName.includes('nginx') || rawName.includes('gateway') || rawService.includes('youmeos') || rawName.includes('youmeos')) {
+            serviceKey = 'youmeos';
           } else if (rawService.includes('wordpress') || rawService.includes('wp-engine') || rawName.includes('wordpress') || rawName.includes('engine')) {
-            serviceKey = 'wordpress';
+            serviceKey = 'youmeos';
           } else if (rawService.includes('avahi') || rawName.includes('avahi') || rawName.includes('mdns') || rawName.includes('discovery')) {
-            serviceKey = 'avahi';
+            serviceKey = 'youmeos';
           } else if (!serviceKey || !KNOWN_SERVICES[serviceKey]) {
             serviceKey = rawName.replace(/^youmeos-microverse[-_]/, '').replace(/^youmeos[-_]/, '').replace(/[-_]\d+$/, '');
+            if (!serviceKey || !KNOWN_SERVICES[serviceKey]) serviceKey = 'youmeos';
           }
 
           const stateStr: string = (item.State || item.Status || '').toLowerCase();
@@ -394,12 +379,7 @@ export class DockerEngine extends BaseEngine {
         };
       });
 
-      const isGatewayRunning = resultServices.find(s => s.name === 'nginx')?.status === 'running';
-      const avahiService = resultServices.find(s => s.name === 'avahi');
-      if (avahiService && isGatewayRunning && avahiService.status !== 'running') {
-        avahiService.status = 'running';
-        avahiService.role = 'Encrypted Local Discovery (youmeos.local)';
-      }
+      const isGatewayRunning = resultServices.find(s => s.name === 'youmeos')?.status === 'running';
 
       const requiredServices = Object.entries(KNOWN_SERVICES).filter(([_, meta]) => meta.isRequired !== false);
       const requiredRunningCount = resultServices.filter(s => {
@@ -452,11 +432,11 @@ export class DockerEngine extends BaseEngine {
       const args = ['logs', '--tail', tail.toString()];
       if (service && service !== 'all') {
         if (service === 'nginx' || service === 'server' || service === 'gateway') {
-          args.push('nginx');
+          args.push('youmeos');
         } else if (service === 'wordpress' || service === 'wp-engine' || service === 'core') {
-          args.push('wordpress');
+          args.push('youmeos');
         } else if (service === 'avahi' || service === 'discovery' || service === 'network') {
-          args.push('avahi');
+          args.push('youmeos');
         } else if (KNOWN_SERVICES[service]) {
           args.push(service);
         }

@@ -57,7 +57,11 @@ export class DiagnosticsManager {
   }
 
   private getDbPath(): string {
-    return path.join(this.projectDir, 'blackbox', 'database.sqlite');
+    const wpPath = path.join(this.projectDir, 'wp-content', 'database.sqlite');
+    if (fs.existsSync(wpPath)) return wpPath;
+    const legacyPath = path.join(this.projectDir, 'blackbox', 'database.sqlite');
+    if (fs.existsSync(legacyPath)) return legacyPath;
+    return wpPath;
   }
 
   async listUsers(): Promise<WpUser[]> {

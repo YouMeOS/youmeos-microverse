@@ -16,6 +16,7 @@ export default defineConfig({
       ignored: [
         '**/node_modules/**',
         '**/desktop/**',
+        '**/wp-content/**',
         '**/blackbox/**',
         '**/vendor/**',
         '**/data/**',

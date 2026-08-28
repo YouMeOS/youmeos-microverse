@@ -26,17 +26,18 @@
     "composer/installers": "^2.2",
     "hallofthegods/xophz-compass": "dev-main",
     "hallofthegods/xophz-compass-event-horizon": "dev-main",
-    "hallofthegods/xophz-magic-hat": "dev-main"
+    "hallofthegods/xophz-magic-hat": "dev-main",
+    "wpackagist-plugin/sqlite-database-integration": "^2.1"
   },
   "extra": {
     "installer-paths": {
-      "blackbox/mu-plugins/{$name}/": [
+      "wp-content/mu-plugins/{$name}/": [
         "type:wordpress-muplugin"
       ],
-      "blackbox/plugins/{$name}/": [
+      "wp-content/plugins/{$name}/": [
         "type:wordpress-plugin"
       ],
-      "blackbox/themes/{$name}/": [
+      "wp-content/themes/{$name}/": [
         "type:wordpress-theme"
       ]
     }

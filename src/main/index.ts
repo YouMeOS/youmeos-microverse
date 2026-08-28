@@ -291,18 +291,20 @@ const readyHandler = async () => {
     await shell.openExternal(url);
   };
 
-  const openBlackboxFolderHandler = async (_: unknown, subfolder?: string) => {
+  const openContentFolderHandler = async (_: unknown, subfolder?: string) => {
     const isProduction = app.isPackaged || process.env.NODE_ENV === 'production' || __dirname.includes('app.asar');
     const projectDir = isProduction ? app.getPath('userData') : getDevProjectDir(__dirname);
-    const blackboxDir = path.join(projectDir, 'blackbox');
-    const targetDir = subfolder ? path.join(blackboxDir, subfolder) : blackboxDir;
+    const legacyDir = path.join(projectDir, 'blackbox');
+    const wpContentDir = path.join(projectDir, 'wp-content');
+    const baseDir = fs.existsSync(wpContentDir) ? wpContentDir : (fs.existsSync(legacyDir) ? legacyDir : wpContentDir);
+    const targetDir = subfolder ? path.join(baseDir, subfolder) : baseDir;
 
     const dirsToEnsure = [
-      blackboxDir,
-      path.join(blackboxDir, 'plugins'),
-      path.join(blackboxDir, 'uploads'),
-      path.join(blackboxDir, 'mu-plugins'),
-      path.join(blackboxDir, 'themes')
+      baseDir,
+      path.join(baseDir, 'plugins'),
+      path.join(baseDir, 'uploads'),
+      path.join(baseDir, 'mu-plugins'),
+      path.join(baseDir, 'themes')
     ];
 
     dirsToEnsure.forEach(dir => {
@@ -318,7 +320,8 @@ const readyHandler = async () => {
   ipcMain.handle('engine:open-external', openExternalHandler);
   ipcMain.handle('engine:open-url', openPortalHandler);
   ipcMain.handle('engine:open-browser', openExternalHandler);
-  ipcMain.handle('engine:open-blackbox-folder', openBlackboxFolderHandler);
+  ipcMain.handle('engine:open-blackbox-folder', openContentFolderHandler);
+  ipcMain.handle('engine:open-content-folder', openContentFolderHandler);
   ipcMain.handle('window:minimize-to-tray', () => {
     mainWindow?.hide();
   });
@@ -476,12 +479,14 @@ const readyHandler = async () => {
             }
           },
           {
-            label: 'Open Blackbox Folder',
+            label: 'Open Contents Folder',
             click: () => {
               const pDir = app.isPackaged || process.env.NODE_ENV === 'production' || __dirname.includes('app.asar')
                 ? app.getPath('userData')
                 : getDevProjectDir(__dirname);
-              shell.openPath(path.join(pDir, 'blackbox'));
+              const wpDir = path.join(pDir, 'wp-content');
+              const legacyDir = path.join(pDir, 'blackbox');
+              shell.openPath(fs.existsSync(wpDir) ? wpDir : (fs.existsSync(legacyDir) ? legacyDir : wpDir));
             }
           },
           { type: 'separator' },

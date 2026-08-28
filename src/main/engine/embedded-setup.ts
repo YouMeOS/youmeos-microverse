@@ -187,32 +187,42 @@ export async function setupEmbeddedEnvironment(
   const wpCoreDir = path.join(embeddedDir, 'wp-core');
   const wpContentDir = path.join(wpCoreDir, 'wp-content');
 
-  if (!fs.existsSync(binDir)) fs.mkdirSync(binDir, { recursive: true });
-  if (!fs.existsSync(embeddedDir)) fs.mkdirSync(embeddedDir, { recursive: true });
+  try { if (!fs.existsSync(binDir)) fs.mkdirSync(binDir, { recursive: true }); } catch {}
+  try { if (!fs.existsSync(embeddedDir)) fs.mkdirSync(embeddedDir, { recursive: true }); } catch {}
 
-  const hostWpDir = path.join(projectDir, 'blackbox');
+  const legacyWpDir = path.join(projectDir, 'blackbox');
+  const hostWpDir = path.join(projectDir, 'wp-content');
+  if (!fs.existsSync(hostWpDir) && fs.existsSync(legacyWpDir)) {
+    try { fs.renameSync(legacyWpDir, hostWpDir); } catch {}
+  }
   if (!fs.existsSync(hostWpDir)) {
-    fs.mkdirSync(hostWpDir, { recursive: true });
+    try { fs.mkdirSync(hostWpDir, { recursive: true }); } catch {}
   }
 
   if (resourcesDir && resourcesDir !== projectDir) {
-    const bundledBlackbox = path.join(resourcesDir, 'blackbox');
-    if (fs.existsSync(bundledBlackbox)) {
-      try {
-        fs.cpSync(bundledBlackbox, hostWpDir, {
-          recursive: true,
-          errorOnExist: false,
-          filter: (src) => {
-            const rel = path.relative(bundledBlackbox, src);
-            if (rel === 'database.sqlite' || rel.startsWith('database.sqlite-')) {
-              const destFile = path.join(hostWpDir, rel);
-              return !fs.existsSync(destFile);
+    const candidateBundledDirs = [
+      path.join(resourcesDir, 'wp-content'),
+      path.join(resourcesDir, 'blackbox')
+    ];
+    for (const bundledSource of candidateBundledDirs) {
+      if (fs.existsSync(bundledSource)) {
+        try {
+          fs.cpSync(bundledSource, hostWpDir, {
+            recursive: true,
+            errorOnExist: false,
+            filter: (src) => {
+              const rel = path.relative(bundledSource, src);
+              if (rel === 'database.sqlite' || rel.startsWith('database.sqlite-')) {
+                const destFile = path.join(hostWpDir, rel);
+                return !fs.existsSync(destFile);
+              }
+              return true;
             }
-            return true;
-          }
-        });
-        onProgress('Initialized blackbox workspace from bundled resources.');
-      } catch {}
+          });
+          onProgress('Initialized wp-content workspace from bundled resources.');
+          break;
+        } catch {}
+      }
     }
 
     const bundledDocker = path.join(resourcesDir, 'docker');
@@ -369,7 +379,7 @@ export async function setupEmbeddedEnvironment(
   // 3. Setup SQLite Database Integration plugin
   const hostPluginsDir = path.join(hostWpDir, 'plugins');
   if (!fs.existsSync(hostPluginsDir)) {
-    fs.mkdirSync(hostPluginsDir, { recursive: true });
+    try { fs.mkdirSync(hostPluginsDir, { recursive: true }); } catch {}
   }
 
   const hostSqlitePluginDir = path.join(hostPluginsDir, 'sqlite-database-integration');
@@ -405,13 +415,13 @@ export async function setupEmbeddedEnvironment(
   }
   onProgress('SQLite integration configured.');
 
-  // 4. Setup wp-config.php for SQLite pointing to shared blackbox/ database
+  // 4. Setup wp-config.php for SQLite pointing to shared wp-content/ database
   const sharedDb = path.join(hostWpDir, 'database.sqlite');
   const oldDb = path.join(embeddedDir, 'database.sqlite');
   if (fs.existsSync(oldDb) && !fs.existsSync(sharedDb)) {
     try {
       fs.copyFileSync(oldDb, sharedDb);
-      onProgress('Migrated existing database to shared blackbox/ directory.');
+      onProgress('Migrated existing database to shared wp-content/ directory.');
     } catch {}
   }
 
@@ -486,7 +496,7 @@ require_once ABSPATH . 'wp-settings.php';
 
     const hasHostDir = fs.existsSync(hostDir);
     if (!hasHostDir) {
-      fs.mkdirSync(hostDir, { recursive: true });
+      try { fs.mkdirSync(hostDir, { recursive: true }); } catch {}
     }
 
     const isDirectSymlinkDir = dir === 'mu-plugins' || dir === 'uploads' || dir === 'themes';
@@ -495,7 +505,7 @@ require_once ABSPATH . 'wp-settings.php';
     } else if (dir === 'plugins') {
       const hasTargetDir = fs.existsSync(targetDir);
       if (!hasTargetDir) {
-        fs.mkdirSync(targetDir, { recursive: true });
+        try { fs.mkdirSync(targetDir, { recursive: true }); } catch {}
       }
 
       const existingPluginEntries = fs.readdirSync(targetDir);

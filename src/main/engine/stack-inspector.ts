@@ -48,7 +48,9 @@ export async function inspectStackLayers(
   options: StackInspectionOptions,
 ): Promise<StackLayerStatus[]> {
   const { projectDir, isServerRunning } = options;
-  const hostWpDir = path.join(projectDir, "blackbox");
+  const legacyWpDir = path.join(projectDir, "blackbox");
+  const defaultWpDir = path.join(projectDir, "wp-content");
+  const hostWpDir = fs.existsSync(defaultWpDir) ? defaultWpDir : (fs.existsSync(legacyWpDir) ? legacyWpDir : defaultWpDir);
   const pluginsDir = path.join(hostWpDir, "plugins");
   const muPluginsDir = path.join(hostWpDir, "mu-plugins");
   const embeddedWpCoreDir = path.join(

@@ -7,7 +7,7 @@ on:
     paths:
       - 'Dockerfile'
       - 'docker/**'
-      - 'blackbox/**'
+      - 'wp-content/**'
       - 'src/main/engine/Caddyfile'
       - '.github/workflows/docker-publish.yml'
     tags:

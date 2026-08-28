@@ -1,7 +1,10 @@
 FROM dunglas/frankenphp:1-php8.3-alpine
 
-# Install SQLite and required PHP extensions
-RUN install-php-extensions \
+# Install system packages & PHP extensions
+RUN apk add --no-cache git unzip bash \
+    && install-php-extensions \
+    mysqli \
+    pdo_mysql \
     pdo_sqlite \
     sqlite3 \
     gd \
@@ -11,17 +14,22 @@ RUN install-php-extensions \
     exif \
     bcmath
 
+# Install Composer binary
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
+
 # Download WordPress Core
 ENV WP_VERSION=latest
 RUN curl -o /tmp/wordpress.tar.gz -fSL "https://wordpress.org/${WP_VERSION}.tar.gz" \
     && tar -xzf /tmp/wordpress.tar.gz -C /tmp/ \
     && rm -rf /var/www/html/* \
     && cp -r /tmp/wordpress/* /var/www/html/ \
-    && rm -rf /tmp/wordpress /tmp/wordpress.tar.gz
+    && rm -rf /tmp/wordpress /tmp/wordpress.tar.gz \
+    && chown -R www-data:www-data /var/www/html
 
-# Copy BlackBOX payload (mu-plugins, plugins, themes, sqlite dropin)
-COPY blackbox/ /usr/src/blackbox-template/
-RUN cp -r /usr/src/blackbox-template/* /var/www/html/wp-content/
+# Copy Composer config and core mu-plugins
+COPY composer.json composer.lock* /var/www/html/
+COPY --chown=www-data:www-data wp-content/mu-plugins/ /var/www/html/wp-content/mu-plugins/
+COPY --chown=www-data:www-data wp-content/db.php /var/www/html/wp-content/db.php
 
 # Copy Caddyfile configuration
 COPY src/main/engine/Caddyfile /etc/caddy/Caddyfile

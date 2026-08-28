@@ -3,30 +3,7 @@ set -e
 
 WP_DIR="/var/www/html"
 CONTENT_DIR="${WP_DIR}/wp-content"
-TEMPLATE_DIR="/usr/src/blackbox-template"
-
-# 1. Initialize persistent wp-content volume if empty or missing elements
-mkdir -p "${CONTENT_DIR}"
-
-if [ -d "${TEMPLATE_DIR}" ]; then
-  if [ ! -d "${CONTENT_DIR}/mu-plugins" ] && [ -d "${TEMPLATE_DIR}/mu-plugins" ]; then
-    cp -r "${TEMPLATE_DIR}/mu-plugins" "${CONTENT_DIR}/"
-  fi
-
-  if [ ! -d "${CONTENT_DIR}/plugins" ] && [ -d "${TEMPLATE_DIR}/plugins" ]; then
-    cp -r "${TEMPLATE_DIR}/plugins" "${CONTENT_DIR}/"
-  fi
-
-  if [ ! -d "${CONTENT_DIR}/themes" ] && [ -d "${TEMPLATE_DIR}/themes" ]; then
-    cp -r "${TEMPLATE_DIR}/themes" "${CONTENT_DIR}/"
-  fi
-
-  if [ ! -f "${CONTENT_DIR}/db.php" ] && [ -f "${TEMPLATE_DIR}/db.php" ]; then
-    cp "${TEMPLATE_DIR}/db.php" "${CONTENT_DIR}/db.php"
-  fi
-fi
-
-# 2. Ensure wp-config.php is configured
+# 1. Ensure wp-config.php is configured
 if [ ! -f "${WP_DIR}/wp-config.php" ]; then
   cat << 'EOF' > "${WP_DIR}/wp-config.php"
 <?php
@@ -75,7 +52,18 @@ require_once ABSPATH . 'wp-settings.php';
 EOF
 fi
 
-# 3. Fix permissions
-chown -R www-data:www-data "${WP_DIR}"
+# 2. Ensure Composer dependencies are installed
+if [ ! -d "${CONTENT_DIR}/plugins/sqlite-database-integration" ] && [ -f "${WP_DIR}/composer.json" ]; then
+  echo "==> Initializing WordPress plugins via Composer..."
+  COMPOSER_ALLOW_SUPERUSER=1 composer install --working-dir="${WP_DIR}" --no-dev --prefer-dist --no-interaction --optimize-autoloader || true
+fi
+
+# 3. Ensure SQLite drop-in db.php exists
+if [ ! -f "${CONTENT_DIR}/db.php" ] && [ -f "${CONTENT_DIR}/plugins/sqlite-database-integration/db.copy" ]; then
+  cp "${CONTENT_DIR}/plugins/sqlite-database-integration/db.copy" "${CONTENT_DIR}/db.php"
+fi
+
+# 4. Fix permissions
+chown -R www-data:www-data "${CONTENT_DIR}" 2>/dev/null || true
 
 exec "$@"

@@ -15,6 +15,11 @@ desktop
 Thumbs.db
 *.sqlite
 *.sqlite-*
+wp-content/database
+wp-content/database.sqlite*
+wp-content/uploads/*
+!wp-content/uploads/.gitkeep
+blackbox/database
 blackbox/database.sqlite*
 blackbox/uploads/*
 !blackbox/uploads/.gitkeep

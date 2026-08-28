@@ -74,9 +74,12 @@ export class PluginUpdater {
   }
 
   private getPluginsDir(targetType: 'plugin' | 'mu-plugin'): string {
-    return targetType === 'mu-plugin'
-      ? path.join(this.projectDir, 'blackbox', 'mu-plugins')
-      : path.join(this.projectDir, 'blackbox', 'plugins');
+    const sub = targetType === 'mu-plugin' ? 'mu-plugins' : 'plugins';
+    const wpPath = path.join(this.projectDir, 'wp-content', sub);
+    if (fs.existsSync(wpPath)) return wpPath;
+    const legacyPath = path.join(this.projectDir, 'blackbox', sub);
+    if (fs.existsSync(legacyPath)) return legacyPath;
+    return wpPath;
   }
 
   private getPluginVersion(pluginDir: string, mainPhpFile?: string): string {
@@ -281,7 +284,7 @@ export class PluginUpdater {
       }
     }
 
-    this.log('==> [4/4] Plugin update check complete. All packages verified in blackbox/plugins/');
+    this.log('==> [4/4] Plugin update check complete. All packages verified in wp-content/plugins/');
 
     const hasErrors = updateDetails.some(d => d.status === 'error');
     return {

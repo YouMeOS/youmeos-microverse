@@ -24,26 +24,30 @@ data/
 *.sqlite
 *.sqlite-shm
 *.sqlite-wal
+wp-content/database.sqlite*
 blackbox/database.sqlite*
 
 # WordPress & Composer Managed Packages
+wp-content/plugins/*
+!wp-content/plugins/index.php
+!wp-content/plugins/.gitkeep
+wp-content/themes/*
+!wp-content/themes/index.php
+!wp-content/themes/.gitkeep
+!wp-content/themes/xophz-magic-hat
+wp-content/mu-plugins/_token_*.php
+wp-content/upgrade/
+wp-content/upgrade-temp-backup/
 blackbox/plugins/*
-!blackbox/plugins/index.php
-!blackbox/plugins/.gitkeep
 blackbox/themes/*
-!blackbox/themes/index.php
-!blackbox/themes/.gitkeep
-!blackbox/themes/xophz-magic-hat
 blackbox/mu-plugins/_token_*.php
-blackbox/upgrade/
-blackbox/upgrade-temp-backup/
 
 # Logs & OS artifacts
 *.log
 .DS_Store
 Thumbs.db
 
-blackbox/plugins/index.php
-blackbox/themes/index.php
-blackbox/index.php
-blackbox/.htaccess
+wp-content/plugins/index.php
+wp-content/themes/index.php
+wp-content/index.php
+wp-content/.htaccess

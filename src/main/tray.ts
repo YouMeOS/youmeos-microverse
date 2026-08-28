@@ -68,8 +68,9 @@ export function createTray(
     const openBlackboxHandler = () => {
       const isProduction = app.isPackaged || process.env.NODE_ENV === 'production' || __dirname.includes('app.asar');
       const projectDir = isProduction ? app.getPath('userData') : getDevProjectDir(__dirname);
-      const blackboxDir = path.join(projectDir, 'blackbox');
-      shell.openPath(blackboxDir);
+      const wpDir = path.join(projectDir, 'wp-content');
+      const legacyDir = path.join(projectDir, 'blackbox');
+      shell.openPath(fs.existsSync(wpDir) ? wpDir : (fs.existsSync(legacyDir) ? legacyDir : wpDir));
     };
 
     const quitHandler = () => app.quit();
@@ -79,7 +80,7 @@ export function createTray(
       { type: 'separator' },
       { label: 'Open Portal (Native Window)', click: openPortalHandler },
       { label: 'Open in Browser (Default Browser)', click: openBrowserHandler },
-      { label: 'Open Blackbox Folder (Plugins & Uploads)', click: openBlackboxHandler },
+      { label: 'Open Contents Folder (Plugins & Uploads)', click: openBlackboxHandler },
       { type: 'separator' },
       { label: 'Start Engine', click: startHandler },
       { label: 'Stop Engine', click: stopHandler },
