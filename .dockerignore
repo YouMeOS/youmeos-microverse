@@ -1,7 +1,12 @@
 .git
+**/.git
+**/.git*
+**/.gitmodules
 .github
 .agents
 .agent
+wp-content/mu-plugins/blackbox-bedrock
+wp-content/themes/xophz-magic-hat
 node_modules
 dist
 data
