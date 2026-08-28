@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a4efd29d07b4a1100eeea4f209190cb6",
+    "content-hash": "5b958e359ae97dd4cb808404ff4e42f2",
     "packages": [
         {
             "name": "composer/installers",
@@ -157,14 +157,8 @@
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:HalloftheGods/xophz-compass.git",
-                "reference": "a194b4f2dd168b26063d294658c3672600c2f825"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/HalloftheGods/xophz-compass/zipball/a194b4f2dd168b26063d294658c3672600c2f825",
-                "reference": "a194b4f2dd168b26063d294658c3672600c2f825",
-                "shasum": ""
+                "url": "https://github.com/HalloftheGods/xophz-compass.git",
+                "reference": "1b3baaac238d688a99a06099eb4c59f1ade6919d"
             },
             "require": {
                 "composer/installers": "^1.0 || ^2.0"
@@ -186,21 +180,15 @@
                 }
             ],
             "description": "It's dangerous to go alone! Explore your site with COMPASS.",
-            "time": "2026-08-22T06:19:20+00:00"
+            "time": "2026-08-28T09:49:53+00:00"
         },
         {
             "name": "hallofthegods/xophz-compass-event-horizon",
             "version": "dev-main",
             "source": {
                 "type": "git",
-                "url": "git@github.com:HalloftheGods/xophz-compass-event-horizon.git",
-                "reference": "1ea4e2a5018950625acddf6b798eb072b3e823a8"
-            },
-            "dist": {
-                "type": "zip",
-                "url": "https://api.github.com/repos/HalloftheGods/xophz-compass-event-horizon/zipball/1ea4e2a5018950625acddf6b798eb072b3e823a8",
-                "reference": "1ea4e2a5018950625acddf6b798eb072b3e823a8",
-                "shasum": ""
+                "url": "https://github.com/HalloftheGods/xophz-compass-event-horizon.git",
+                "reference": "d7b0a8c5df4e1e1fcea2f66e0d3449d9a0b8048c"
             },
             "require": {
                 "composer/installers": "^1.0 || ^2.0"
@@ -222,7 +210,50 @@
                 }
             ],
             "description": "Bring transparency to your user-to-media connectivity by observing a real life 3D interactive heat map. From micro to macro and unto the avoided.",
-            "time": "2026-08-22T06:18:48+00:00"
+            "time": "2026-08-28T07:59:32+00:00"
+        },
+        {
+            "name": "hallofthegods/xophz-magic-hat",
+            "version": "dev-main",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/HalloftheGods/xophz-magic-hat.git",
+                "reference": "623cad5ebee4f7fa7cceb8c9228d64ddd9703e9a"
+            },
+            "require": {
+                "composer/installers": "^1.0 || ^2.0"
+            },
+            "default-branch": true,
+            "type": "wordpress-theme",
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "authors": [
+                {
+                    "name": "Hall of the Gods, Inc.",
+                    "homepage": "https://www.hallofthegods.com"
+                }
+            ],
+            "description": "The ultra-minimal, semantic parent theme designed exclusively for the Xophz-COMPASS Magic Wand ecosystem.",
+            "time": "2026-05-11T08:22:20+00:00"
+        },
+        {
+            "name": "wpackagist-plugin/sqlite-database-integration",
+            "version": "2.2.23",
+            "source": {
+                "type": "svn",
+                "url": "https://plugins.svn.wordpress.org/sqlite-database-integration/",
+                "reference": "tags/2.2.23"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://downloads.wordpress.org/plugin/sqlite-database-integration.2.2.23.zip"
+            },
+            "require": {
+                "composer/installers": "^1.0 || ^2.0"
+            },
+            "type": "wordpress-plugin",
+            "homepage": "https://wordpress.org/plugins/sqlite-database-integration/"
         }
     ],
     "packages-dev": [],
@@ -230,7 +261,8 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "hallofthegods/xophz-compass": 20,
-        "hallofthegods/xophz-compass-event-horizon": 20
+        "hallofthegods/xophz-compass-event-horizon": 20,
+        "hallofthegods/xophz-magic-hat": 20
     },
     "prefer-stable": false,
     "prefer-lowest": false,

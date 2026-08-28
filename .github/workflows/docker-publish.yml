@@ -12,6 +12,8 @@ on:
       - main
     paths:
       - 'Dockerfile'
+      - 'composer.json'
+      - 'composer.lock'
       - 'docker/**'
       - 'wp-content/**'
       - 'src/main/engine/Caddyfile'
@@ -19,6 +21,10 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+
+concurrency:
+  group: docker-publish-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -35,8 +41,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+      - name: Set lowercase repository names
+        run: |
+          echo "GHCR_IMAGE=ghcr.io/${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+          echo "GHCR_BASE_IMAGE=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/youmeos-base:latest" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -60,7 +68,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            ghcr.io/${{ github.repository }}
+            ${{ env.GHCR_IMAGE }}
             ${{ (env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != '') && 'xengenie/youmeos' || '' }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
@@ -73,12 +81,14 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           pull: true
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            BASE_IMAGE=${{ env.GHCR_BASE_IMAGE }}
           secrets: |
-            "GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}"
+            GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

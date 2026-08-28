@@ -9,16 +9,19 @@
       "url": "https://wpackagist.org"
     },
     {
-      "type": "vcs",
-      "url": "https://github.com/HalloftheGods/xophz-compass.git"
+      "type": "git",
+      "url": "https://github.com/HalloftheGods/xophz-compass.git",
+      "no-api": true
     },
     {
-      "type": "vcs",
-      "url": "https://github.com/HalloftheGods/xophz-compass-event-horizon.git"
+      "type": "git",
+      "url": "https://github.com/HalloftheGods/xophz-compass-event-horizon.git",
+      "no-api": true
     },
     {
-      "type": "vcs",
-      "url": "https://github.com/HalloftheGods/xophz-magic-hat.git"
+      "type": "git",
+      "url": "https://github.com/HalloftheGods/xophz-magic-hat.git",
+      "no-api": true
     }
   ],
   "require": {
