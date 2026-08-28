@@ -57,6 +57,15 @@ if [ ! -f "${CONTENT_DIR}/db.php" ] && [ -f "${CONTENT_DIR}/plugins/sqlite-datab
   cp "${CONTENT_DIR}/plugins/sqlite-database-integration/db.copy" "${CONTENT_DIR}/db.php"
 fi
 
+# 3. Symlink custom plugins if mounted
+if [ -d "/var/www/custom-plugins" ]; then
+  for plugin in /var/www/custom-plugins/*; do
+    if [ -d "$plugin" ] && [ "$(basename "$plugin")" != ".gitkeep" ]; then
+      ln -sfn "$plugin" "${CONTENT_DIR}/plugins/$(basename "$plugin")"
+    fi
+  done
+fi
+
 # 4. Fix permissions
 chown -R www-data:www-data "${CONTENT_DIR}" 2>/dev/null || true
 
