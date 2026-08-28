@@ -66,7 +66,8 @@ if [ -d "/var/www/custom-plugins" ]; then
   done
 fi
 
-# 4. Fix permissions
-chown -R www-data:www-data "${CONTENT_DIR}" 2>/dev/null || true
+# 4. Fix permissions (Optimized: Avoid recursive chown on every startup)
+mkdir -p "${CONTENT_DIR}/uploads"
+chown www-data:www-data "${CONTENT_DIR}" "${CONTENT_DIR}/uploads" 2>/dev/null || true
 
 exec "$@"
