@@ -22,14 +22,10 @@ RUN --mount=type=secret,id=GITHUB_TOKEN,required=false \
         COMPOSER_ALLOW_SUPERUSER=1 composer update --no-dev --prefer-dist --no-interaction --optimize-autoloader; \
     fi
 
-# Copy core mu-plugins and drop-in db.php
+# Copy core mu-plugins
 COPY --chown=www-data:www-data wp-content/mu-plugins/ /var/www/html/wp-content/mu-plugins/
-COPY --chown=www-data:www-data wp-content/db.php /var/www/html/wp-content/db.php
 
-RUN if [ -f /var/www/html/wp-content/plugins/sqlite-database-integration/db.copy ] && [ ! -f /var/www/html/wp-content/db.php ]; then \
-        cp /var/www/html/wp-content/plugins/sqlite-database-integration/db.copy /var/www/html/wp-content/db.php; \
-    fi && \
-    chown -R www-data:www-data /var/www/html/wp-content
+RUN chown -R www-data:www-data /var/www/html/wp-content
 
 # Copy Caddyfile configuration
 COPY src/main/engine/Caddyfile /etc/caddy/Caddyfile

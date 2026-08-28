@@ -1,9 +1,9 @@
 [submodule "docs"]
 	path = docs
-	url = git@github.com:YouMeOS/youmeos-microverse.wiki.git
+	url = https://github.com/YouMeOS/youmeos-microverse.wiki.git
 [submodule "wp-content/mu-plugins/blackbox-bedrock"]
 	path = wp-content/mu-plugins/blackbox-bedrock
-	url = git@github.com:HalloftheGods/blackbox-bedrock.git
+	url = https://github.com/HalloftheGods/blackbox-bedrock.git
 [submodule "wp-content/themes/xophz-magic-hat"]
 	path = wp-content/themes/xophz-magic-hat
 	url = https://github.com/HalloftheGods/xophz-magic-hat.git

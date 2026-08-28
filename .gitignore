@@ -25,6 +25,7 @@ data/
 *.sqlite-shm
 *.sqlite-wal
 wp-content/database.sqlite*
+wp-content/db.php
 blackbox/database.sqlite*
 
 # WordPress & Composer Managed Packages

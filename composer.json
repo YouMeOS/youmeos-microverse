@@ -29,8 +29,7 @@
     "composer/installers": "^2.2",
     "hallofthegods/xophz-compass": "dev-main",
     "hallofthegods/xophz-compass-event-horizon": "dev-main",
-    "hallofthegods/xophz-magic-hat": "dev-main",
-    "wpackagist-plugin/sqlite-database-integration": "^2.1"
+    "hallofthegods/xophz-magic-hat": "dev-main"
   },
   "extra": {
     "installer-paths": {

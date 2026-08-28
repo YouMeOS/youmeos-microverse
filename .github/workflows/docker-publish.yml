@@ -14,6 +14,7 @@ on:
       - 'Dockerfile'
       - 'composer.json'
       - 'composer.lock'
+      - '.gitmodules'
       - 'docker/**'
       - 'wp-content/**'
       - 'src/main/engine/Caddyfile'
@@ -40,6 +41,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
 
       - name: Set lowercase repository names
         run: |
@@ -80,7 +83,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile
+          file: ./docker/os/Dockerfile
           platforms: linux/amd64
           pull: true
           push: true

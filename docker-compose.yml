@@ -1,6 +1,8 @@
 services:
   youmeos:
-    build: .
+    build:
+      context: .
+      dockerfile: docker/os/Dockerfile
     image: xengenie/youmeos:latest
     container_name: youmeos-microverse
     restart: unless-stopped
