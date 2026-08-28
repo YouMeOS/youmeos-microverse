@@ -54,7 +54,7 @@ declare -A PLUGIN_NAMES
 scan_plugins() {
     local is_initial="$1"
     
-    for dir in "${REPO_ROOT}/blackbox/plugins"/* "${REPO_ROOT}/blackbox/mu-plugins"/*; do
+    for dir in "${REPO_ROOT}/blackbox/plugins"/* "${REPO_ROOT}/blackbox/mu-plugins"/* "${REPO_ROOT}/blackbox/themes"/*; do
         if [ -d "$dir" ]; then
             local slug
             slug=$(basename "$dir")

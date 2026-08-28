@@ -33,6 +33,7 @@ blackbox/plugins/*
 blackbox/themes/*
 !blackbox/themes/index.php
 !blackbox/themes/.gitkeep
+!blackbox/themes/xophz-magic-hat
 blackbox/mu-plugins/_token_*.php
 blackbox/upgrade/
 blackbox/upgrade-temp-backup/

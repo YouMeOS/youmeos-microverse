@@ -73,6 +73,16 @@
 
       <!-- Header Quick Actions -->
       <div class="header-actions">
+        <!-- Onboarding & Profile Setup Button -->
+        <button
+          type="button"
+          class="btn-icon btn-onboarding-toggle"
+          title="Sovereign Onboarding &amp; Profile Setup"
+          @click="$emit('openOnboarding')"
+        >
+          <BaseIcon name="user-check" :size="14" />
+        </button>
+
         <!-- Terminal HUD Button -->
         <button
           type="button"
@@ -120,6 +130,7 @@ defineEmits<{
   (e: 'setEngineType', val: EngineType): void;
   (e: 'toggleConsole'): void;
   (e: 'openLicenseModal'): void;
+  (e: 'openOnboarding'): void;
   (e: 'openSplash'): void;
   (e: 'openUrl', url: string): void;
   (e: 'copyGateway'): void;

@@ -36,6 +36,9 @@ function microverse_boot_required_plugins() {
 // 1. Immediately boot plugins during early MU-plugin loading (runs on all requests, install wizard, CLI, etc.)
 microverse_boot_required_plugins();
 
+// 2. Bypass theme validation in headless/app mode to prevent wp_die if theme directory is absent
+add_filter( 'validate_current_theme', '__return_false' );
+
 /**
  * Synchronizes active_plugins and default options in the database
  * once the database and blog are installed.
@@ -70,6 +73,24 @@ function microverse_ensure_active_plugins() {
 	// Ensure Compass redirect dashboard is enabled by default
 	if ( false === get_option( 'xophz_compass_redirect_dashboard' ) ) {
 		update_option( 'xophz_compass_redirect_dashboard', true );
+	}
+
+	// Ensure pretty permalinks are enabled so /wp-json/ REST routes function out of the box
+	$current_permalinks = get_option( 'permalink_structure' );
+	if ( empty( $current_permalinks ) ) {
+		update_option( 'permalink_structure', '/%postname%/' );
+		flush_rewrite_rules();
+	}
+
+	// Ensure xophz-magic-hat is set as the active theme
+	$theme_dir = defined( 'WP_CONTENT_DIR' ) ? WP_CONTENT_DIR . '/themes' : ABSPATH . 'wp-content/themes';
+	if ( file_exists( $theme_dir . '/xophz-magic-hat' ) ) {
+		$current_theme = get_option( 'stylesheet' );
+		if ( 'xophz-magic-hat' !== $current_theme ) {
+			update_option( 'template', 'xophz-magic-hat' );
+			update_option( 'stylesheet', 'xophz-magic-hat' );
+			update_option( 'current_theme', 'Xophz Magic Hat' );
+		}
 	}
 }
 

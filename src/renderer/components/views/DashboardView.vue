@@ -13,6 +13,7 @@
       @set-engine-type="$emit('setEngineType', $event)"
       @toggle-console="$emit('toggleConsole')"
       @open-license-modal="$emit('openLicenseModal')"
+      @open-onboarding="$emit('openOnboarding')"
       @open-splash="$emit('openSplash')"
       @open-url="$emit('openUrl', $event)"
       @copy-gateway="$emit('copyGateway')"
@@ -25,6 +26,13 @@
         label="Overview"
         icon="dashboard"
         :is-active="activeTab === 'tab-overview'"
+        @select="handleTabSelect"
+      />
+      <TabItem
+        tab-id="tab-skiptrace"
+        label="Skip Tracing"
+        icon="search"
+        :is-active="activeTab === 'tab-skiptrace'"
         @select="handleTabSelect"
       />
       <TabItem
@@ -239,7 +247,15 @@
         </div>
       </section>
 
-      <!-- 2. TAB: DIAGNOSTICS -->
+      <!-- 2. TAB: SKIP TRACING INTELLIGENCE -->
+      <section
+        v-show="activeTab === 'tab-skiptrace'"
+        class="tab-content"
+      >
+        <SkiptraceManager />
+      </section>
+
+      <!-- 3. TAB: DIAGNOSTICS -->
       <section
         v-show="activeTab === 'tab-diagnostics'"
         class="tab-content"
@@ -604,6 +620,7 @@ import TabItem from '../atoms/TabItem.vue';
 import EngineSelector from '../molecules/EngineSelector.vue';
 import AppHeader from '../organisms/AppHeader.vue';
 import AppFooter from '../organisms/AppFooter.vue';
+import SkiptraceManager from '../organisms/SkiptraceManager.vue';
 import type { DesktopApi, EngineStatus, EngineType, WpUser, StackLayerStatus } from '../../types';
 import type { TierInfo } from '../../license-cloud-manager';
 
@@ -635,6 +652,7 @@ const emit = defineEmits<{
   (e: 'setStayOnSplash', val: boolean): void;
   (e: 'toggleConsole'): void;
   (e: 'openLicenseModal'): void;
+  (e: 'openOnboarding'): void;
   (e: 'openSplash'): void;
   (e: 'openUrl', url: string): void;
   (e: 'openBrowser'): void;

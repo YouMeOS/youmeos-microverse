@@ -428,12 +428,25 @@ define( 'DB_COLLATE', '' );
 
 $table_prefix = 'wp_';
 
+define( 'AUTH_KEY',         'youmeos-embedded-auth-key-0192837465' );
+define( 'SECURE_AUTH_KEY',  'youmeos-embedded-sec-auth-key-1029384756' );
+define( 'LOGGED_IN_KEY',    'youmeos-embedded-logged-in-key-5647382910' );
+define( 'NONCE_KEY',        'youmeos-embedded-nonce-key-9081726354' );
+define( 'AUTH_SALT',        'youmeos-embedded-auth-salt-8473920182' );
+define( 'SECURE_AUTH_SALT', 'youmeos-embedded-sec-auth-salt-7382910492' );
+define( 'LOGGED_IN_SALT',   'youmeos-embedded-logged-in-salt-6271829401' );
+define( 'NONCE_SALT',       'youmeos-embedded-nonce-salt-5192830491' );
+
 define( 'WP_DEBUG', true );
 define( 'WP_DEBUG_LOG', true );
 define( 'WP_DEBUG_DISPLAY', false );
 
 define('DB_FILE', 'database.sqlite');
 define('DB_DIR', '${hostWpDir.replace(/\\/g, '/')}');
+
+if ( ! defined( 'COOKIE_DOMAIN' ) ) {
+	define( 'COOKIE_DOMAIN', '' );
+}
 
 $is_https = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') || 
             (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ||

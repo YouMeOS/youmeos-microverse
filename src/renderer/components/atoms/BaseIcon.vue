@@ -164,6 +164,83 @@
       <path d="M12 3v3m0 12v3M3 12h3m12 0h3M6.34 6.34l2.12 2.12m7.08 7.08l2.12 2.12M6.34 17.66l2.12-2.12m7.08-7.08l2.12-2.12" />
     </g>
 
+    <!-- Graduation Cap / Education -->
+    <g v-else-if="name === 'graduation-cap' || name === 'academic'">
+      <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+      <path d="M6 12v5c3 3 9 3 12 0v-5" />
+    </g>
+
+    <!-- Badge Check / Verification -->
+    <g v-else-if="name === 'badge-check' || name === 'verified'">
+      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+      <polyline points="9 12 11 14 15 10" />
+    </g>
+
+    <!-- User / Profile -->
+    <g v-else-if="name === 'user' || name === 'user-check'">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
+      <polyline v-if="name === 'user-check'" points="16 11 18 13 22 9" />
+    </g>
+
+    <!-- Phone -->
+    <g v-else-if="name === 'phone'">
+      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+    </g>
+
+    <!-- Mail / Email -->
+    <g v-else-if="name === 'mail'">
+      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+      <polyline points="22,6 12,13 2,6" />
+    </g>
+
+    <!-- Map Pin / Address -->
+    <g v-else-if="name === 'map-pin' || name === 'location'">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+      <circle cx="12" cy="10" r="3" />
+    </g>
+
+    <!-- Building / Organization -->
+    <g v-else-if="name === 'building'">
+      <rect x="4" y="2" width="16" height="20" rx="2" ry="2" />
+      <path d="M9 22v-4h6v4M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01" />
+    </g>
+
+    <!-- File Text / Document / Public Record -->
+    <g v-else-if="name === 'file-text' || name === 'document'">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="16" y1="13" x2="8" y2="13" />
+      <line x1="16" y1="17" x2="8" y2="17" />
+      <polyline points="10 9 9 9 8 9" />
+    </g>
+
+    <!-- Shield Check / Compliance -->
+    <g v-else-if="name === 'shield-check'">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      <polyline points="9 12 11 14 15 10" />
+    </g>
+
+    <!-- Eye / Masking -->
+    <g v-else-if="name === 'eye'">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+      <circle cx="12" cy="12" r="3" />
+    </g>
+    <g v-else-if="name === 'eye-slash'">
+      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+      <line x1="1" y1="1" x2="23" y2="23" />
+    </g>
+
+    <!-- Download -->
+    <g v-else-if="name === 'download'">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7 10 12 15 17 10" />
+      <line x1="12" y1="15" x2="12" y2="3" />
+    </g>
+
+    <!-- Filter -->
+    <polygon v-else-if="name === 'filter'" points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+
     <!-- Default Cube / Layers -->
     <g v-else>
       <polygon points="12 2 2 7 12 12 22 7 12 2" />
