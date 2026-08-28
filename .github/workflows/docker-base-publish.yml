@@ -1,23 +1,12 @@
-name: Publish Docker Image
+name: Publish Docker Base Image
 
 on:
-  workflow_run:
-    workflows: ["Publish Docker Base Image"]
-    types:
-      - completed
-    branches:
-      - main
   push:
     branches:
       - main
     paths:
-      - 'Dockerfile'
-      - 'docker/**'
-      - 'wp-content/**'
-      - 'src/main/engine/Caddyfile'
-      - '.github/workflows/docker-publish.yml'
-    tags:
-      - 'v*'
+      - 'Dockerfile.base'
+      - '.github/workflows/docker-base-publish.yml'
   workflow_dispatch:
 
 permissions:
@@ -25,8 +14,7 @@ permissions:
   packages: write
 
 jobs:
-  build-and-push:
-    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+  build-and-push-base:
     runs-on: ubuntu-latest
     env:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
@@ -60,21 +48,19 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: |
-            ghcr.io/${{ github.repository }}
-            ${{ (env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != '') && 'xengenie/youmeos' || '' }}
+            ghcr.io/${{ github.repository_owner }}/youmeos-base
+            ${{ (env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != '') && 'xengenie/youmeos-base' || '' }}
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=php8.3
             type=sha,format=short
 
-      - name: Build and push Docker image
+      - name: Build and push Base Image
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile
+          file: ./Dockerfile.base
           platforms: linux/amd64,linux/arm64
-          pull: true
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

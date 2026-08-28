@@ -1,30 +1,8 @@
-FROM dunglas/frankenphp:1-php8.3-alpine
+ARG BASE_IMAGE=xengenie/youmeos-base:latest
+FROM ${BASE_IMAGE}
 
-# Install system packages & PHP extensions
-RUN apk add --no-cache git unzip bash \
-    && install-php-extensions \
-    mysqli \
-    pdo_mysql \
-    pdo_sqlite \
-    sqlite3 \
-    gd \
-    intl \
-    zip \
-    opcache \
-    exif \
-    bcmath
-
-# Install Composer binary
-COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
-
-# Download WordPress Core
-ENV WP_VERSION=latest
-RUN curl -o /tmp/wordpress.tar.gz -fSL "https://wordpress.org/${WP_VERSION}.tar.gz" \
-    && tar -xzf /tmp/wordpress.tar.gz -C /tmp/ \
-    && rm -rf /var/www/html/* \
-    && cp -r /tmp/wordpress/* /var/www/html/ \
-    && rm -rf /tmp/wordpress /tmp/wordpress.tar.gz \
-    && chown -R www-data:www-data /var/www/html
+# WordPress Core from pre-compiled official image layer
+COPY --from=wordpress:php8.3 --chown=www-data:www-data /usr/src/wordpress /var/www/html/
 
 # Copy Composer config and core mu-plugins
 COPY composer.json composer.lock* /var/www/html/
@@ -50,3 +28,4 @@ EXPOSE 80 443
 
 ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile"]
+
