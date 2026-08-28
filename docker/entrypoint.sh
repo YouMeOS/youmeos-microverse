@@ -52,13 +52,7 @@ require_once ABSPATH . 'wp-settings.php';
 EOF
 fi
 
-# 2. Ensure Composer dependencies are installed
-if [ ! -d "${CONTENT_DIR}/plugins/sqlite-database-integration" ] && [ -f "${WP_DIR}/composer.json" ]; then
-  echo "==> Initializing WordPress plugins via Composer..."
-  COMPOSER_ALLOW_SUPERUSER=1 composer install --working-dir="${WP_DIR}" --no-dev --prefer-dist --no-interaction --optimize-autoloader || true
-fi
-
-# 3. Ensure SQLite drop-in db.php exists
+# 2. Ensure SQLite drop-in db.php exists
 if [ ! -f "${CONTENT_DIR}/db.php" ] && [ -f "${CONTENT_DIR}/plugins/sqlite-database-integration/db.copy" ]; then
   cp "${CONTENT_DIR}/plugins/sqlite-database-integration/db.copy" "${CONTENT_DIR}/db.php"
 fi

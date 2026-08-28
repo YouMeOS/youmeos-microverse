@@ -7,7 +7,6 @@ ENV MAKEFLAGS="-j$(nproc)" \
 # Install system packages & PHP extensions with BuildKit cache mounts
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
-    --mount=type=cache,target=/tmp/pear \
     apt-get update && apt-get install -y --no-install-recommends \
     git \
     unzip \
