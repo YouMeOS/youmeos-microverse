@@ -4,6 +4,7 @@ services:
       context: .
       dockerfile: docker/os/Dockerfile
     image: xengenie/youmeos:latest
+    platform: linux/amd64
     container_name: youmeos-microverse
     restart: unless-stopped
     ports:

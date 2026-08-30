@@ -65,7 +65,7 @@ function microverse_ensure_active_plugins() {
 
 	// Ensure YouMeOS portal is set to load on Homepage by default
 	$current_load_mode = get_option( 'youmeos_load_mode' );
-	if ( false === $current_load_mode || 'routes_only' === $current_load_mode ) {
+	if ( false === $current_load_mode ) {
 		update_option( 'youmeos_load_mode', 'homepage' );
 		delete_option( 'rewrite_rules' );
 	}
