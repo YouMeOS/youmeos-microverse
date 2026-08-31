@@ -44,93 +44,141 @@ function parseWordPressVersion(wpCoreDir: string): string | undefined {
   return undefined;
 }
 
+interface CachedInspection {
+  timestamp: number;
+  projectDir: string;
+  isEhInstalled: boolean;
+  ehVersion?: string;
+  isCompassInstalled: boolean;
+  compassVersion?: string;
+  isWpInstalled: boolean;
+  wpVersion: string;
+  isWpUpToDate: boolean;
+  isBedrockInstalled: boolean;
+  bedrockVersion?: string;
+  isDbInstalled: boolean;
+  dbSizeStr: string;
+}
+
+let inspectionCache: CachedInspection | null = null;
+const STACK_INSPECTION_TTL_MS = 10000;
+
+export function invalidateStackLayersCache(): void {
+  inspectionCache = null;
+}
+
 export async function inspectStackLayers(
   options: StackInspectionOptions,
 ): Promise<StackLayerStatus[]> {
   const { projectDir, isServerRunning } = options;
-  const legacyWpDir = path.join(projectDir, "blackbox");
-  const defaultWpDir = path.join(projectDir, "wp-content");
-  const hostWpDir = fs.existsSync(defaultWpDir) ? defaultWpDir : (fs.existsSync(legacyWpDir) ? legacyWpDir : defaultWpDir);
-  const pluginsDir = path.join(hostWpDir, "plugins");
-  const muPluginsDir = path.join(hostWpDir, "mu-plugins");
-  const embeddedWpCoreDir = path.join(
-    projectDir,
-    "data",
-    "embedded",
-    "wp-core",
-  );
+  const now = Date.now();
 
-  // 1. Inspect Event Horizon Portal (xophz-compass-event-horizon)
-  const eventHorizonDir = path.join(pluginsDir, "xophz-compass-event-horizon");
-  const ehMainFile = path.join(
-    eventHorizonDir,
-    "xophz-compass-event-horizon.php",
-  );
-  const ehPkgFile = path.join(eventHorizonDir, "package.json");
-  const isEhInstalled =
-    fs.existsSync(eventHorizonDir) &&
-    (fs.existsSync(ehMainFile) || fs.existsSync(ehPkgFile));
-  const ehVersion =
-    parsePackageJsonVersion(ehPkgFile) ||
-    parsePluginVersion(ehMainFile) ||
-    (isEhInstalled ? "1.0.0" : undefined);
-  const isEhActive = isEhInstalled && isServerRunning;
+  let data: CachedInspection;
+  if (
+    inspectionCache &&
+    inspectionCache.projectDir === projectDir &&
+    now - inspectionCache.timestamp < STACK_INSPECTION_TTL_MS
+  ) {
+    data = inspectionCache;
+  } else {
+    const legacyWpDir = path.join(projectDir, "blackbox");
+    const defaultWpDir = path.join(projectDir, "wp-content");
+    const hostWpDir = fs.existsSync(defaultWpDir) ? defaultWpDir : (fs.existsSync(legacyWpDir) ? legacyWpDir : defaultWpDir);
+    const pluginsDir = path.join(hostWpDir, "plugins");
+    const muPluginsDir = path.join(hostWpDir, "mu-plugins");
+    const embeddedWpCoreDir = path.join(
+      projectDir,
+      "data",
+      "embedded",
+      "wp-core",
+    );
 
-  // 2. Inspect My COMPASS (xophz-compass)
-  const compassDir = path.join(pluginsDir, "xophz-compass");
-  const compassMainFile = path.join(compassDir, "xophz-compass.php");
-  const compassPkgFile = path.join(compassDir, "package.json");
-  const isCompassInstalled =
-    fs.existsSync(compassDir) &&
-    (fs.existsSync(compassMainFile) || fs.existsSync(compassPkgFile));
-  const compassVersion =
-    parsePluginVersion(compassMainFile) ||
-    parsePackageJsonVersion(compassPkgFile) ||
-    (isCompassInstalled ? "1.0.0" : undefined);
-  const isCompassActive = isCompassInstalled && isServerRunning;
+    // 1. Inspect Event Horizon Portal (xophz-compass-event-horizon)
+    const eventHorizonDir = path.join(pluginsDir, "xophz-compass-event-horizon");
+    const ehMainFile = path.join(
+      eventHorizonDir,
+      "xophz-compass-event-horizon.php",
+    );
+    const ehPkgFile = path.join(eventHorizonDir, "package.json");
+    const isEhInstalled =
+      fs.existsSync(eventHorizonDir) &&
+      (fs.existsSync(ehMainFile) || fs.existsSync(ehPkgFile));
+    const ehVersion =
+      parsePackageJsonVersion(ehPkgFile) ||
+      parsePluginVersion(ehMainFile) ||
+      (isEhInstalled ? "1.0.0" : undefined);
 
-  // 3. Inspect Headless WordPress Core
-  const wpVersion = parseWordPressVersion(embeddedWpCoreDir) || "6.6.2";
-  const isWpInstalled =
-    fs.existsSync(path.join(embeddedWpCoreDir, "wp-includes", "version.php")) ||
-    fs.existsSync(path.join(hostWpDir, "index.php"));
-  const isWpActive = isWpInstalled && isServerRunning;
-  const isWpUpToDate = isWpInstalled;
+    // 2. Inspect My COMPASS (xophz-compass)
+    const compassDir = path.join(pluginsDir, "xophz-compass");
+    const compassMainFile = path.join(compassDir, "xophz-compass.php");
+    const compassPkgFile = path.join(compassDir, "package.json");
+    const isCompassInstalled =
+      fs.existsSync(compassDir) &&
+      (fs.existsSync(compassMainFile) || fs.existsSync(compassPkgFile));
+    const compassVersion =
+      parsePluginVersion(compassMainFile) ||
+      parsePackageJsonVersion(compassPkgFile) ||
+      (isCompassInstalled ? "1.0.0" : undefined);
 
-  // 4. Inspect Blackbox Bedrock (MU Plugin)
-  const bedrockDir = path.join(muPluginsDir, "blackbox-bedrock");
-  const bedrockMainFile = path.join(bedrockDir, "BlackBOX.php");
-  const alphaLoaderFile = path.join(
-    muPluginsDir,
-    "00.00.00.00.alpha-loader.php",
-  );
-  const isBedrockInstalled =
-    fs.existsSync(bedrockMainFile) ||
-    fs.existsSync(alphaLoaderFile) ||
-    fs.existsSync(bedrockDir);
-  const bedrockVersion =
-    parsePluginVersion(bedrockMainFile) ||
-    parsePluginVersion(alphaLoaderFile) ||
-    (isBedrockInstalled ? "26.8.20" : undefined);
-  const isBedrockActive = isBedrockInstalled && isServerRunning;
+    // 3. Inspect Headless WordPress Core
+    const wpVersion = parseWordPressVersion(embeddedWpCoreDir) || "6.6.2";
+    const isWpInstalled =
+      fs.existsSync(path.join(embeddedWpCoreDir, "wp-includes", "version.php")) ||
+      fs.existsSync(path.join(hostWpDir, "index.php"));
+    const isWpUpToDate = isWpInstalled;
 
-  // 5. Inspect SQLite Database Store
-  const sqliteFile = path.join(hostWpDir, "database.sqlite");
-  const isDbInstalled = fs.existsSync(sqliteFile);
-  let dbSizeStr = "";
-  if (isDbInstalled) {
-    try {
-      const stat = fs.statSync(sqliteFile);
-      const kb = Math.round(stat.size / 1024);
-      dbSizeStr = kb > 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${kb} KB`;
-    } catch {}
+    // 4. Inspect Blackbox Bedrock (MU Plugin)
+    const bedrockDir = path.join(muPluginsDir, "blackbox-bedrock");
+    const bedrockMainFile = path.join(bedrockDir, "BlackBOX.php");
+    const alphaLoaderFile = path.join(
+      muPluginsDir,
+      "00.00.00.00.alpha-loader.php",
+    );
+    const isBedrockInstalled =
+      fs.existsSync(bedrockMainFile) ||
+      fs.existsSync(alphaLoaderFile) ||
+      fs.existsSync(bedrockDir);
+    const bedrockVersion =
+      parsePluginVersion(bedrockMainFile) ||
+      parsePluginVersion(alphaLoaderFile) ||
+      (isBedrockInstalled ? "26.8.20" : undefined);
+
+    // 5. Inspect SQLite Database Store
+    const sqliteFile = path.join(hostWpDir, "database.sqlite");
+    const isDbInstalled = fs.existsSync(sqliteFile);
+    let dbSizeStr = "";
+    if (isDbInstalled) {
+      try {
+        const stat = fs.statSync(sqliteFile);
+        const kb = Math.round(stat.size / 1024);
+        dbSizeStr = kb > 1024 ? `${(kb / 1024).toFixed(1)} MB` : `${kb} KB`;
+      } catch {}
+    }
+
+    data = {
+      timestamp: now,
+      projectDir,
+      isEhInstalled,
+      ehVersion,
+      isCompassInstalled,
+      compassVersion,
+      isWpInstalled,
+      wpVersion,
+      isWpUpToDate,
+      isBedrockInstalled,
+      bedrockVersion,
+      isDbInstalled,
+      dbSizeStr,
+    };
+    inspectionCache = data;
   }
-  const isDbActive = isDbInstalled && isServerRunning;
 
-  // 6. Inspect Web & PHP Server
+  const isEhActive = data.isEhInstalled && isServerRunning;
+  const isCompassActive = data.isCompassInstalled && isServerRunning;
+  const isWpActive = data.isWpInstalled && isServerRunning;
+  const isBedrockActive = data.isBedrockInstalled && isServerRunning;
+  const isDbActive = data.isDbInstalled && isServerRunning;
   const isServerActive = isServerRunning;
-
-  // 7. Inspect Private Node Network (mDNS)
   const isNetworkActive = isServerRunning;
 
   const layers: StackLayerStatus[] = [
@@ -138,15 +186,15 @@ export async function inspectStackLayers(
       id: "compass",
       name: "My COMPASS Software Suite",
       category: "Command Suite & Sparks Navigator",
-      installed: isCompassInstalled,
+      installed: data.isCompassInstalled,
       active: isCompassActive,
-      version: compassVersion,
-      details: isCompassInstalled
-        ? `PHP Plugin · v${compassVersion || "1.0"}`
+      version: data.compassVersion,
+      details: data.isCompassInstalled
+        ? `PHP Plugin · v${data.compassVersion || "1.0"}`
         : "Not installed in plugins",
       status: isCompassActive
         ? "running"
-        : isCompassInstalled
+        : data.isCompassInstalled
           ? "stopped"
           : "error",
     },
@@ -154,13 +202,13 @@ export async function inspectStackLayers(
       id: "portal",
       name: "YouMeOS",
       category: "Front-End Interface & 3D Engine",
-      installed: isEhInstalled,
+      installed: data.isEhInstalled,
       active: isEhActive,
-      version: ehVersion,
-      details: isEhInstalled
-        ? `Vue 3 + Vuetify · ${ehVersion || "Ready"}`
+      version: data.ehVersion,
+      details: data.isEhInstalled
+        ? `Vue 3 + Vuetify · ${data.ehVersion || "Ready"}`
         : "Not installed in plugins",
-      status: isEhActive ? "running" : isEhInstalled ? "stopped" : "error",
+      status: isEhActive ? "running" : data.isEhInstalled ? "stopped" : "error",
     },
     {
       id: "network",
@@ -184,39 +232,39 @@ export async function inspectStackLayers(
       id: "core",
       name: "Headless WP Core",
       category: "Application Kernel & REST/GraphQL API",
-      installed: isWpInstalled,
+      installed: data.isWpInstalled,
       active: isWpActive,
-      version: wpVersion,
-      isUpToDate: isWpUpToDate,
-      details: isWpInstalled
-        ? `WordPress v${wpVersion} · ${isWpUpToDate ? "Up-to-Date" : "Update Available"}`
+      version: data.wpVersion,
+      isUpToDate: data.isWpUpToDate,
+      details: data.isWpInstalled
+        ? `WordPress v${data.wpVersion} · ${data.isWpUpToDate ? "Up-to-Date" : "Update Available"}`
         : "Core files missing",
-      status: isWpActive ? "running" : isWpInstalled ? "stopped" : "error",
+      status: isWpActive ? "running" : data.isWpInstalled ? "stopped" : "error",
     },
     {
       id: "database",
       name: "SQLite Database",
       category: "Encrypted VFS Persistent Storage",
-      installed: isDbInstalled,
+      installed: data.isDbInstalled,
       active: isDbActive,
-      details: isDbInstalled
-        ? `database.sqlite (${dbSizeStr || "Active"})`
+      details: data.isDbInstalled
+        ? `database.sqlite (${data.dbSizeStr || "Active"})`
         : "No database file",
-      status: isDbActive ? "running" : isDbInstalled ? "stopped" : "error",
+      status: isDbActive ? "running" : data.isDbInstalled ? "stopped" : "error",
     },
     {
       id: "bedrock",
       name: "BlackBOX Bedrock",
       category: "Must-Use (MU) Foundation & Genesis Wave",
-      installed: isBedrockInstalled,
+      installed: data.isBedrockInstalled,
       active: isBedrockActive,
-      version: bedrockVersion,
-      details: isBedrockInstalled
-        ? `MU-Plugin · v${bedrockVersion || "26.8"}`
+      version: data.bedrockVersion,
+      details: data.isBedrockInstalled
+        ? `MU-Plugin · v${data.bedrockVersion || "26.8"}`
         : "Bedrock MU missing",
       status: isBedrockActive
         ? "running"
-        : isBedrockInstalled
+        : data.isBedrockInstalled
           ? "stopped"
           : "error",
     },

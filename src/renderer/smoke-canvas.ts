@@ -208,11 +208,7 @@ export class SmokeCanvasEngine {
       grad.addColorStop(1, 'rgba(14, 24, 42, 0.02)');
       this.ctx.fillStyle = grad;
 
-      if (wave.blur > 0) {
-        this.ctx.filter = `blur(${wave.blur}px)`;
-      }
       this.ctx.fill();
-      this.ctx.filter = 'none';
     }
 
     const ribbonWave = this.waves.find(w => w.isRibbon);

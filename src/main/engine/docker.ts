@@ -51,6 +51,8 @@ export class DockerEngine extends BaseEngine {
   private osHomepageMode: string = process.env.OS_HOMEPAGE_MODE || process.env.YOUMEOS_LOAD_MODE || 'homepage';
   private lastErrorMessage?: string;
   private lastErrorInfo?: EngineErrorInfo;
+  private availabilityCache: { isAvailable: boolean; timestamp: number } | null = null;
+  private readonly AVAILABILITY_CACHE_TTL_MS = 60000;
 
   constructor() {
     super();
@@ -213,12 +215,23 @@ export class DockerEngine extends BaseEngine {
     });
   }
 
+  invalidateAvailabilityCache(): void {
+    this.availabilityCache = null;
+  }
+
   async isAvailable(): Promise<boolean> {
+    const now = Date.now();
+    if (this.availabilityCache && now - this.availabilityCache.timestamp < this.AVAILABILITY_CACHE_TTL_MS) {
+      return this.availabilityCache.isAvailable;
+    }
+
     try {
       await execFileAsync('docker', ['--version']);
       await this.runCompose(['version']);
+      this.availabilityCache = { isAvailable: true, timestamp: now };
       return true;
     } catch {
+      this.availabilityCache = { isAvailable: false, timestamp: now };
       return false;
     }
   }

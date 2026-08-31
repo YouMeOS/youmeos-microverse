@@ -86,6 +86,7 @@ export class EngineManager {
 
   async setEngineType(type: EngineType): Promise<void> {
     if (this.currentEngineType === type) return;
+    this.dockerEngine.invalidateAvailabilityCache();
     try {
       await Promise.allSettled([
         this.dockerEngine.stop(),

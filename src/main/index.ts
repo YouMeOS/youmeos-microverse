@@ -586,7 +586,7 @@ const readyHandler = async () => {
             },
           },
           {
-            label: "Open Native Window",
+            label: "Open Native App",
             accelerator: "CmdOrCtrl+Shift+P",
             click: () => {
               openPortalWindow("https://my.youmeos.com");

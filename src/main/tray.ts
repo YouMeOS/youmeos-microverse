@@ -1,23 +1,23 @@
-import { Tray, Menu, BrowserWindow, nativeImage, app, shell } from 'electron';
-import { EngineManager } from './engine/manager';
-import { getDevProjectDir } from './engine/base';
-import path from 'path';
-import fs from 'fs';
+import { Tray, Menu, BrowserWindow, nativeImage, app, shell } from "electron";
+import { EngineManager } from "./engine/manager";
+import { getDevProjectDir } from "./engine/base";
+import path from "path";
+import fs from "fs";
 
 export function createTray(
   engineManager: EngineManager,
   mainWindow: BrowserWindow,
-  onOpenPortal?: (url?: string) => void
+  onOpenPortal?: (url?: string) => void,
 ): Tray {
   const possiblePaths = [
-    path.join(__dirname, '..', '..', 'assets', 'icon.png'),
-    path.join(__dirname, '..', 'assets', 'icon.png'),
-    path.join(__dirname, 'assets', 'icon.png'),
-    path.join(__dirname, '..', 'renderer', 'icon.png'),
-    path.join(app.getAppPath(), 'assets', 'icon.png'),
-    path.join(app.getAppPath(), 'dist', 'assets', 'icon.png'),
-    path.join(app.getAppPath(), 'dist', 'renderer', 'icon.png'),
-    path.join(process.resourcesPath, 'assets', 'icon.png')
+    path.join(__dirname, "..", "..", "assets", "icon.png"),
+    path.join(__dirname, "..", "assets", "icon.png"),
+    path.join(__dirname, "assets", "icon.png"),
+    path.join(__dirname, "..", "renderer", "icon.png"),
+    path.join(app.getAppPath(), "assets", "icon.png"),
+    path.join(app.getAppPath(), "dist", "assets", "icon.png"),
+    path.join(app.getAppPath(), "dist", "renderer", "icon.png"),
+    path.join(process.resourcesPath, "assets", "icon.png"),
   ];
 
   let icon = nativeImage.createEmpty();
@@ -40,14 +40,17 @@ export function createTray(
     const openPortalHandler = async () => {
       try {
         const st = await engineManager.status();
-        const url = st.url || 'https://my.youmeos.com';
+        const url = st.url || "https://my.youmeos.com";
         if (onOpenPortal) {
           onOpenPortal(url);
         } else {
           shell.openExternal(url);
         }
       } catch {
-        const defaultUrl = (engineManager.getPort && engineManager.getPort() !== 80) ? `http://localhost:${engineManager.getPort()}` : 'https://my.youmeos.com';
+        const defaultUrl =
+          engineManager.getPort && engineManager.getPort() !== 80
+            ? `http://localhost:${engineManager.getPort()}`
+            : "https://my.youmeos.com";
         if (onOpenPortal) {
           onOpenPortal(defaultUrl);
         } else {
@@ -59,47 +62,64 @@ export function createTray(
     const openBrowserHandler = async () => {
       try {
         const st = await engineManager.status();
-        const url = st.url || 'https://my.youmeos.com';
+        const url = st.url || "https://my.youmeos.com";
         shell.openExternal(url);
       } catch {
-        const defaultUrl = (engineManager.getPort && engineManager.getPort() !== 80) ? `http://localhost:${engineManager.getPort()}` : 'https://my.youmeos.com';
+        const defaultUrl =
+          engineManager.getPort && engineManager.getPort() !== 80
+            ? `http://localhost:${engineManager.getPort()}`
+            : "https://my.youmeos.com";
         shell.openExternal(defaultUrl);
       }
     };
 
     const openBlackboxHandler = () => {
-      const isProduction = app.isPackaged || process.env.NODE_ENV === 'production' || __dirname.includes('app.asar');
-      const projectDir = isProduction ? app.getPath('userData') : getDevProjectDir(__dirname);
-      const wpDir = path.join(projectDir, 'wp-content');
-      const legacyDir = path.join(projectDir, 'blackbox');
-      shell.openPath(fs.existsSync(wpDir) ? wpDir : (fs.existsSync(legacyDir) ? legacyDir : wpDir));
+      const isProduction =
+        app.isPackaged ||
+        process.env.NODE_ENV === "production" ||
+        __dirname.includes("app.asar");
+      const projectDir = isProduction
+        ? app.getPath("userData")
+        : getDevProjectDir(__dirname);
+      const wpDir = path.join(projectDir, "wp-content");
+      const legacyDir = path.join(projectDir, "blackbox");
+      shell.openPath(
+        fs.existsSync(wpDir)
+          ? wpDir
+          : fs.existsSync(legacyDir)
+            ? legacyDir
+            : wpDir,
+      );
     };
 
     const quitHandler = () => app.quit();
 
     const contextMenu = Menu.buildFromTemplate([
-      { label: 'Show Dashboard', click: showPanelHandler },
-      { type: 'separator' },
-      { label: 'Open Portal (Native Window)', click: openPortalHandler },
-      { label: 'Open in Browser (Default Browser)', click: openBrowserHandler },
-      { label: 'Open Contents Folder (Plugins & Uploads)', click: openBlackboxHandler },
-      { type: 'separator' },
-      { label: 'Start Engine', click: startHandler },
-      { label: 'Stop Engine', click: stopHandler },
-      { label: 'Restart Engine', click: restartHandler },
-      { type: 'separator' },
-      { label: 'Quit', click: quitHandler }
+      { label: "Show Dashboard", click: showPanelHandler },
+      { type: "separator" },
+      { label: "Open Portal (Native App)", click: openPortalHandler },
+      { label: "Open in Browser (Default Browser)", click: openBrowserHandler },
+      {
+        label: "Open Contents Folder (Plugins & Uploads)",
+        click: openBlackboxHandler,
+      },
+      { type: "separator" },
+      { label: "Start Engine", click: startHandler },
+      { label: "Stop Engine", click: stopHandler },
+      { label: "Restart Engine", click: restartHandler },
+      { type: "separator" },
+      { label: "Quit", click: quitHandler },
     ]);
     tray.setContextMenu(contextMenu);
   };
 
-  tray.setToolTip('My YouMeOS Microverse');
+  tray.setToolTip("My YouMeOS Microverse");
   updateMenu();
 
   const clickHandler = () => {
     mainWindow.isVisible() ? mainWindow.hide() : mainWindow.show();
   };
-  tray.on('click', clickHandler);
+  tray.on("click", clickHandler);
 
   return tray;
 }

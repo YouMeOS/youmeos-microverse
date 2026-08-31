@@ -78,31 +78,53 @@ export abstract class BaseEngine implements MicroverseEngine {
   }
 
   async getStructuredLogs(filter?: LogFilterOptions): Promise<LogEntry[]> {
-    let list = this.structuredLogs;
-    if (filter?.service && filter.service !== 'all') {
-      const s = filter.service.toLowerCase();
-      list = list.filter((item) => {
-        const isvc = item.service.toLowerCase();
-        if (isvc === s) return true;
-        if (s === 'gateway' && (isvc === 'nginx' || isvc === 'caddy' || isvc === 'frankenphp')) return true;
-        if (s === 'core' && (isvc === 'wordpress' || isvc === 'php-server' || isvc === 'sqlite' || isvc === 'sqlite-store')) return true;
-        if (s === 'network' && (isvc === 'avahi' || isvc === 'local-network' || isvc === 'mesh')) return true;
-        if (s === 'setup' && (isvc === 'setup' || isvc === 'composer' || isvc === 'system')) return true;
-        return false;
-      });
-    }
-
-    if (filter?.level && filter.level !== 'all') {
-      list = list.filter((item) => item.level === filter.level);
-    }
-
-    if (filter?.search && filter.search.trim()) {
-      const q = filter.search.toLowerCase();
-      list = list.filter((item) => item.text.toLowerCase().includes(q) || item.service.toLowerCase().includes(q));
-    }
-
     const tail = filter?.tail ?? 200;
-    return list.slice(-tail);
+    const hasServiceFilter = Boolean(filter?.service && filter.service !== 'all');
+    const hasLevelFilter = Boolean(filter?.level && filter.level !== 'all');
+    const searchFilter = filter?.search?.trim().toLowerCase() || '';
+
+    if (!hasServiceFilter && !hasLevelFilter && !searchFilter) {
+      return this.structuredLogs.slice(-tail);
+    }
+
+    const s = hasServiceFilter ? filter!.service!.toLowerCase() : '';
+    const lvl = hasLevelFilter ? filter!.level! : '';
+
+    const results: LogEntry[] = [];
+    const logs = this.structuredLogs;
+
+    // Scan backwards from most recent logs up to tail matches
+    for (let i = logs.length - 1; i >= 0; i--) {
+      const item = logs[i];
+
+      if (hasLevelFilter && item.level !== lvl) {
+        continue;
+      }
+
+      if (hasServiceFilter) {
+        const isvc = item.service.toLowerCase();
+        let matchesService = isvc === s;
+        if (!matchesService) {
+          if (s === 'gateway') matchesService = isvc === 'nginx' || isvc === 'caddy' || isvc === 'frankenphp';
+          else if (s === 'core') matchesService = isvc === 'wordpress' || isvc === 'php-server' || isvc === 'sqlite' || isvc === 'sqlite-store';
+          else if (s === 'network') matchesService = isvc === 'avahi' || isvc === 'local-network' || isvc === 'mesh';
+          else if (s === 'setup') matchesService = isvc === 'setup' || isvc === 'composer' || isvc === 'system';
+        }
+        if (!matchesService) continue;
+      }
+
+      if (searchFilter) {
+        const textMatches = item.text.toLowerCase().includes(searchFilter) || item.service.toLowerCase().includes(searchFilter);
+        if (!textMatches) continue;
+      }
+
+      results.push(item);
+      if (results.length >= tail) {
+        break;
+      }
+    }
+
+    return results.reverse();
   }
 
   protected notifyStatus(): void {

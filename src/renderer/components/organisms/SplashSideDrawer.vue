@@ -109,7 +109,7 @@
               name="brand"
               :size="14"
             />
-            <span>Launch Native Window</span>
+            <span>Launch Native App</span>
           </button>
 
           <button

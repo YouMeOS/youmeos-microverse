@@ -94,7 +94,7 @@
           <span>No log entries match the selected filters</span>
         </div>
         <LogEntryRow
-          v-for="entry in logs"
+          v-for="entry in visibleLogs"
           :key="entry.id"
           :entry="entry"
         />
@@ -104,7 +104,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, nextTick } from 'vue';
+import { ref, computed, watch, nextTick } from 'vue';
 import BaseIcon from '../atoms/BaseIcon.vue';
 import LogEntryRow from '../molecules/LogEntryRow.vue';
 import type { LogEntry } from '../../types';
@@ -137,6 +137,10 @@ const categories = [
   { id: 'node', label: 'Node' },
   { id: 'network', label: 'Network' }
 ];
+
+const visibleLogs = computed(() => {
+  return props.logs.length > 200 ? props.logs.slice(-200) : props.logs;
+});
 
 watch(
   () => props.logs.length,

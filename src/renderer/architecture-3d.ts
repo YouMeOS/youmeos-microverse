@@ -55,6 +55,7 @@ export class Architecture3DManager {
   private satOrbitSpeeds: number[] = [0.8, 0.6, 1.0, 0.7, 0.5];
   private satOrbitInclinations: number[] = [0.1, -0.15, 0.2, -0.05, 0.12];
   private satAngles: number[] = [0, 1.2, 2.4, 3.6, 4.8];
+  private satPositions: THREE.Vector3[] = Array.from({ length: 5 }, () => new THREE.Vector3());
   private portalWireframe: THREE.LineSegments | null = null;
 
   // Layer 2: My COMPASS elements
@@ -945,11 +946,10 @@ export class Architecture3DManager {
       this.sunGlowMesh.scale.set(pulse, pulse, pulse);
     }
 
-    const positions: THREE.Vector3[] = [];
     for (let i = 0; i < this.satMeshes.length; i++) {
       const mesh = this.satMeshes[i];
       const r = this.satOrbitRadii[i] * 0.8;
-      const sp = this.satOrbitSpeeds[i] * speedMultiplier * 0.4; // Slower satellites
+      const sp = this.satOrbitSpeeds[i] * speedMultiplier * 0.4;
       const inc = this.satOrbitInclinations[i];
       const angle = this.satAngles[i] + this.activeTime * sp;
 
@@ -958,20 +958,23 @@ export class Architecture3DManager {
       const y = Math.sin(angle * 2) * inc;
 
       mesh.position.set(x, y, z);
-      positions.push(mesh.position);
+      if (this.satPositions[i]) {
+        this.satPositions[i].set(x, y, z);
+      }
     }
 
     if (this.satLines) {
       const posAttr = this.satLines.geometry.getAttribute('position') as THREE.BufferAttribute;
       let idx = 0;
-      for (let i = 0; i < positions.length; i++) {
-        const p1 = positions[i];
-        const p2 = positions[(i + 1) % positions.length];
+      const len = this.satPositions.length;
+      for (let i = 0; i < len; i++) {
+        const p1 = this.satPositions[i];
+        const p2 = this.satPositions[(i + 1) % len];
         posAttr.setXYZ(idx++, p1.x, p1.y, p1.z);
         posAttr.setXYZ(idx++, p2.x, p2.y, p2.z);
       }
-      for (let i = 0; i < positions.length; i++) {
-        const p = positions[i];
+      for (let i = 0; i < len; i++) {
+        const p = this.satPositions[i];
         posAttr.setXYZ(idx++, p.x, p.y, p.z);
         posAttr.setXYZ(idx++, 0, 0, 0);
       }
