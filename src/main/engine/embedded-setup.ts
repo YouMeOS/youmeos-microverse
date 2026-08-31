@@ -239,7 +239,7 @@ export async function setupEmbeddedEnvironment(
   const needsCaddyfileUpdate = !fs.existsSync(targetCaddyfile) || (() => {
     try {
       const existing = fs.readFileSync(targetCaddyfile, 'utf8');
-      return existing.includes('root * {$WP_ROOT}') || !existing.includes('root * "{$WP_ROOT}"');
+      return existing.includes('root * {$WP_ROOT}') || !existing.includes('root * "{$WP_ROOT}"') || !existing.includes('http_port') || !existing.includes('{$PORT');
     } catch {
       return true;
     }

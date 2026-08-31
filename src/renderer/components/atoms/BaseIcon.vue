@@ -61,9 +61,27 @@
     <!-- Stop -->
     <rect v-else-if="name === 'stop'" x="4" y="4" width="16" height="16" rx="2" ry="2" fill="currentColor" stroke="none" />
 
+    <!-- Rewind / Back -->
+    <g v-else-if="name === 'rewind' || name === 'back'">
+      <polygon points="11 19 2 12 11 5 11 19" fill="currentColor" stroke="none" />
+      <polygon points="22 19 13 12 22 5 22 19" fill="currentColor" stroke="none" />
+    </g>
+
+    <!-- Pause -->
+    <g v-else-if="name === 'pause'">
+      <rect x="5" y="4" width="4" height="16" rx="1" fill="currentColor" stroke="none" />
+      <rect x="15" y="4" width="4" height="16" rx="1" fill="currentColor" stroke="none" />
+    </g>
+
     <!-- Restart / Refresh / Spinner -->
     <g v-else-if="name === 'refresh' || name === 'spin'">
       <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67" />
+    </g>
+
+    <!-- Eject -->
+    <g v-else-if="name === 'eject'">
+      <polygon points="12 4 20 14 4 14 12 4" fill="currentColor" stroke="none" />
+      <rect x="4" y="17" width="16" height="3" rx="1" fill="currentColor" stroke="none" />
     </g>
 
     <!-- Terminal Prompt -->
@@ -163,8 +181,8 @@
       <line x1="12" y1="16" x2="12.01" y2="16" />
     </g>
 
-    <!-- Wrench / Tool / Remediation -->
-    <g v-else-if="name === 'wrench' || name === 'tool'">
+    <!-- Wrench / Tool / Remediation / Diagnostics -->
+    <g v-else-if="name === 'wrench' || name === 'tool' || name === 'diagnostics'">
       <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
     </g>
 

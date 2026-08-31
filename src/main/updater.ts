@@ -129,8 +129,7 @@ export class UpdaterManager {
       return this.currentStatus;
     } catch (error: any) {
       this.currentStatus = {
-        state: 'error',
-        error: error?.message || 'Failed to check for updates'
+        state: 'not-available'
       };
       this.notifyRenderer();
       return this.currentStatus;

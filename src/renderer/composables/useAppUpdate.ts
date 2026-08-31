@@ -35,13 +35,25 @@ export function useAppUpdate() {
         const res = await api.checkForUpdates();
         if (res) {
           status.value = res;
-          if (res.state === 'available') {
-            openModal();
-          }
+        } else {
+          status.value = {
+            state: 'not-available',
+            version: undefined
+          };
         }
+      } else {
+        status.value = {
+          state: 'not-available',
+          version: undefined
+        };
       }
-    } catch (e: any) {
-      status.value.error = e?.message || 'Check failed';
+      openModal();
+    } catch {
+      status.value = {
+        state: 'not-available',
+        version: undefined
+      };
+      openModal();
     } finally {
       isChecking.value = false;
     }

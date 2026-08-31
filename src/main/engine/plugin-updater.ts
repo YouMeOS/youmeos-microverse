@@ -38,6 +38,13 @@ export const DEFAULT_PLUGINS: PluginDefinition[] = [
     mainPhpFile: 'load.php'
   },
   {
+    slug: 'blackbox-bedrock',
+    name: 'BlackBOX Bedrock',
+    url: 'https://github.com/HalloftheGods/blackbox-bedrock/archive/refs/heads/main.zip',
+    targetType: 'mu-plugin',
+    mainPhpFile: 'BlackBOX.php'
+  },
+  {
     slug: 'xophz-compass',
     name: 'My COMPASS Engine',
     url: 'https://github.com/HalloftheGods/xophz-compass/archive/refs/heads/main.zip',
@@ -141,6 +148,9 @@ export class PluginUpdater {
     if (!fs.existsSync(dest)) {
       fs.mkdirSync(dest, { recursive: true });
     }
+    try {
+      fs.chmodSync(dest, 0o777);
+    } catch {}
 
     const entries = fs.readdirSync(src, { withFileTypes: true });
     for (const entry of entries) {
@@ -150,7 +160,19 @@ export class PluginUpdater {
       if (entry.isDirectory()) {
         this.copyDirectoryRecursive(srcPath, destPath);
       } else {
-        fs.copyFileSync(srcPath, destPath);
+        try {
+          if (fs.existsSync(destPath)) {
+            try { fs.chmodSync(destPath, 0o666); } catch {}
+          }
+          fs.copyFileSync(srcPath, destPath);
+        } catch (copyErr) {
+          try {
+            fs.unlinkSync(destPath);
+            fs.copyFileSync(srcPath, destPath);
+          } catch {
+            throw copyErr;
+          }
+        }
       }
     }
   }
@@ -158,16 +180,22 @@ export class PluginUpdater {
   private removeDirectoryRecursive(targetPath: string): void {
     if (!fs.existsSync(targetPath)) return;
     try {
+      fs.chmodSync(targetPath, 0o777);
+    } catch {}
+    try {
       fs.rmSync(targetPath, { recursive: true, force: true });
     } catch {
       try {
         const entries = fs.readdirSync(targetPath, { withFileTypes: true });
         for (const entry of entries) {
           const curPath = path.join(targetPath, entry.name);
+          try {
+            fs.chmodSync(curPath, entry.isDirectory() ? 0o777 : 0o666);
+          } catch {}
           if (entry.isDirectory()) {
             this.removeDirectoryRecursive(curPath);
           } else {
-            fs.unlinkSync(curPath);
+            try { fs.unlinkSync(curPath); } catch {}
           }
         }
         fs.rmdirSync(targetPath);
@@ -284,7 +312,7 @@ export class PluginUpdater {
       }
     }
 
-    this.log('==> [4/4] Plugin update check complete. All packages verified in wp-content/plugins/');
+    this.log('==> [4/4] Plugin update check complete. All packages verified.');
 
     const hasErrors = updateDetails.some(d => d.status === 'error');
     return {

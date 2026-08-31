@@ -129,7 +129,7 @@ export class DiagnosticsManager {
     }
   }
 
-  async generateAutoLoginUrl(userId: number = 1, redirectTo: string = '/wp-admin/admin.php?page=xophz-compass#'): Promise<AutoLoginResult> {
+  async generateAutoLoginUrl(userId: number = 1, redirectTo: string = '/wp-admin/admin.php?page=xophz-compass#', port: number = 80): Promise<AutoLoginResult> {
     const dbPath = this.getDbPath();
     if (!fs.existsSync(dbPath)) {
       return { success: false, url: '', userLogin: '', error: 'Database not initialized' };
@@ -166,7 +166,8 @@ export class DiagnosticsManager {
       const { stdout } = await execFileAsync(frankenPath, ['php-cli', '-r', phpCode]);
       const res = JSON.parse(stdout.trim() || '{}');
       if (res.success && res.token) {
-        const url = `https://my.youmeos.com/?youmeos_autologin_token=${res.token}&user_id=${userId}&redirect_to=${encodeURIComponent(redirectTo)}`;
+        const baseUrl = port && port !== 80 ? `http://localhost:${port}` : 'https://my.youmeos.com';
+        const url = `${baseUrl}/?youmeos_autologin_token=${res.token}&user_id=${userId}&redirect_to=${encodeURIComponent(redirectTo)}`;
         return { success: true, url, userLogin: res.userLogin };
       }
       return { success: false, url: '', userLogin: '', error: res.error || 'Token generation failed' };

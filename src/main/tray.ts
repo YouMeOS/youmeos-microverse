@@ -47,10 +47,11 @@ export function createTray(
           shell.openExternal(url);
         }
       } catch {
+        const defaultUrl = (engineManager.getPort && engineManager.getPort() !== 80) ? `http://localhost:${engineManager.getPort()}` : 'https://my.youmeos.com';
         if (onOpenPortal) {
-          onOpenPortal('https://my.youmeos.com');
+          onOpenPortal(defaultUrl);
         } else {
-          shell.openExternal('https://my.youmeos.com');
+          shell.openExternal(defaultUrl);
         }
       }
     };
@@ -61,7 +62,8 @@ export function createTray(
         const url = st.url || 'https://my.youmeos.com';
         shell.openExternal(url);
       } catch {
-        shell.openExternal('https://my.youmeos.com');
+        const defaultUrl = (engineManager.getPort && engineManager.getPort() !== 80) ? `http://localhost:${engineManager.getPort()}` : 'https://my.youmeos.com';
+        shell.openExternal(defaultUrl);
       }
     };
 

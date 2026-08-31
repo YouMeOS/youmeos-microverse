@@ -43,6 +43,7 @@
       :is-action-pending="isActionPending"
       @close="$emit('toggleSideDrawer', false)"
       @set-engine-type="$emit('setEngineType', $event)"
+      @set-port="$emit('setPort', $event)"
       @set-stay-on-splash="$emit('setStayOnSplash', $event)"
       @launch-webtop="$emit('launchWebtop', $event)"
       @highlight-layer="$emit('highlightLayer', $event)"
@@ -84,6 +85,7 @@ defineProps<{
 defineEmits<{
   (e: 'toggleSideDrawer', forceState?: boolean): void;
   (e: 'setEngineType', val: EngineType): void;
+  (e: 'setPort', val: number): void;
   (e: 'setStayOnSplash', val: boolean): void;
   (e: 'launchWebtop', target: WebtopLaunchTarget): void;
   (e: 'highlightLayer', layerId: string | null): void;

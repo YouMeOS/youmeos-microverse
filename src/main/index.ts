@@ -285,11 +285,15 @@ const readyHandler = async () => {
   });
 
   const openPortalHandler = (_: unknown, targetUrl?: string) => {
-    openPortalWindow(targetUrl || 'https://my.youmeos.com');
+    const activePort = engineManager.getPort ? engineManager.getPort() : 80;
+    const defaultUrl = activePort === 80 ? 'https://my.youmeos.com' : `http://localhost:${activePort}`;
+    openPortalWindow(targetUrl || defaultUrl);
   };
 
   const openExternalHandler = async (_: unknown, targetUrl?: string) => {
-    const url = targetUrl || 'https://my.youmeos.com';
+    const activePort = engineManager.getPort ? engineManager.getPort() : 80;
+    const defaultUrl = activePort === 80 ? 'https://my.youmeos.com' : `http://localhost:${activePort}`;
+    const url = targetUrl || defaultUrl;
     await shell.openExternal(url);
   };
 
@@ -330,8 +334,9 @@ const readyHandler = async () => {
 
   // Diagnostic & Auto-Login Handlers
   ipcMain.handle('engine:auto-login', async (_, userId?: number, redirectTo?: string) => {
+    const activePort = engineManager.getPort ? engineManager.getPort() : 80;
     const targetRedirect = redirectTo || '/wp-admin/admin.php?page=xophz-compass#';
-    const result = await diagnosticsManager.generateAutoLoginUrl(userId || 1, targetRedirect);
+    const result = await diagnosticsManager.generateAutoLoginUrl(userId || 1, targetRedirect, activePort);
     if (result.success && result.url) {
       openPortalWindow(result.url);
     }
@@ -357,7 +362,8 @@ const readyHandler = async () => {
   ipcMain.handle('diagnostics:list-users', () => diagnosticsManager.listUsers());
   ipcMain.handle('diagnostics:reset-password', (_, userId: number, newPassword?: string) => diagnosticsManager.resetPassword(userId, newPassword));
   ipcMain.handle('diagnostics:auto-login', async (_, userId?: number, redirectTo?: string) => {
-    const result = await diagnosticsManager.generateAutoLoginUrl(userId || 1, redirectTo || '/wp-admin/');
+    const activePort = engineManager.getPort ? engineManager.getPort() : 80;
+    const result = await diagnosticsManager.generateAutoLoginUrl(userId || 1, redirectTo || '/wp-admin/', activePort);
     if (result.success && result.url) {
       openPortalWindow(result.url);
     }
@@ -467,7 +473,7 @@ const readyHandler = async () => {
         label: 'File',
         submenu: [
           {
-            label: 'Open WebTop in Browser',
+            label: 'Open in Browser',
             accelerator: 'CmdOrCtrl+O',
             click: () => {
               shell.openExternal('https://my.youmeos.com');

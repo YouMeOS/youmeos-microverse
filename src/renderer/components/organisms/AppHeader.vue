@@ -11,11 +11,16 @@
     </div>
 
     <div class="header-controls">
-      <!-- Engine Mode Selector -->
+      <!-- Engine Mode Selector & Port Dropdown -->
       <div class="engine-switch">
         <EngineSelector
           :model-value="engineType"
           @update:model-value="$emit('setEngineType', $event)"
+        />
+        <PortSelector
+          :model-value="activePort || 80"
+          :disabled="isActionPending"
+          @change="$emit('setPort', $event)"
         />
       </div>
 
@@ -45,7 +50,7 @@
             boxShadow: `0 0 6px ${currentTierColor.hex}`
           }"
         />
-        <span>{{ currentTierData.name }} Compass</span>
+        <span>{{ currentTierData.name }}</span>
       </button>
 
       <!-- Gateway Endpoint Address -->
@@ -70,39 +75,6 @@
           </button>
         </div>
       </div>
-
-      <!-- Header Quick Actions -->
-      <div class="header-actions">
-        <!-- Onboarding & Profile Setup Button -->
-        <button
-          type="button"
-          class="btn-icon btn-onboarding-toggle"
-          title="Sovereign Onboarding &amp; Profile Setup"
-          @click="$emit('openOnboarding')"
-        >
-          <BaseIcon name="user-check" :size="14" />
-        </button>
-
-        <!-- Terminal HUD Button -->
-        <button
-          type="button"
-          class="btn-icon btn-quake-toggle"
-          title="Toggle Terminal HUD (` or ~)"
-          @click="$emit('toggleConsole')"
-        >
-          <BaseIcon name="terminal" :size="14" />
-        </button>
-
-        <!-- 3D Matrix Splash Button -->
-        <button
-          type="button"
-          class="btn-icon btn-splash-toggle"
-          title="Return to 3D Matrix Splash View"
-          @click="$emit('openSplash')"
-        >
-          <BaseIcon name="cube" :size="14" />
-        </button>
-      </div>
     </div>
   </header>
 </template>
@@ -112,6 +84,7 @@ import { computed } from 'vue';
 import BaseIcon from '../atoms/BaseIcon.vue';
 import StatusDot from '../atoms/StatusDot.vue';
 import EngineSelector from '../molecules/EngineSelector.vue';
+import PortSelector from '../molecules/PortSelector.vue';
 import type { EngineStatus, EngineType } from '../../types';
 import type { TierInfo } from '../../license-cloud-manager';
 
@@ -119,6 +92,8 @@ const props = defineProps<{
   status: EngineStatus;
   statusLabel: string;
   engineType: EngineType;
+  activePort?: number;
+  isActionPending?: boolean;
   currentGatewayUrl: string;
   currentTierData: TierInfo;
   currentTierColor: { hex: string; three: number };
@@ -128,9 +103,9 @@ const props = defineProps<{
 
 defineEmits<{
   (e: 'setEngineType', val: EngineType): void;
+  (e: 'setPort', val: number): void;
   (e: 'toggleConsole'): void;
   (e: 'openLicenseModal'): void;
-  (e: 'openOnboarding'): void;
   (e: 'openSplash'): void;
   (e: 'openUrl', url: string): void;
   (e: 'copyGateway'): void;
@@ -144,6 +119,8 @@ const displayGatewayUrl = computed(() => {
 
 <style scoped>
 .app-header {
+  position: relative;
+  z-index: 50;
   display: flex;
   justify-content: space-between;
   align-items: center;

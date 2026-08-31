@@ -116,4 +116,4 @@ fi
 echo "==> [3/4] Inspecting plugin versions and verifying assets..."
 scan_plugins "false"
 
-echo "==> [4/4] Plugin update check complete. All packages verified in wp-content/plugins/"
+echo "==> [4/4] Plugin update check complete. All packages verified."

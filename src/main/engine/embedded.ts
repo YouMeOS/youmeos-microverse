@@ -11,7 +11,8 @@ import {
   EngineType,
   DownloadProgress,
   GatewayEndpoint,
-  EngineErrorInfo
+  EngineErrorInfo,
+  LogLevel
 } from './types';
 import { setupEmbeddedEnvironment, DEFAULT_CADDYFILE } from './embedded-setup';
 import { inspectStackLayers } from './stack-inspector';
@@ -57,7 +58,12 @@ export class EmbeddedEngine extends BaseEngine {
   private resolveCaddyfilePath(): string {
     const embeddedCaddyfile = path.join(this.projectDir, 'data', 'embedded', 'Caddyfile');
     if (fs.existsSync(embeddedCaddyfile)) {
-      return embeddedCaddyfile;
+      try {
+        const existing = fs.readFileSync(embeddedCaddyfile, 'utf8');
+        if (existing.includes('{$PORT') && existing.includes('http_port')) {
+          return embeddedCaddyfile;
+        }
+      } catch {}
     }
 
     const candidates = [
@@ -98,6 +104,78 @@ export class EmbeddedEngine extends BaseEngine {
     } catch {}
 
     return embeddedCaddyfile;
+  }
+
+  private formatFrankenLog(line: string): { service: string; msg: string; level: LogLevel } {
+    try {
+      const parsed = JSON.parse(line);
+      const service = (parsed.logger && parsed.logger.includes('http')) ? 'gateway' : 'core';
+      const rawLevel = (parsed.level || '').toLowerCase();
+      let level: LogLevel = rawLevel === 'error' ? 'error' : (rawLevel === 'warn' || rawLevel === 'warning' ? 'warn' : (rawLevel === 'debug' ? 'debug' : 'info'));
+
+      // HTTP Access Request (Caddy / FrankenPHP access logger)
+      if (parsed.request || parsed.logger === 'http.log.access' || parsed.msg === 'handled request') {
+        const req = parsed.request || {};
+        const method = (req.method || 'GET').toUpperCase();
+        const uri = req.uri || '/';
+        const status = parsed.status || 200;
+
+        if (status >= 500) {
+          level = 'error';
+        } else if (status >= 400) {
+          level = 'warn';
+        }
+
+        let durationStr = '';
+        if (typeof parsed.duration === 'number') {
+          const ms = Math.max(1, Math.round(parsed.duration * 1000));
+          durationStr = `${ms}ms`;
+        }
+
+        let sizeStr = '';
+        if (typeof parsed.size === 'number' && parsed.size > 0) {
+          if (parsed.size < 1024) {
+            sizeStr = `${parsed.size} B`;
+          } else {
+            sizeStr = `${(parsed.size / 1024).toFixed(1)} KB`;
+          }
+        }
+
+        const metaParts = [durationStr, sizeStr].filter(Boolean).join(', ');
+        const meta = metaParts ? ` [${metaParts}]` : '';
+
+        return {
+          service: 'gateway',
+          msg: `${method} ${uri} -> ${status}${meta}`,
+          level
+        };
+      }
+
+      let msg = parsed.msg || parsed.message || '';
+      if (parsed.error) {
+        msg = msg ? `${msg}: ${parsed.error}` : parsed.error;
+        level = 'error';
+      } else if (!msg) {
+        msg = JSON.stringify(parsed);
+      }
+
+      return { service, msg, level };
+    } catch {
+      const lower = line.toLowerCase();
+      const isErr = lower.includes('fatal') || lower.includes('permission denied') || lower.includes('bind:') || lower.includes('[error]');
+      const isWarn = lower.includes('warning') || lower.includes('[warn]');
+      const isNotice =
+        lower.includes('[notice]') ||
+        lower.includes('maxprocs:') ||
+        lower.includes('gomemlimit') ||
+        lower.includes('byeee') ||
+        lower.includes('process exited') ||
+        lower.includes('using config') ||
+        lower.includes('adapted config') ||
+        lower.includes('admin endpoint');
+      const level: LogLevel = isErr ? 'error' : (isNotice ? 'info' : (isWarn ? 'warn' : 'info'));
+      return { service: 'core', msg: line, level };
+    }
   }
 
   private checkServerHealth(port: number): Promise<boolean> {
@@ -195,52 +273,23 @@ export class EmbeddedEngine extends BaseEngine {
       this.serverProcess.stdout?.on('data', (data) => {
         const lines = data.toString().trim().split('\n').filter(Boolean);
         for (const line of lines) {
-          try {
-            const parsed = JSON.parse(line);
-            const msg = parsed.msg || parsed.message || JSON.stringify(parsed);
-            const rawLevel = (parsed.level || '').toLowerCase();
-            const level = rawLevel === 'error' ? 'error' : (rawLevel === 'warn' || rawLevel === 'warning' ? 'warn' : (rawLevel === 'debug' ? 'debug' : 'info'));
-            const service = (parsed.logger && parsed.logger.includes('http')) ? 'gateway' : 'core';
-            this.pushLog(service, msg, level);
-          } catch {
-            this.pushLog('core', line, 'info');
-          }
+          const { service, msg, level } = this.formatFrankenLog(line);
+          this.pushLog(service, msg, level);
         }
       });
 
       this.serverProcess.stderr?.on('data', (data) => {
         const lines = data.toString().trim().split('\n').filter(Boolean);
         for (const line of lines) {
-          try {
-            const parsed = JSON.parse(line);
-            const msg = parsed.msg || parsed.message || JSON.stringify(parsed);
-            const rawLevel = (parsed.level || '').toLowerCase();
-            const level = rawLevel === 'error' ? 'error' : (rawLevel === 'warn' || rawLevel === 'warning' ? 'warn' : (rawLevel === 'debug' ? 'debug' : 'info'));
-            const service = (parsed.logger && parsed.logger.includes('http')) ? 'gateway' : 'core';
-            this.pushLog(service, msg, level);
-          } catch {
-            const lower = line.toLowerCase();
-            const isErr = lower.includes('fatal') || lower.includes('permission denied') || lower.includes('bind:') || lower.includes('[error]');
-            const isWarn = lower.includes('warning') || lower.includes('[warn]');
-            const isNotice =
-              lower.includes('[notice]') ||
-              lower.includes('maxprocs:') ||
-              lower.includes('gomemlimit') ||
-              lower.includes('byeee') ||
-              lower.includes('process exited') ||
-              lower.includes('using config') ||
-              lower.includes('adapted config') ||
-              lower.includes('admin endpoint');
-            const level = isErr ? 'error' : (isNotice ? 'info' : (isWarn ? 'warn' : 'info'));
-            this.pushLog('core', line, level);
-            if (isErr && !this.lastErrorMessage) {
-              this.lastErrorMessage = line;
-              this.lastErrorInfo = classifyEngineError({
-                rawError: line,
-                activePort: this.activePort,
-                engineType: 'embedded'
-              });
-            }
+          const { service, msg, level } = this.formatFrankenLog(line);
+          this.pushLog(service, msg, level);
+          if (level === 'error' && !this.lastErrorMessage) {
+            this.lastErrorMessage = msg;
+            this.lastErrorInfo = classifyEngineError({
+              rawError: line,
+              activePort: this.activePort,
+              engineType: 'embedded'
+            });
           }
         }
       });

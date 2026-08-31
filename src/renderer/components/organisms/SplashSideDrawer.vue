@@ -37,10 +37,11 @@
           :model-value="engineType"
           @update:model-value="$emit('setEngineType', $event)"
         />
-        <span class="port-indicator-pill" :title="`Active Port: :${activePort || 80}`">
-          <BaseIcon name="port" :size="11" />
-          <span>:{{ activePort || 80 }}</span>
-        </span>
+        <PortSelector
+          :model-value="activePort || 80"
+          :disabled="isActionPending"
+          @change="$emit('setPort', $event)"
+        />
       </div>
       <StatusBadge :status="status" />
     </div>
@@ -169,6 +170,7 @@ import { computed } from 'vue';
 import BaseIcon from '../atoms/BaseIcon.vue';
 import StatusBadge from '../atoms/StatusBadge.vue';
 import EngineSelector from '../molecules/EngineSelector.vue';
+import PortSelector from '../molecules/PortSelector.vue';
 import MetricCard from '../molecules/MetricCard.vue';
 import QuickActionBar from '../molecules/QuickActionBar.vue';
 import type { EngineStatus, EngineType, StackLayerStatus, WebtopLaunchTarget, EngineErrorInfo } from '../../types';
@@ -209,6 +211,7 @@ const sortedStackLayers = computed(() => {
 defineEmits<{
   (e: 'close'): void;
   (e: 'setEngineType', val: EngineType): void;
+  (e: 'setPort', port: number): void;
   (e: 'setStayOnSplash', val: boolean): void;
   (e: 'launchWebtop', target: WebtopLaunchTarget): void;
   (e: 'highlightLayer', layerId: string | null): void;

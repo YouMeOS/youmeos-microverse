@@ -8,12 +8,24 @@
     <div class="footer-right">
       <button
         type="button"
-        class="btn-update-check"
+        :class="['btn-update-check', { 'is-checking': isChecking }]"
         title="Check for Microverse Updates"
         :disabled="isChecking"
         @click="$emit('checkUpdates')"
       >
-        <BaseIcon name="refresh" :size="12" class="update-icon" :spinning="isChecking" />
+        <BaseIcon
+          v-if="isChecking"
+          name="spin"
+          :size="12"
+          class="update-icon"
+          :spinning="true"
+        />
+        <BaseIcon
+          v-else
+          name="refresh"
+          :size="12"
+          class="update-icon"
+        />
         <span>{{ isChecking ? 'Checking...' : 'Check Updates' }}</span>
       </button>
       <span class="version-tag">Microverse v{{ version }}</span>
@@ -91,8 +103,15 @@ defineEmits<{
   color: var(--neon-cyan);
 }
 
+.btn-update-check.is-checking {
+  background: rgba(0, 240, 255, 0.16);
+  border-color: var(--neon-cyan);
+  color: var(--neon-cyan);
+  box-shadow: 0 0 10px rgba(0, 240, 255, 0.35);
+}
+
 .btn-update-check:disabled {
-  opacity: 0.6;
+  opacity: 0.8;
   cursor: wait;
 }
 

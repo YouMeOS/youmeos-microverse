@@ -25,6 +25,7 @@
       :is-side-drawer-open="state.isSideDrawerOpen.value"
       @toggle-side-drawer="state.toggleSideDrawer"
       @set-engine-type="state.setEngineType"
+      @set-port="state.setPort"
       @set-stay-on-splash="state.setStayOnSplash"
       @launch-webtop="state.launchWebtop"
       @highlight-layer="handleHighlightLayer"
@@ -69,7 +70,6 @@
       @open-error-modal="state.openErrorModal"
       @toggle-console="logs.toggle"
       @open-license-modal="license.openModal"
-      @open-onboarding="onboarding.openModal(1)"
       @open-splash="handleSwitchView('splash')"
       @open-url="state.openUrl"
       @open-browser="state.openBrowser"
@@ -79,23 +79,6 @@
       @start="state.start"
       @stop="state.stop"
       @restart="state.restart"
-    />
-
-    <!-- Sovereign User Onboarding Wizard Modal -->
-    <OnboardingModal
-      :is-open="onboarding.isOpen.value"
-      :current-step="onboarding.currentStep.value"
-      :total-steps="onboarding.totalSteps.value"
-      :profile="onboarding.profile.value"
-      :education="onboarding.education.value"
-      :license="onboarding.license.value"
-      @close="onboarding.closeModal"
-      @set-step="onboarding.setStep"
-      @next-step="onboarding.nextStep"
-      @prev-step="onboarding.prevStep"
-      @verify-education="onboarding.verifyEducationCredential"
-      @verify-license="onboarding.verifyLicenseCredential"
-      @complete="handleCompleteOnboarding"
     />
 
     <!-- Quake-Style Dropdown Live Console HUD -->
@@ -146,6 +129,7 @@
     <UpdateModal
       :is-open="updater.isModalOpen.value"
       :status="updater.status.value"
+      :current-version="state.version.value"
       @close="updater.closeModal"
       @download="updater.downloadUpdate"
       @install="updater.installUpdate"
@@ -175,13 +159,11 @@ import DashboardView from './components/views/DashboardView.vue';
 import QuakeConsoleDrawer from './components/organisms/QuakeConsoleDrawer.vue';
 import LicenseModal from './components/organisms/LicenseModal.vue';
 import UpdateModal from './components/organisms/UpdateModal.vue';
-import OnboardingModal from './components/organisms/OnboardingModal.vue';
 import EngineErrorModal from './components/organisms/EngineErrorModal.vue';
 import { useMicroverseState } from './composables/useMicroverseState';
 import { useConsoleLogs } from './composables/useConsoleLogs';
 import { useLicenseState } from './composables/useLicenseState';
 import { useAppUpdate } from './composables/useAppUpdate';
-import { useOnboardingState } from './composables/useOnboardingState';
 import { Architecture3DManager } from './architecture-3d';
 import { initSmokeCanvas, type SmokeCanvasEngine } from './smoke-canvas';
 
@@ -192,7 +174,6 @@ const license = useLicenseState((tier) => {
   architecture3D?.setCompassTier(tier);
 });
 const updater = useAppUpdate();
-const onboarding = useOnboardingState();
 
 // 2. Reactive Primitives
 const smokeCanvasRef = ref<HTMLCanvasElement | null>(null);
@@ -268,12 +249,6 @@ const handleCopyGateway = async () => {
       isCopied.value = false;
     }, 1500);
   } catch {}
-};
-
-const handleCompleteOnboarding = () => {
-  onboarding.completeOnboarding();
-  state.activeTab.value = 'tab-overview';
-  handleSwitchView('dashboard');
 };
 
 const handleVisibilityChange = () => {
