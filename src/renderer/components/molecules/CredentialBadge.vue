@@ -86,3 +86,158 @@ const formatStatus = (s: string) => {
   return 'Unverified';
 };
 </script>
+
+<style scoped>
+.credential-badge-card {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border-radius: var(--radius-md);
+  background: rgba(14, 22, 38, 0.6);
+  border: 1px solid var(--border-glass);
+  transition: all 0.25s ease;
+}
+
+.credential-badge-card.status-verified {
+  border-color: rgba(34, 197, 94, 0.4);
+  background: rgba(12, 28, 22, 0.65);
+}
+
+.credential-badge-card.status-verifying {
+  border-color: rgba(234, 179, 8, 0.4);
+}
+
+.credential-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.credential-icon-wrap {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  background: rgba(98, 201, 255, 0.12);
+  border: 1px solid var(--border-glass-bright);
+  color: var(--accent-cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.credential-title-block {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.credential-type-label {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+}
+
+.credential-issuer {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.credential-status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-glass-subtle);
+  color: var(--text-secondary);
+}
+
+.credential-status-tag.status-verified {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: var(--status-running);
+  color: #4ade80;
+}
+
+.credential-status-tag.status-verifying {
+  background: rgba(234, 179, 8, 0.15);
+  border-color: var(--status-transitioning);
+  color: #facc15;
+}
+
+.credential-status-tag.status-failed {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: var(--status-stopped);
+  color: #f87171;
+}
+
+.credential-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-glass-subtle);
+}
+
+.credential-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.field-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.field-value {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.credential-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.credential-meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.meta-label {
+  font-size: 0.60rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.meta-val {
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  color: var(--text-secondary);
+}
+
+.meta-stamp {
+  font-size: 0.65rem;
+  font-family: var(--font-mono);
+  color: var(--accent-cyan);
+}
+</style>

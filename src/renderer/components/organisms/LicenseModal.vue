@@ -102,3 +102,15 @@ const effectiveSelectedTierColor = computed(() => {
   return props.selectedTierColor || props.currentTierColor || props.activeTierColor!;
 });
 </script>
+
+<style scoped>
+.hud-modal-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 780px;
+  max-width: 96vw;
+  max-height: 92vh;
+  align-items: stretch;
+}
+</style>

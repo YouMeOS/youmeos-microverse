@@ -38,7 +38,9 @@
             <p class="pane-description">
               Your profile establishes your sovereign identity on the w⁴ protocol and your local BlackBOX instance.
             </p>
-          </div>          <div class="form-grid-2">
+          </div>
+
+          <div class="form-grid-2">
             <!-- Username (Local Auth) -->
             <div class="form-group">
               <label class="form-label" for="ob-username">
@@ -278,7 +280,6 @@
                   v-model="license.licenseType"
                   class="form-select"
                 >
-                  <option value="private_investigator">Private Investigator / Skip Tracer</option>
                   <option value="legal_bar">State Bar / Legal Counselor</option>
                   <option value="medical">Medical Board Licensure</option>
                   <option value="cpa">Certified Public Accountant (CPA)</option>
@@ -365,38 +366,12 @@
           <div class="pane-intro">
             <h4 class="pane-heading">Explore Platform Superpowers &amp; Features</h4>
             <p class="pane-description">
-              YouMeOS equips you with an operating system of decoupled sparks, website hosting, and investigative intelligence.
+              YouMeOS equips you with an operating system of decoupled sparks, sovereign website hosting, and unified directory authority.
             </p>
           </div>
 
           <div class="features-showcase-grid">
-            <!-- Feature 1: Skip Tracing Intelligence -->
-            <div class="feature-tour-card glass-panel highlight-tour-card">
-              <div class="tour-badge-row">
-                <span class="tour-tag neon-tag">Intelligence Engine</span>
-                <BaseIcon name="search" :size="16" />
-              </div>
-              <h4 class="tour-title">Skip Tracing &amp; OSINT Discovery</h4>
-              <p class="tour-text">
-                Locate current contact vectors, active phones with carrier lookup, email deliverability scores, prior addresses, and public records indexed across educational and licensing databases.
-              </p>
-              <div class="tour-feature-points">
-                <div class="point-item">
-                  <BaseIcon name="check" :size="12" />
-                  <span>Verified phone carriers &amp; DNC status</span>
-                </div>
-                <div class="point-item">
-                  <BaseIcon name="check" :size="12" />
-                  <span>Collegiate alumni &amp; license cross-matching</span>
-                </div>
-                <div class="point-item">
-                  <BaseIcon name="check" :size="12" />
-                  <span>FCRA &amp; DPPA compliant immutable audit logs</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Feature 2: Sovereign Website & WebTop Offering -->
+            <!-- Feature 1: Sovereign Website & WebTop Offering -->
             <div class="feature-tour-card glass-panel">
               <div class="tour-badge-row">
                 <span class="tour-tag cyan-tag">Sovereign Hosting</span>
@@ -475,7 +450,7 @@
           <div class="pane-intro">
             <h4 class="pane-heading">Your Sovereign Node is Ready</h4>
             <p class="pane-description">
-              Review your verified profile configuration below. You can start conducting skip traces or launch the WebTop.
+              Review your verified profile configuration below. You can start exploring features or launch the WebTop.
             </p>
           </div>
 
@@ -611,3 +586,444 @@ defineEmits<{
   (e: 'complete'): void;
 }>();
 </script>
+
+<style scoped>
+.onboarding-modal-container {
+  width: 92vw;
+  max-width: 880px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  background: rgba(8, 14, 28, 0.88);
+  backdrop-filter: blur(24px);
+  border: 1px solid var(--border-glass-bright);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.75), 0 0 30px rgba(98, 201, 255, 0.15);
+  overflow: hidden;
+  animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.onboarding-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-glass);
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.header-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.neon-brand-icon {
+  color: var(--accent-cyan);
+  filter: drop-shadow(0 0 8px var(--accent-cyan-glow));
+}
+
+.brand-text-col .modal-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.brand-text-col .modal-subtitle {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.btn-modal-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-modal-close:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #fff;
+}
+
+.onboarding-body-content {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.pane-intro {
+  margin-bottom: 8px;
+}
+
+.pane-heading {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.pane-description {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.form-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 14px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.label-hint {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-icon .input-icon {
+  position: absolute;
+  left: 10px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.input-with-icon .form-input,
+.input-with-icon .form-select {
+  padding-left: 32px;
+}
+
+.form-input,
+.form-select {
+  width: 100%;
+  padding: 8px 12px;
+  background: rgba(4, 7, 14, 0.65);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.form-input:focus,
+.form-select:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 10px var(--accent-cyan-glow);
+  background: rgba(6, 12, 24, 0.85);
+}
+
+.credentials-split-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.credential-input-card {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.card-inner-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-glass-subtle);
+  color: var(--accent-cyan);
+}
+
+.card-inner-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.verification-action-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.btn-verify-sub {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: rgba(98, 201, 255, 0.12);
+  border: 1px solid var(--accent-cyan);
+  border-radius: var(--radius-sm);
+  color: var(--accent-cyan);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-verify-sub:hover:not(:disabled) {
+  background: var(--accent-cyan);
+  color: #04070e;
+  box-shadow: 0 0 12px var(--accent-cyan-glow);
+}
+
+.btn-verify-sub:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.verified-seal {
+  font-size: 0.7rem;
+  color: var(--status-running);
+  padding: 3px 8px;
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  border-radius: 4px;
+}
+
+.features-showcase-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.feature-tour-card {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tour-badge-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tour-tag {
+  font-size: 0.60rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.cyan-tag {
+  color: var(--accent-cyan);
+  background: rgba(98, 201, 255, 0.12);
+  border: 1px solid rgba(98, 201, 255, 0.35);
+}
+
+.gold-tag {
+  color: var(--accent-gold);
+  background: rgba(255, 213, 153, 0.12);
+  border: 1px solid rgba(255, 213, 153, 0.35);
+}
+
+.purple-tag {
+  color: #c084fc;
+  background: rgba(192, 132, 252, 0.12);
+  border: 1px solid rgba(192, 132, 252, 0.35);
+}
+
+.tour-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.tour-text {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.tour-feature-points {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-top: 4px;
+}
+
+.point-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.74rem;
+  color: var(--text-primary);
+}
+
+.point-item .base-icon {
+  color: var(--status-running);
+}
+
+.summary-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.summary-card {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.summary-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent-cyan);
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-glass-subtle);
+}
+
+.summary-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.summary-body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.summary-line {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.78rem;
+}
+
+.summary-line .lbl {
+  color: var(--text-muted);
+}
+
+.summary-line .val {
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.tag-verified {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--status-running);
+  font-weight: 600;
+}
+
+.onboarding-modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-top: 1px solid var(--border-glass);
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.footer-right-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-secondary-action {
+  padding: 7px 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-secondary-action:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--text-primary);
+}
+
+.btn-primary-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  border: 1px solid #38bdf8;
+  border-radius: var(--radius-sm);
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-primary-action:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.55);
+  transform: translateY(-1px);
+}
+
+.btn-primary-action:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-launch-primary {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  border-color: #34d399;
+  box-shadow: 0 0 14px rgba(52, 211, 153, 0.35);
+}
+
+.btn-launch-primary:hover {
+  background: linear-gradient(135deg, #047857 0%, #065f46 100%);
+  box-shadow: 0 0 22px rgba(52, 211, 153, 0.6);
+}
+</style>

@@ -1,0 +1,31 @@
+/* YouMeOS Microverse Design Tokens */
+:root {
+  --bg-cosmos: #060913;
+  --bg-glass: rgba(12, 18, 32, 0.62);
+  --bg-glass-card: rgba(15, 23, 40, 0.58);
+  --bg-glass-hover: rgba(22, 34, 58, 0.75);
+  --bg-terminal: rgba(4, 7, 14, 0.94);
+  --border-glass: rgba(98, 201, 255, 0.16);
+  --border-glass-bright: rgba(98, 201, 255, 0.42);
+  --border-glass-subtle: rgba(255, 255, 255, 0.08);
+  --text-primary: #f0f6fc;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --accent-cyan: #62c9ff;
+  --accent-cyan-glow: rgba(98, 201, 255, 0.28);
+  --accent-blue: #2979ff;
+  --accent-gold: #ffd599;
+  --accent-gold-glow: rgba(255, 213, 153, 0.35);
+  --status-running: #22c55e;
+  --status-running-glow: rgba(34, 197, 94, 0.35);
+  --status-stopped: #ef4444;
+  --status-stopped-glow: rgba(239, 68, 68, 0.35);
+  --status-transitioning: #eab308;
+  --status-transitioning-glow: rgba(234, 179, 8, 0.35);
+  --neon-cyan: #00f2fe;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Inter", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}

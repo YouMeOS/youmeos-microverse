@@ -29,13 +29,6 @@
         @select="handleTabSelect"
       />
       <TabItem
-        tab-id="tab-skiptrace"
-        label="Skip Tracing"
-        icon="search"
-        :is-active="activeTab === 'tab-skiptrace'"
-        @select="handleTabSelect"
-      />
-      <TabItem
         tab-id="tab-diagnostics"
         label="Diagnostics"
         icon="gear"
@@ -248,15 +241,7 @@
         </div>
       </section>
 
-      <!-- 2. TAB: SKIP TRACING INTELLIGENCE -->
-      <section
-        v-show="activeTab === 'tab-skiptrace'"
-        class="tab-content"
-      >
-        <SkiptraceManager />
-      </section>
-
-      <!-- 3. TAB: DIAGNOSTICS -->
+      <!-- 2. TAB: DIAGNOSTICS -->
       <section
         v-show="activeTab === 'tab-diagnostics'"
         class="tab-content"
@@ -273,8 +258,7 @@
                 <h3 class="card-title">1-Click Auto Login</h3>
               </div>
             </div>
-            <p class="dash-card-desc">Generate an instant sovereign admin session and login to the WebTop directly
-              without typing credentials.</p>
+            <p class="dash-card-desc">Generate an instant sovereign admin session and login to the WebTop directly without typing credentials.</p>
             <div class="diag-action-stack">
               <button
                 type="button"
@@ -313,8 +297,7 @@
                 <h3 class="card-title">Password Reset &amp; Credentials</h3>
               </div>
             </div>
-            <p class="dash-card-desc">Reset the password directly in the sovereign database for any registered WordPress
-              user.</p>
+            <p class="dash-card-desc">Reset the password directly in the sovereign database for any registered WordPress user.</p>
             <div class="diag-form-stack">
               <div
                 v-if="userList.length > 0"
@@ -402,8 +385,7 @@
                 <h3 class="card-title">Session &amp; Cookies Flush</h3>
               </div>
             </div>
-            <p class="dash-card-desc">Clear cached portal session cookies and web storage partition to fix stuck auth
-              states or redirect loops.</p>
+            <p class="dash-card-desc">Clear cached portal session cookies and web storage partition to fix stuck auth states or redirect loops.</p>
             <button
               type="button"
               class="btn-modal-aux"
@@ -465,8 +447,7 @@
               class="db-health-result"
             >
               <span>Status: <strong>{{ dbHealthResult.status }}</strong> ({{ dbHealthResult.integrity }})</span>
-              <span>Users: {{ dbHealthResult.userCount }} | Size: {{ Math.round(dbHealthResult.sizeBytes / 1024) }}
-                KB</span>
+              <span>Users: {{ dbHealthResult.userCount }} | Size: {{ Math.round(dbHealthResult.sizeBytes / 1024) }} KB</span>
             </div>
           </div>
 
@@ -621,7 +602,6 @@ import TabItem from '../atoms/TabItem.vue';
 import EngineSelector from '../molecules/EngineSelector.vue';
 import AppHeader from '../organisms/AppHeader.vue';
 import AppFooter from '../organisms/AppFooter.vue';
-import SkiptraceManager from '../organisms/SkiptraceManager.vue';
 import type { DesktopApi, EngineStatus, EngineType, WpUser, StackLayerStatus } from '../../types';
 import type { TierInfo } from '../../license-cloud-manager';
 
@@ -844,3 +824,498 @@ const handleUpdatePlugins = async () => {
   }
 };
 </script>
+
+<style scoped>
+.tabs-bar {
+  display: flex;
+  align-items: center;
+  background: rgba(12, 18, 32, 0.65);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 3px;
+  gap: 4px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.app-content {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  padding-bottom: 6px;
+}
+
+.dash-card {
+  background: var(--bg-glass);
+  backdrop-filter: blur(16px) saturate(130%);
+  -webkit-backdrop-filter: blur(16px) saturate(130%);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 4px 20px rgba(0, 0, 0, 0.4);
+  position: relative;
+}
+
+.transport-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--accent-cyan);
+}
+
+.card-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.1px;
+}
+
+.transport-actions-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-transport {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 7px 14px;
+  min-height: 32px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(180deg, rgba(28, 38, 62, 0.85) 0%, rgba(16, 22, 38, 0.95) 100%);
+  color: var(--text-primary);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 2px 5px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  user-select: none;
+}
+
+.btn-transport:hover:not(:disabled) {
+  background: linear-gradient(180deg, rgba(38, 52, 84, 0.95) 0%, rgba(20, 28, 50, 0.98) 100%);
+  border-color: var(--border-glass-bright);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22), 0 3px 8px rgba(0, 0, 0, 0.5), 0 0 10px var(--accent-cyan-glow);
+  transform: translateY(-1px);
+}
+
+.btn-transport:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.btn-transport-start.is-active {
+  background: linear-gradient(180deg, rgba(16, 56, 32, 0.95) 0%, rgba(10, 34, 20, 0.98) 100%);
+  border-color: var(--status-running);
+  color: #4ade80;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 0 12px var(--status-running-glow);
+}
+
+.btn-transport-stop.is-active {
+  background: linear-gradient(180deg, rgba(56, 18, 22, 0.95) 0%, rgba(32, 10, 14, 0.98) 100%);
+  border-color: var(--status-stopped);
+  color: #f87171;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5), 0 0 12px var(--status-stopped-glow);
+}
+
+.transport-sep {
+  width: 1px;
+  height: 22px;
+  background: linear-gradient(180deg, transparent 0%, rgba(255, 255, 255, 0.15) 50%, transparent 100%);
+  margin: 0 4px;
+}
+
+.btn-aux-web,
+.btn-aux-browser,
+.btn-aux-blackbox {
+  background: linear-gradient(180deg, rgba(20, 28, 46, 0.75) 0%, rgba(12, 18, 30, 0.85) 100%);
+  border-color: rgba(255, 255, 255, 0.08);
+  font-size: 0.72rem;
+}
+
+.dash-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.dash-overview-grid .dash-card {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dash-overview-grid .dash-card:hover {
+  background: rgba(20, 32, 56, 0.75);
+  border-color: var(--border-glass-bright);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 16px var(--accent-cyan-glow);
+  transform: translateY(-2px);
+}
+
+.dash-card-tag {
+  font-size: 0.62rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.5px;
+}
+
+.cyan-tag {
+  color: var(--accent-cyan);
+  background: rgba(98, 201, 255, 0.12);
+  border: 1px solid rgba(98, 201, 255, 0.35);
+}
+
+.neon-tag {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+}
+
+.purple-tag {
+  color: #c084fc;
+  background: rgba(192, 132, 252, 0.12);
+  border: 1px solid rgba(192, 132, 252, 0.35);
+}
+
+.blue-tag {
+  color: #818cf8;
+  background: rgba(129, 140, 248, 0.12);
+  border: 1px solid rgba(129, 140, 248, 0.35);
+}
+
+.gold-tag {
+  color: var(--accent-gold);
+  background: rgba(255, 213, 153, 0.12);
+  border: 1px solid rgba(255, 213, 153, 0.35);
+}
+
+.emerald-tag {
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+}
+
+.coral-tag {
+  color: #fb7185;
+  background: rgba(251, 113, 133, 0.12);
+  border: 1px solid rgba(251, 113, 133, 0.35);
+}
+
+.dash-card-tier {
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.dash-block-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+  margin-top: 2px;
+}
+
+.dash-block-sub {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  line-height: 1.35;
+}
+
+.dash-diagnostics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.dash-card-desc {
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  margin: 6px 0 10px;
+}
+
+.diag-action-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.btn-modal-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  border: 1px solid #38bdf8;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-modal-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+  box-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
+  transform: translateY(-1px);
+}
+
+.btn-modal-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-modal-aux {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(14, 22, 38, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-secondary);
+  padding: 6px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 0.76rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-modal-aux:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.btn-modal-aux:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-modal-danger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  border: 1px solid #f87171;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 0 15px rgba(248, 113, 113, 0.3);
+  transition: all 0.2s ease;
+}
+
+.btn-modal-danger:hover:not(:disabled) {
+  background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
+  box-shadow: 0 0 20px rgba(248, 113, 113, 0.55);
+}
+
+.feedback-error {
+  color: #f87171;
+  font-size: 0.70rem;
+  margin-top: 4px;
+}
+
+.feedback-msg {
+  color: var(--accent-cyan);
+  font-size: 0.72rem;
+  margin-top: 6px;
+}
+
+.diag-form-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.diag-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.diag-label {
+  font-size: 0.68rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+}
+
+.diag-select,
+.diag-input {
+  background: rgba(6, 10, 18, 0.8);
+  border: 1px solid var(--border-glass);
+  border-radius: var(--radius-sm);
+  padding: 6px 10px;
+  color: var(--text-primary);
+  font-size: 0.75rem;
+  font-family: var(--font-sans);
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.diag-select:focus,
+.diag-input:focus {
+  border-color: var(--accent-cyan);
+}
+
+.diag-pass-row {
+  display: flex;
+  gap: 6px;
+}
+
+.diag-pass-row .diag-input {
+  flex: 1;
+}
+
+.credentials-box,
+.db-health-result {
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(6, 10, 18, 0.7);
+  border: 1px solid var(--border-glass);
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cred-success {
+  color: #4ade80;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cred-copied-badge {
+  background: rgba(74, 222, 128, 0.2);
+  color: #4ade80;
+  padding: 1px 6px;
+  border-radius: var(--radius-sm);
+  font-size: 0.65rem;
+  font-weight: 600;
+}
+
+.cred-error {
+  color: #f87171;
+  font-size: 0.70rem;
+  margin-top: 4px;
+}
+
+.danger-panel {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: linear-gradient(180deg, rgba(239, 68, 68, 0.06) 0%, rgba(10, 16, 28, 0.85) 100%);
+}
+
+.warning-confirm-box {
+  background: rgba(220, 38, 38, 0.12);
+  border: 1px solid rgba(248, 113, 113, 0.4);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.warning-confirm-text {
+  font-size: 0.76rem;
+  color: #fca5a5;
+  line-height: 1.4;
+}
+
+.warning-btn-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dash-settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 12px;
+}
+
+.settings-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.control-label {
+  font-size: 0.65rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.pref-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: var(--text-primary);
+}
+
+.pref-checkbox {
+  accent-color: var(--accent-cyan);
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+.pref-text {
+  user-select: none;
+}
+</style>

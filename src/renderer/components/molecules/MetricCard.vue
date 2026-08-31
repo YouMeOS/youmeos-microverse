@@ -112,3 +112,182 @@ const statusLabel = computed(() => {
   return 'Offline';
 });
 </script>
+
+<style scoped>
+.telemetry-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(15, 24, 42, 0.65);
+  border: 1px solid rgba(98, 201, 255, 0.1);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+.telemetry-card:hover {
+  background: rgba(22, 36, 62, 0.85);
+  border-color: var(--border-glass-bright);
+  box-shadow: 0 0 14px rgba(98, 201, 255, 0.15);
+  transform: translateX(2px);
+}
+
+.telemetry-card.is-running {
+  border-color: rgba(34, 197, 94, 0.25);
+}
+
+.telemetry-card.active {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 16px var(--accent-cyan-glow);
+}
+
+.telemetry-card-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.telemetry-card-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.telemetry-card-tag {
+  font-size: 0.56rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  line-height: 1.2;
+}
+
+.cyan-tag {
+  color: var(--accent-cyan);
+  background: rgba(98, 201, 255, 0.12);
+  border: 1px solid rgba(98, 201, 255, 0.35);
+  box-shadow: 0 0 8px rgba(98, 201, 255, 0.15);
+}
+
+.neon-tag {
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.15);
+}
+
+.purple-tag {
+  color: #c084fc;
+  background: rgba(192, 132, 252, 0.12);
+  border: 1px solid rgba(192, 132, 252, 0.35);
+  box-shadow: 0 0 8px rgba(192, 132, 252, 0.15);
+}
+
+.blue-tag {
+  color: #818cf8;
+  background: rgba(129, 140, 248, 0.12);
+  border: 1px solid rgba(129, 140, 248, 0.35);
+  box-shadow: 0 0 8px rgba(129, 140, 248, 0.15);
+}
+
+.gold-tag {
+  color: var(--accent-gold);
+  background: rgba(255, 213, 153, 0.12);
+  border: 1px solid rgba(255, 213, 153, 0.35);
+  box-shadow: 0 0 8px rgba(255, 213, 153, 0.15);
+}
+
+.emerald-tag,
+.green-tag {
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.35);
+  box-shadow: 0 0 8px rgba(52, 211, 153, 0.15);
+}
+
+.coral-tag,
+.rose-tag {
+  color: #fb7185;
+  background: rgba(251, 113, 133, 0.12);
+  border: 1px solid rgba(251, 113, 133, 0.35);
+  box-shadow: 0 0 8px rgba(251, 113, 133, 0.15);
+}
+
+.telemetry-card-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.telemetry-card-detail {
+  font-size: 0.60rem;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.85;
+}
+
+.telemetry-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border: 1px solid transparent;
+  backdrop-filter: blur(6px);
+  transition: all 0.25s ease;
+}
+
+.telemetry-status-pill.running {
+  background: rgba(34, 197, 94, 0.12);
+  border-color: rgba(34, 197, 94, 0.45);
+  color: #4ade80;
+  box-shadow: 0 0 10px rgba(34, 197, 94, 0.2);
+}
+
+.telemetry-status-pill.stopped {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.35);
+  color: #f87171;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.15);
+}
+
+.telemetry-status-pill.starting,
+.telemetry-status-pill.transitioning {
+  background: rgba(234, 179, 8, 0.12);
+  border-color: rgba(234, 179, 8, 0.45);
+  color: #facc15;
+  box-shadow: 0 0 10px rgba(234, 179, 8, 0.2);
+}
+
+.dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background-color: var(--text-secondary);
+}
+
+.dot.running {
+  background-color: var(--status-running);
+  box-shadow: 0 0 5px var(--status-running);
+}
+
+.dot.stopped {
+  background-color: var(--status-stopped);
+}
+
+.dot.starting {
+  background-color: var(--status-transitioning);
+}
+</style>

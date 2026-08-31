@@ -62,7 +62,7 @@ export function useOnboardingState() {
   };
 
   const defaultLicense: LicenseCredential = {
-    licenseType: 'private_investigator',
+    licenseType: 'legal_bar',
     jurisdiction: '',
     licenseNumber: '',
     expDate: '',

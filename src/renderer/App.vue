@@ -249,7 +249,7 @@ const handleCopyGateway = async () => {
 
 const handleCompleteOnboarding = () => {
   onboarding.completeOnboarding();
-  state.activeTab.value = 'tab-skiptrace';
+  state.activeTab.value = 'tab-overview';
   handleSwitchView('dashboard');
 };
 
