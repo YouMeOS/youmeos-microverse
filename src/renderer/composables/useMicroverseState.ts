@@ -8,6 +8,8 @@ import type {
   GatewayEndpoint,
   DownloadProgress,
   EngineStatusInfo,
+  EngineErrorInfo,
+  ErrorActionType,
   WebtopLaunchTarget,
 } from "../types";
 
@@ -17,6 +19,9 @@ export function useMicroverseState() {
   // 1. Reactive Primitives
   const status = ref<EngineStatus>("stopped");
   const engineType = ref<EngineType>("embedded");
+  const activePort = ref<number>(80);
+  const errorInfo = ref<EngineErrorInfo | null>(null);
+  const isErrorModalOpen = ref<boolean>(false);
   const services = ref<ServiceInfo[]>([]);
   const stackLayers = ref<StackLayerStatus[]>([]);
   const gateways = ref<GatewayEndpoint[]>([]);
@@ -100,8 +105,10 @@ export function useMicroverseState() {
 
   // 3. Helper Methods & Event Handlers
   const updateFromStatusInfo = (info: Partial<EngineStatusInfo>) => {
+    const prevStatus = status.value;
     if (info.status) status.value = info.status;
     if (info.engineType) engineType.value = info.engineType;
+    if (info.activePort) activePort.value = info.activePort;
     if (info.services) services.value = info.services;
     if (info.stackLayers) stackLayers.value = sortStackLayers(info.stackLayers);
     if (info.gateways) gateways.value = info.gateways;
@@ -109,6 +116,12 @@ export function useMicroverseState() {
     if (info.downloadProgress !== undefined)
       downloadProgress.value = info.downloadProgress;
     if (info.message !== undefined) statusMessage.value = info.message;
+    if (info.errorInfo !== undefined) errorInfo.value = info.errorInfo;
+
+    // Automatically surface error modal when transitioning to error with diagnostic data
+    if (status.value === "error" && (info.errorInfo || info.message) && prevStatus !== "error") {
+      isErrorModalOpen.value = true;
+    }
 
     // Reset auto triggers on stop
     if (status.value === "stopped") {
@@ -121,6 +134,7 @@ export function useMicroverseState() {
     if (isRunning.value && !hasPromptedLaunch) {
       hasPromptedLaunch = true;
       isSideDrawerOpen.value = true;
+      isErrorModalOpen.value = false;
     }
 
     // Auto-transition to dashboard if running and not locked on splash
@@ -193,6 +207,45 @@ export function useMicroverseState() {
       await pollStatus();
     } catch (e: any) {
       console.error("Failed to set engine type", e);
+    }
+  };
+
+  const setPort = async (port: number) => {
+    isActionPending.value = true;
+    try {
+      if (api.setPort) {
+        await api.setPort(port);
+      }
+      activePort.value = port;
+    } catch (e: any) {
+      console.error("Failed to set port", e);
+    } finally {
+      isActionPending.value = false;
+      await pollStatus();
+    }
+  };
+
+  const openErrorModal = () => {
+    isErrorModalOpen.value = true;
+  };
+
+  const closeErrorModal = () => {
+    isErrorModalOpen.value = false;
+  };
+
+  const handleRemediateError = async (actionType: ErrorActionType, targetPort?: number) => {
+    closeErrorModal();
+    if (actionType === "switch_port" && targetPort) {
+      await setPort(targetPort);
+      await restart();
+    } else if (actionType === "switch_engine") {
+      await setEngineType("embedded");
+      await restart();
+    } else if (actionType === "reset_db") {
+      activeTab.value = "tab-diagnostics";
+      activeView.value = "dashboard";
+    } else {
+      await restart();
     }
   };
 
@@ -290,6 +343,9 @@ export function useMicroverseState() {
     api,
     status,
     engineType,
+    activePort,
+    errorInfo,
+    isErrorModalOpen,
     services,
     stackLayers,
     gateways,
@@ -320,6 +376,10 @@ export function useMicroverseState() {
     stop,
     restart,
     setEngineType,
+    setPort,
+    openErrorModal,
+    closeErrorModal,
+    handleRemediateError,
     setStayOnSplash,
     launchWebtop,
     closeLaunchPrompt,

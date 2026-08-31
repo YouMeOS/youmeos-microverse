@@ -269,6 +269,8 @@ const readyHandler = async () => {
   ipcMain.handle('engine:structured-logs', (_, filter) => engineManager.getStructuredLogs(filter));
   ipcMain.handle('engine:clear-logs', () => engineManager.clearLogs());
   ipcMain.handle('engine:set-type', (_, type: EngineType) => engineManager.setEngineType(type));
+  ipcMain.handle('engine:set-port', (_, port: number) => engineManager.setPort(port));
+  ipcMain.handle('engine:get-port', () => engineManager.getPort());
   ipcMain.handle('app:version', () => app.getVersion());
 
   ipcMain.handle('engine:update-plugins', async () => {

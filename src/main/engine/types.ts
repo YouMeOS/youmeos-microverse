@@ -43,10 +43,39 @@ export interface GatewayEndpoint {
   isPrimary?: boolean;
 }
 
+export type ErrorActionType =
+  | 'switch_port'
+  | 'switch_engine'
+  | 'install_runtime'
+  | 'reset_db'
+  | 'retry'
+  | 'view_logs';
+
+export interface EngineErrorInfo {
+  code:
+    | 'PORT_IN_USE'
+    | 'PERMISSION_DENIED'
+    | 'MISSING_RUNTIME'
+    | 'DOCKER_DAEMON_OFFLINE'
+    | 'DB_LOCKED'
+    | 'SPAWN_ERROR'
+    | 'UNKNOWN';
+  title: string;
+  cause: string;
+  suggestedAction: string;
+  actionType: ErrorActionType;
+  targetPort?: number;
+  details?: string;
+  rawError?: string;
+  runtimeDownloadUrl?: string;
+}
+
 export interface EngineStatusInfo {
   status: EngineStatus;
   engineType: EngineType;
   message?: string;
+  activePort?: number;
+  errorInfo?: EngineErrorInfo;
   downloadProgress?: DownloadProgress | null;
   services: ServiceInfo[];
   stackLayers?: StackLayerStatus[];
@@ -88,6 +117,8 @@ export interface MicroverseEngine {
   getStructuredLogs?(filter?: LogFilterOptions): Promise<LogEntry[]>;
   clearLogs?(): void;
   isAvailable(): Promise<boolean>;
+  setPort?(port: number): Promise<void>;
+  getPort?(): number;
   setProgressCallback?(callback: ProgressCallback): void;
   setLogCallback?(callback: LogCallback): void;
   setStatusCallback?(callback: StatusCallback): void;

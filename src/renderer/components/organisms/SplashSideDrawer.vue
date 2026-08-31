@@ -32,15 +32,46 @@
 
     <!-- Engine & Cluster Status Bar inside Side Panel -->
     <div class="splash-side-status-bar">
-      <EngineSelector
-        :model-value="engineType"
-        @update:model-value="$emit('setEngineType', $event)"
-      />
+      <div class="status-bar-left">
+        <EngineSelector
+          :model-value="engineType"
+          @update:model-value="$emit('setEngineType', $event)"
+        />
+        <span class="port-indicator-pill" :title="`Active Port: :${activePort || 80}`">
+          <BaseIcon name="port" :size="11" />
+          <span>:{{ activePort || 80 }}</span>
+        </span>
+      </div>
       <StatusBadge :status="status" />
     </div>
 
     <!-- Component Verification HUD Body -->
     <div class="splash-side-body custom-scrollbar">
+      <!-- Error Alert / Remediation Card -->
+      <div
+        v-if="status === 'error'"
+        class="sidebar-error-card glass-panel"
+        @click="$emit('openErrorModal')"
+      >
+        <div class="sidebar-error-header">
+          <div class="sidebar-error-badge">
+            <BaseIcon name="alert-triangle" :size="16" />
+          </div>
+          <div class="sidebar-error-title-group">
+            <span class="sidebar-error-title">{{ errorInfo?.title || 'Engine Failure Detected' }}</span>
+            <span class="sidebar-error-subtitle">{{ errorInfo?.suggestedAction || 'Click to Diagnose &amp; Auto-Fix' }}</span>
+          </div>
+        </div>
+        <button
+          type="button"
+          class="btn-sidebar-fix"
+          title="Open Diagnostics and 1-Click Fix"
+        >
+          <BaseIcon name="wrench" :size="13" />
+          <span>Diagnose &amp; Fix</span>
+        </button>
+      </div>
+
       <!-- Ready to Launch WebTop Sidebar Prompt Card -->
       <div v-if="isRunning" class="sidebar-launch-card glass-panel">
         <div class="sidebar-launch-header">
@@ -140,12 +171,14 @@ import StatusBadge from '../atoms/StatusBadge.vue';
 import EngineSelector from '../molecules/EngineSelector.vue';
 import MetricCard from '../molecules/MetricCard.vue';
 import QuickActionBar from '../molecules/QuickActionBar.vue';
-import type { EngineStatus, EngineType, StackLayerStatus, WebtopLaunchTarget } from '../../types';
+import type { EngineStatus, EngineType, StackLayerStatus, WebtopLaunchTarget, EngineErrorInfo } from '../../types';
 
 const props = defineProps<{
   isOpen: boolean;
   status: EngineStatus;
   engineType: EngineType;
+  activePort?: number;
+  errorInfo?: EngineErrorInfo | null;
   stackLayers: StackLayerStatus[];
   verifiedCount: number;
   totalCount: number;
@@ -180,6 +213,7 @@ defineEmits<{
   (e: 'launchWebtop', target: WebtopLaunchTarget): void;
   (e: 'highlightLayer', layerId: string | null): void;
   (e: 'selectLayer', layerId: string): void;
+  (e: 'openErrorModal'): void;
   (e: 'start'): void;
   (e: 'stop'): void;
   (e: 'openUrl'): void;
@@ -302,6 +336,27 @@ defineEmits<{
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+.status-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.port-indicator-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.64rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--accent-cyan);
+  background: rgba(0, 242, 254, 0.08);
+  border: 1px solid rgba(0, 242, 254, 0.25);
+  padding: 2px 6px;
+  border-radius: 9999px;
+  letter-spacing: 0.3px;
+}
+
 .splash-side-body {
   flex: 1;
   display: flex;
@@ -311,6 +366,90 @@ defineEmits<{
   overflow-y: auto;
   gap: 8px;
   min-height: 0;
+}
+
+.sidebar-error-card {
+  background: linear-gradient(135deg, rgba(36, 12, 22, 0.88) 0%, rgba(20, 8, 14, 0.94) 100%);
+  border: 1px solid rgba(255, 0, 85, 0.45);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 0, 85, 0.2);
+  margin-bottom: 6px;
+  animation: fadeIn 0.25s ease;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.sidebar-error-card:hover {
+  border-color: #ff3366;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.6), 0 0 28px rgba(255, 0, 85, 0.35);
+  transform: translateY(-1px);
+}
+
+.sidebar-error-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sidebar-error-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 0, 85, 0.18);
+  border: 1px solid rgba(255, 0, 85, 0.5);
+  color: #ff3366;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 10px rgba(255, 0, 85, 0.3);
+}
+
+.sidebar-error-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sidebar-error-title {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.1px;
+}
+
+.sidebar-error-subtitle {
+  font-size: 0.68rem;
+  color: #ff8899;
+  font-weight: 500;
+}
+
+.btn-sidebar-fix {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 0.74rem;
+  font-weight: 700;
+  background: rgba(255, 0, 85, 0.2);
+  border: 1px solid rgba(255, 0, 85, 0.5);
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.btn-sidebar-fix:hover {
+  background: rgba(255, 0, 85, 0.35);
+  border-color: #ff3366;
+  box-shadow: 0 0 14px rgba(255, 0, 85, 0.4);
 }
 
 .sidebar-launch-card {

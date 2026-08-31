@@ -51,6 +51,34 @@
         v-show="activeTab === 'tab-overview'"
         class="tab-content"
       >
+        <!-- Prominent Error Diagnosis & 1-Click Fix Banner -->
+        <div
+          v-if="status === 'error'"
+          class="dash-error-banner glass-panel"
+          @click="$emit('openErrorModal')"
+        >
+          <div class="dash-error-left">
+            <div class="dash-error-badge">
+              <BaseIcon name="alert-triangle" :size="20" />
+            </div>
+            <div class="dash-error-info">
+              <div class="dash-error-title-row">
+                <span class="dash-error-title">{{ errorInfo?.title || 'Engine Startup Failed' }}</span>
+                <span class="dash-error-pill">:{{ activePort || 80 }}</span>
+              </div>
+              <span class="dash-error-desc">{{ errorInfo?.cause || 'Click to inspect detailed error diagnosis and execute automated fix.' }}</span>
+            </div>
+          </div>
+          <button
+            type="button"
+            class="btn-dash-fix"
+            title="Open Diagnostic & 1-Click Fix Modal"
+          >
+            <BaseIcon name="wrench" :size="14" />
+            <span>Diagnose &amp; Auto-Fix</span>
+          </button>
+        </div>
+
         <!-- Tape Deck Transport Controls Card -->
         <div class="dash-card glass-panel transport-card">
           <div class="card-header">
@@ -553,6 +581,57 @@
             </div>
           </div>
 
+          <!-- Gateway Port Configuration Card -->
+          <div class="dash-card glass-panel">
+            <div class="card-header">
+              <div class="card-title-group">
+                <BaseIcon name="port" :size="16" />
+                <h3 class="card-title">Gateway Port Configuration</h3>
+              </div>
+              <span class="port-active-badge">Active: :{{ activePort || 80 }}</span>
+            </div>
+            <p class="dash-card-desc">Change the HTTP port binding if port 80 is occupied by another local service or requires root privileges.</p>
+            
+            <div class="port-preset-row">
+              <button
+                v-for="p in [80, 8080, 8088, 3000, 8888]"
+                :key="p"
+                type="button"
+                :class="['btn-port-preset', { active: (activePort || 80) === p }]"
+                :disabled="isActionPending"
+                @click="handleSelectPort(p)"
+              >
+                <span>:{{ p }}</span>
+                <span class="preset-sub">{{ p === 80 ? 'Standard' : (p >= 1024 ? 'Unprivileged' : 'Custom') }}</span>
+              </button>
+            </div>
+
+            <div class="port-custom-field">
+              <label class="control-label">Custom Port Number</label>
+              <div class="port-input-group">
+                <input
+                  v-model.number="customPortInput"
+                  type="number"
+                  min="1"
+                  max="65535"
+                  class="port-input"
+                  placeholder="e.g. 8080"
+                  :disabled="isActionPending"
+                  @keyup.enter="handleApplyCustomPort"
+                />
+                <button
+                  type="button"
+                  class="btn-modal-primary btn-apply-port"
+                  :disabled="isActionPending || !customPortInput || customPortInput === (activePort || 80)"
+                  @click="handleApplyCustomPort"
+                >
+                  <BaseIcon name="check" :size="13" />
+                  <span>Apply Port</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
           <div class="dash-card glass-panel">
             <h3 class="card-title">Plugin Sync &amp; Maintenance</h3>
             <p class="dash-card-desc">Sync and update the latest PHP and PWA Sparks from upstream.</p>
@@ -602,7 +681,7 @@ import TabItem from '../atoms/TabItem.vue';
 import EngineSelector from '../molecules/EngineSelector.vue';
 import AppHeader from '../organisms/AppHeader.vue';
 import AppFooter from '../organisms/AppFooter.vue';
-import type { DesktopApi, EngineStatus, EngineType, WpUser, StackLayerStatus } from '../../types';
+import type { DesktopApi, EngineStatus, EngineType, WpUser, StackLayerStatus, EngineErrorInfo } from '../../types';
 import type { TierInfo } from '../../license-cloud-manager';
 
 const props = defineProps<{
@@ -611,6 +690,8 @@ const props = defineProps<{
   status: EngineStatus;
   statusLabel: string;
   engineType: EngineType;
+  activePort?: number;
+  errorInfo?: EngineErrorInfo | null;
   currentGatewayUrl: string;
   currentTierData: TierInfo;
   currentTierColor: { hex: string; three: number };
@@ -630,7 +711,9 @@ const props = defineProps<{
 const emit = defineEmits<{
   (e: 'setTab', tabId: string): void;
   (e: 'setEngineType', val: EngineType): void;
+  (e: 'setPort', port: number): void;
   (e: 'setStayOnSplash', val: boolean): void;
+  (e: 'openErrorModal'): void;
   (e: 'toggleConsole'): void;
   (e: 'openLicenseModal'): void;
   (e: 'openOnboarding'): void;
@@ -645,6 +728,7 @@ const emit = defineEmits<{
   (e: 'restart'): void;
 }>();
 
+const customPortInput = ref<number>(props.activePort || 80);
 const isAutoLoggingIn = ref<boolean>(false);
 const autoLoginError = ref<string>('');
 const isResettingPassword = ref<boolean>(false);
@@ -821,6 +905,18 @@ const handleUpdatePlugins = async () => {
     pluginUpdateFeedback.value = `Update failed: ${e?.message || e}`;
   } finally {
     isUpdatingPlugins.value = false;
+  }
+};
+
+const handleSelectPort = (port: number) => {
+  customPortInput.value = port;
+  emit('setPort', port);
+};
+
+const handleApplyCustomPort = () => {
+  const parsed = Number(customPortInput.value);
+  if (!isNaN(parsed) && parsed >= 1 && parsed <= 65535) {
+    emit('setPort', parsed);
   }
 };
 </script>
@@ -1317,5 +1413,206 @@ const handleUpdatePlugins = async () => {
 
 .pref-text {
   user-select: none;
+}
+
+.dash-error-banner {
+  background: linear-gradient(135deg, rgba(38, 12, 22, 0.92) 0%, rgba(18, 10, 18, 0.96) 100%);
+  border: 1px solid rgba(255, 0, 85, 0.45);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5), 0 0 24px rgba(255, 0, 85, 0.22);
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  animation: fadeIn 0.25s ease;
+}
+
+.dash-error-banner:hover {
+  border-color: #ff3366;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.6), 0 0 32px rgba(255, 0, 85, 0.35);
+  transform: translateY(-1px);
+}
+
+.dash-error-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.dash-error-badge {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 0, 85, 0.18);
+  border: 1px solid rgba(255, 0, 85, 0.5);
+  color: #ff3366;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: 0 0 12px rgba(255, 0, 85, 0.35);
+}
+
+.dash-error-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.dash-error-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.dash-error-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.1px;
+}
+
+.dash-error-pill {
+  font-size: 0.62rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  background: rgba(255, 0, 85, 0.2);
+  border: 1px solid rgba(255, 0, 85, 0.4);
+  color: #ff8899;
+}
+
+.dash-error-desc {
+  font-size: 0.74rem;
+  color: var(--text-secondary);
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.btn-dash-fix {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 0, 85, 0.2);
+  border: 1px solid rgba(255, 0, 85, 0.5);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.btn-dash-fix:hover {
+  background: rgba(255, 0, 85, 0.35);
+  border-color: #ff3366;
+  box-shadow: 0 0 16px rgba(255, 0, 85, 0.45);
+  transform: translateY(-1px);
+}
+
+.port-active-badge {
+  font-size: 0.68rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--accent-cyan);
+  background: rgba(0, 242, 254, 0.1);
+  border: 1px solid rgba(0, 242, 254, 0.3);
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.port-preset-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.btn-port-preset {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 7px 12px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 60px;
+}
+
+.btn-port-preset:hover:not(:disabled) {
+  background: rgba(0, 242, 254, 0.12);
+  border-color: rgba(0, 242, 254, 0.4);
+  color: #fff;
+}
+
+.btn-port-preset.active {
+  background: rgba(0, 242, 254, 0.18);
+  border-color: #00f2fe;
+  box-shadow: 0 0 12px rgba(0, 242, 254, 0.25);
+}
+
+.preset-sub {
+  font-size: 0.58rem;
+  font-family: var(--font-sans);
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.port-custom-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.port-input-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.port-input {
+  flex: 1;
+  background: rgba(4, 6, 12, 0.8);
+  border: 1px solid var(--border-glass-bright);
+  border-radius: var(--radius-sm);
+  padding: 7px 12px;
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 600;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.port-input:focus {
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 12px var(--accent-cyan-glow);
+}
+
+.btn-apply-port {
+  white-space: nowrap;
+  padding: 7px 14px;
 }
 </style>

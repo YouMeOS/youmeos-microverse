@@ -97,6 +97,18 @@ export class EngineManager {
     this.currentEngineType = type;
   }
 
+  async setPort(port: number): Promise<void> {
+    const cleanPort = Math.max(1, Math.min(65535, port));
+    await Promise.allSettled([
+      this.embeddedEngine.setPort?.(cleanPort),
+      this.dockerEngine.setPort?.(cleanPort)
+    ]);
+  }
+
+  getPort(): number {
+    return this.activeEngine.getPort?.() || 80;
+  }
+
   async status(): Promise<EngineStatusInfo> {
     const [dockerAvail, embeddedAvail, engineStatus] = await Promise.all([
       this.dockerEngine.isAvailable(),

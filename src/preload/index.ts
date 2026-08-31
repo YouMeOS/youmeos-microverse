@@ -14,6 +14,8 @@ const openBrowserHandler = (url?: string) => ipcRenderer.invoke('engine:open-ext
 const openBlackboxFolderHandler = (subfolder?: string) => ipcRenderer.invoke('engine:open-blackbox-folder', subfolder);
 const openStripeCheckoutHandler = (url: string) => ipcRenderer.invoke('checkout:open-stripe', url);
 const setEngineTypeHandler = (type: string) => ipcRenderer.invoke('engine:set-type', type);
+const setPortHandler = (port: number) => ipcRenderer.invoke('engine:set-port', port);
+const getPortHandler = () => ipcRenderer.invoke('engine:get-port');
 const updatePluginsHandler = () => ipcRenderer.invoke('engine:update-plugins');
 const getVersionHandler = () => ipcRenderer.invoke('app:version');
 const minimizeToTrayHandler = () => ipcRenderer.invoke('window:minimize-to-tray');
@@ -77,6 +79,8 @@ contextBridge.exposeInMainWorld('api', {
   openBlackboxFolder: openBlackboxFolderHandler,
   openStripeCheckout: openStripeCheckoutHandler,
   setEngineType: setEngineTypeHandler,
+  setPort: setPortHandler,
+  getPort: getPortHandler,
   updatePlugins: updatePluginsHandler,
   getVersion: getVersionHandler,
   minimizeToTray: minimizeToTrayHandler,

@@ -8,11 +8,11 @@ services:
     container_name: youmeos-microverse
     restart: unless-stopped
     ports:
-      - "80:80"
-      - "443:443"
+      - "${PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
     volumes:
       - ./wp-content:/var/www/html/wp-content
     environment:
-      - PORT=80
-      - HTTPS_PORT=443
+      - PORT=${PORT:-80}
+      - HTTPS_PORT=${HTTPS_PORT:-443}
       - WP_DEBUG=false

@@ -1,4 +1,6 @@
 import type {
+  EngineErrorInfo,
+  ErrorActionType,
   EngineStatus,
   EngineType,
   GatewayEndpoint,
@@ -63,6 +65,8 @@ export interface DesktopApi {
     reason?: string;
   }>;
   setEngineType: (type: string) => Promise<void>;
+  setPort?: (port: number) => Promise<void>;
+  getPort?: () => Promise<number>;
   updatePlugins: () => Promise<PluginUpdateResult>;
   getVersion?: () => Promise<string>;
   minimizeToTray?: () => Promise<void>;
@@ -86,6 +90,8 @@ export type WebtopLaunchTarget = 'webview' | 'browser';
 export type AutolaunchTarget = 'webview' | 'browser';
 
 export type {
+  EngineErrorInfo,
+  ErrorActionType,
   EngineStatus,
   EngineType,
   GatewayEndpoint,

@@ -10,10 +10,12 @@ import {
   EngineStatus,
   EngineType,
   DownloadProgress,
-  GatewayEndpoint
+  GatewayEndpoint,
+  EngineErrorInfo
 } from './types';
 import { setupEmbeddedEnvironment, DEFAULT_CADDYFILE } from './embedded-setup';
 import { inspectStackLayers } from './stack-inspector';
+import { classifyEngineError } from './error-classifier';
 
 export class EmbeddedEngine extends BaseEngine {
   readonly type: EngineType = 'embedded';
@@ -24,6 +26,7 @@ export class EmbeddedEngine extends BaseEngine {
   private isSettingUp = false;
   private currentStatus: EngineStatus = 'stopped';
   private lastErrorMessage?: string;
+  private lastErrorInfo?: EngineErrorInfo;
   private healthCheckTimer: NodeJS.Timeout | null = null;
 
   constructor() {
@@ -35,6 +38,20 @@ export class EmbeddedEngine extends BaseEngine {
 
   async isAvailable(): Promise<boolean> {
     return true;
+  }
+
+  async setPort(port: number): Promise<void> {
+    const cleanPort = Math.max(1, Math.min(65535, port));
+    if (this.activePort === cleanPort) return;
+    this.activePort = cleanPort;
+    this.pushLog('gateway', `Port updated to ${this.activePort}`);
+    if (this.currentStatus === 'running' || this.currentStatus === 'starting') {
+      await this.restart();
+    }
+  }
+
+  getPort(): number {
+    return this.activePort;
   }
 
   private resolveCaddyfilePath(): string {
@@ -104,6 +121,7 @@ export class EmbeddedEngine extends BaseEngine {
     this.isSettingUp = true;
     this.currentStatus = 'starting';
     this.lastErrorMessage = undefined;
+    this.lastErrorInfo = undefined;
     this.notifyStatus();
 
     let frankenPath = '';
@@ -119,6 +137,11 @@ export class EmbeddedEngine extends BaseEngine {
       this.isSettingUp = false;
       this.currentStatus = 'error';
       this.lastErrorMessage = `Embedded setup failed: ${e.message}`;
+      this.lastErrorInfo = classifyEngineError({
+        rawError: e.message,
+        activePort: this.activePort,
+        engineType: 'embedded'
+      });
       this.currentDownloadProgress = null;
       this.progressCallback?.(null);
       this.pushLog('setup', `Error: ${e.message}`, 'error');
@@ -129,8 +152,6 @@ export class EmbeddedEngine extends BaseEngine {
     this.isSettingUp = false;
     this.currentDownloadProgress = null;
     this.progressCallback?.(null);
-
-    this.activePort = 80;
 
     const caddyfilePath = this.resolveCaddyfilePath();
     const wpCoreDir = path.join(this.projectDir, 'data', 'embedded', 'wp-core');
@@ -143,7 +164,9 @@ export class EmbeddedEngine extends BaseEngine {
     const activeCert = fs.existsSync(certPath) ? certPath : (fs.existsSync(resCertPath) ? resCertPath : 'internal');
     const activeKey = fs.existsSync(keyPath) ? keyPath : (fs.existsSync(resKeyPath) ? resKeyPath : '');
 
-    this.pushLog('frankenphp', `Starting FrankenPHP native engine on ports 80/443 (Gateway: https://my.youmeos.com)...`);
+    const httpsPort = this.activePort === 80 ? '443' : (this.activePort + 363).toString();
+
+    this.pushLog('frankenphp', `Starting FrankenPHP native engine on port ${this.activePort} (Gateway: ${this.activePort === 80 ? 'https://my.youmeos.com' : 'http://localhost:' + this.activePort})...`);
 
     const tlsDirective = hasCerts
       ? `tls "${activeCert.replace(/\\/g, '/')}" "${activeKey.replace(/\\/g, '/')}"`
@@ -162,7 +185,7 @@ export class EmbeddedEngine extends BaseEngine {
           PATH: envPath,
           WP_ROOT: wpCoreDir.replace(/\\/g, '/'),
           PORT: this.activePort.toString(),
-          HTTPS_PORT: '443',
+          HTTPS_PORT: httpsPort,
           TLS_DIRECTIVE: tlsDirective,
           TLS_CERT: hasCerts ? activeCert.replace(/\\/g, '/') : 'internal',
           TLS_KEY: hasCerts ? activeKey.replace(/\\/g, '/') : ''
@@ -212,6 +235,11 @@ export class EmbeddedEngine extends BaseEngine {
             this.pushLog('core', line, level);
             if (isErr && !this.lastErrorMessage) {
               this.lastErrorMessage = line;
+              this.lastErrorInfo = classifyEngineError({
+                rawError: line,
+                activePort: this.activePort,
+                engineType: 'embedded'
+              });
             }
           }
         }
@@ -225,9 +253,21 @@ export class EmbeddedEngine extends BaseEngine {
           if (code !== 0 && !this.lastErrorMessage) {
             if (code === 3221225781 || code === -1073741515) {
               this.lastErrorMessage = 'Missing Windows C++ Runtime. Please install Microsoft Visual C++ 2015-2022 Redistributable (x64): https://aka.ms/vs/17/release/vc_redist.x64.exe';
+              this.lastErrorInfo = classifyEngineError({
+                exitCode: code,
+                rawError: this.lastErrorMessage,
+                activePort: this.activePort,
+                engineType: 'embedded'
+              });
               this.pushLog('core', this.lastErrorMessage, 'error');
             } else {
               this.lastErrorMessage = `FrankenPHP exited unexpectedly with code ${code}. Check if port ${this.activePort} is available.`;
+              this.lastErrorInfo = classifyEngineError({
+                exitCode: code,
+                rawError: this.lastErrorMessage,
+                activePort: this.activePort,
+                engineType: 'embedded'
+              });
             }
           }
         } else {
@@ -240,6 +280,11 @@ export class EmbeddedEngine extends BaseEngine {
         this.pushLog('gateway', `Spawn error: ${err.message}`, 'error');
         this.currentStatus = 'error';
         this.lastErrorMessage = err.message;
+        this.lastErrorInfo = classifyEngineError({
+          rawError: err.message,
+          activePort: this.activePort,
+          engineType: 'embedded'
+        });
         this.serverProcess = null;
         this.notifyStatus();
       });
@@ -254,6 +299,7 @@ export class EmbeddedEngine extends BaseEngine {
         if (healthy) {
           this.currentStatus = 'running';
           this.lastErrorMessage = undefined;
+          this.lastErrorInfo = undefined;
           this.pushLog('gateway', `Native Gateway & PHP Engine verified healthy on port ${this.activePort}`);
           this.notifyStatus();
           return;
@@ -274,6 +320,11 @@ export class EmbeddedEngine extends BaseEngine {
     } catch (e: any) {
       this.currentStatus = 'error';
       this.lastErrorMessage = `Failed to spawn FrankenPHP: ${e.message}`;
+      this.lastErrorInfo = classifyEngineError({
+        rawError: e.message,
+        activePort: this.activePort,
+        engineType: 'embedded'
+      });
       this.pushLog('frankenphp', this.lastErrorMessage, 'error');
       this.notifyStatus();
       throw e;
@@ -342,13 +393,17 @@ export class EmbeddedEngine extends BaseEngine {
     else if (isStarting) serverState = 'starting';
     else if (isError) serverState = 'error';
 
+    const activePortsList = this.activePort === 80
+      ? ['80', '443']
+      : [this.activePort.toString(), (this.activePort + 363).toString()];
+
     const services: ServiceInfo[] = [
       {
         name: 'php-server',
         displayName: 'Native Web & PHP Server',
         role: 'FrankenPHP Isolated Runtime & Gateway',
         status: serverState,
-        ports: ['80', '443'],
+        ports: activePortsList,
         health: isRunning ? 'healthy' : (isStarting ? 'starting' : undefined),
         category: 'Edge Gateway & PHP 8.3',
         specs: ['FrankenPHP 1.2', 'Caddy Engine', 'HTTP/2 & TLS 1.3']
@@ -373,11 +428,18 @@ export class EmbeddedEngine extends BaseEngine {
       }
     ];
 
-    const primaryUrl = 'https://my.youmeos.com';
-    const gateways: GatewayEndpoint[] = [
-      { label: 'my.youmeos.com', url: primaryUrl, isPrimary: true },
-      { label: 'youmeos.localhost', url: 'http://youmeos.localhost' }
-    ];
+    const isStandardPort = this.activePort === 80;
+    const primaryUrl = isStandardPort ? 'https://my.youmeos.com' : `http://localhost:${this.activePort}`;
+    const gateways: GatewayEndpoint[] = isStandardPort
+      ? [
+          { label: 'my.youmeos.com', url: primaryUrl, isPrimary: true },
+          { label: 'youmeos.localhost', url: 'http://youmeos.localhost' }
+        ]
+      : [
+          { label: `localhost:${this.activePort}`, url: primaryUrl, isPrimary: true },
+          { label: `youmeos.localhost:${this.activePort}`, url: `http://youmeos.localhost:${this.activePort}` },
+          { label: `127.0.0.1:${this.activePort}`, url: `http://127.0.0.1:${this.activePort}` }
+        ];
 
     const stackLayers = await inspectStackLayers({
       projectDir: this.projectDir,
@@ -389,7 +451,9 @@ export class EmbeddedEngine extends BaseEngine {
     return {
       status: this.currentStatus,
       engineType: 'embedded',
+      activePort: this.activePort,
       message: this.lastErrorMessage,
+      errorInfo: this.lastErrorInfo,
       downloadProgress: this.currentDownloadProgress,
       services,
       stackLayers,

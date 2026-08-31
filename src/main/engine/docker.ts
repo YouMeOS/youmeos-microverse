@@ -9,10 +9,12 @@ import {
   EngineStatus,
   EngineType,
   DownloadProgress,
-  GatewayEndpoint
+  GatewayEndpoint,
+  EngineErrorInfo
 } from './types';
 import { setupDockerEnvironment } from './docker-setup';
 import { inspectStackLayers } from './stack-inspector';
+import { classifyEngineError } from './error-classifier';
 
 const execFileAsync = promisify(execFile);
 
@@ -37,11 +39,6 @@ const KNOWN_SERVICES: Record<
   }
 };
 
-const DOCKER_GATEWAYS: GatewayEndpoint[] = [
-  { label: 'my.youmeos.com', url: 'https://my.youmeos.com', isPrimary: true },
-  { label: 'youmeos.localhost', url: 'http://youmeos.localhost' }
-];
-
 export class DockerEngine extends BaseEngine {
   readonly type: EngineType = 'docker';
   private logsProcess: ChildProcess | null = null;
@@ -50,6 +47,9 @@ export class DockerEngine extends BaseEngine {
   private resourcesDir: string;
   private isSettingUp = false;
   private isStarting = false;
+  private activePort = 80;
+  private lastErrorMessage?: string;
+  private lastErrorInfo?: EngineErrorInfo;
 
   constructor() {
     super();
@@ -59,9 +59,33 @@ export class DockerEngine extends BaseEngine {
     this.composePath = path.join(this.projectDir, 'docker-compose.yml');
   }
 
+  async setPort(port: number): Promise<void> {
+    const cleanPort = Math.max(1, Math.min(65535, port));
+    if (this.activePort === cleanPort) return;
+    this.activePort = cleanPort;
+    this.pushLog('gateway', `Docker port updated to ${this.activePort}`);
+    const currentStatus = await this.status();
+    if (currentStatus.status === 'running' || currentStatus.status === 'starting') {
+      await this.restart();
+    }
+  }
+
+  getPort(): number {
+    return this.activePort;
+  }
+
+  private getComposeEnv(): NodeJS.ProcessEnv {
+    const httpsPort = this.activePort === 80 ? '443' : (this.activePort + 363).toString();
+    return {
+      ...process.env,
+      PORT: this.activePort.toString(),
+      HTTPS_PORT: httpsPort
+    };
+  }
+
   private async runCompose(args: string[]): Promise<{ stdout: string; stderr: string }> {
     const baseArgs = ['compose', '-f', this.composePath, '--project-directory', this.projectDir, ...args];
-    return execFileAsync('docker', baseArgs);
+    return execFileAsync('docker', baseArgs, { env: this.getComposeEnv() });
   }
 
   private parseDockerLogLine(raw: string): { service: string; text: string; level: 'info' | 'warn' | 'error' | 'debug' } {
@@ -117,7 +141,7 @@ export class DockerEngine extends BaseEngine {
     this.stopLogsFollower();
 
     const baseArgs = ['compose', '-f', this.composePath, '--project-directory', this.projectDir, 'logs', '-f', '--tail', '50'];
-    this.logsProcess = spawn('docker', baseArgs);
+    this.logsProcess = spawn('docker', baseArgs, { env: this.getComposeEnv() });
 
     this.logsProcess.stdout?.on('data', (data) => {
       const lines = data.toString().trim().split('\n').filter(Boolean);
@@ -150,7 +174,7 @@ export class DockerEngine extends BaseEngine {
   private runComposeStream(args: string[], onLine?: (line: string, isErr: boolean) => void): Promise<number> {
     return new Promise((resolve, reject) => {
       const baseArgs = ['compose', '-f', this.composePath, '--project-directory', this.projectDir, ...args];
-      const proc = spawn('docker', baseArgs);
+      const proc = spawn('docker', baseArgs, { env: this.getComposeEnv() });
 
       proc.stdout?.on('data', (data) => {
         const lines = data.toString().trim().split('\n').filter(Boolean);
@@ -185,6 +209,8 @@ export class DockerEngine extends BaseEngine {
     if (this.isSettingUp || this.isStarting) return;
     this.isSettingUp = true;
     this.isStarting = true;
+    this.lastErrorMessage = undefined;
+    this.lastErrorInfo = undefined;
     this.notifyStatus();
 
     try {
@@ -200,6 +226,12 @@ export class DockerEngine extends BaseEngine {
       this.isStarting = false;
       this.currentDownloadProgress = null;
       this.progressCallback?.(null);
+      this.lastErrorMessage = `Docker setup failed: ${e.message}`;
+      this.lastErrorInfo = classifyEngineError({
+        rawError: e.message,
+        activePort: this.activePort,
+        engineType: 'docker'
+      });
       this.pushLog('setup', `Error: ${e.message}`, 'error');
       this.notifyStatus();
       throw e;
@@ -209,11 +241,32 @@ export class DockerEngine extends BaseEngine {
     this.currentDownloadProgress = null;
     this.progressCallback?.(null);
 
-    this.pushLog('gateway', 'Starting Docker cluster containers...');
-    await this.runComposeStream(['up', '-d'], (line) => {
-      const parsed = this.parseDockerLogLine(line);
-      this.pushLog(parsed.service, parsed.text, parsed.level);
-    });
+    this.pushLog('gateway', `Starting Docker cluster containers on port ${this.activePort}...`);
+    try {
+      await this.runComposeStream(['up', '-d'], (line, isErr) => {
+        const parsed = this.parseDockerLogLine(line);
+        this.pushLog(parsed.service, parsed.text, parsed.level);
+        if (isErr && (line.toLowerCase().includes('error') || line.toLowerCase().includes('failed') || line.toLowerCase().includes('bind:'))) {
+          this.lastErrorMessage = line;
+          this.lastErrorInfo = classifyEngineError({
+            rawError: line,
+            activePort: this.activePort,
+            engineType: 'docker'
+          });
+        }
+      });
+    } catch (err: any) {
+      this.isStarting = false;
+      this.lastErrorMessage = err.message;
+      this.lastErrorInfo = classifyEngineError({
+        rawError: err.message,
+        activePort: this.activePort,
+        engineType: 'docker'
+      });
+      this.pushLog('gateway', `Docker spawn failed: ${err.message}`, 'error');
+      this.notifyStatus();
+      throw err;
+    }
 
     this.isStarting = false;
     this.startLogsFollower();
@@ -242,34 +295,61 @@ export class DockerEngine extends BaseEngine {
   }
 
   private getDefaultServices(status: ServiceInfo['status'] = 'stopped'): ServiceInfo[] {
+    const ports = this.activePort === 80 ? ['80', '443'] : [this.activePort.toString()];
     return Object.entries(KNOWN_SERVICES).map(([name, meta]) => ({
       name,
       displayName: meta.displayName,
       role: meta.role,
       status,
-      ports: meta.defaultPorts,
+      ports,
       category: meta.category,
       specs: meta.specs
     }));
   }
 
+  private resolveGateways(): { primaryUrl: string; gateways: GatewayEndpoint[] } {
+    const isStandard = this.activePort === 80;
+    const primaryUrl = isStandard ? 'https://my.youmeos.com' : `http://localhost:${this.activePort}`;
+    const gateways: GatewayEndpoint[] = isStandard
+      ? [
+          { label: 'my.youmeos.com', url: primaryUrl, isPrimary: true },
+          { label: 'youmeos.localhost', url: 'http://youmeos.localhost' }
+        ]
+      : [
+          { label: `localhost:${this.activePort}`, url: primaryUrl, isPrimary: true },
+          { label: `youmeos.localhost:${this.activePort}`, url: `http://youmeos.localhost:${this.activePort}` },
+          { label: `127.0.0.1:${this.activePort}`, url: `http://127.0.0.1:${this.activePort}` }
+        ];
+    return { primaryUrl, gateways };
+  }
+
   async status(): Promise<EngineStatusInfo> {
     const isDocker = await this.isAvailable();
+    const { primaryUrl, gateways } = this.resolveGateways();
+
     let stackLayers = await inspectStackLayers({
       projectDir: this.projectDir,
       resourcesDir: this.resourcesDir,
-      isServerRunning: false
+      isServerRunning: false,
+      port: this.activePort
     });
 
     if (!isDocker) {
+      const errorMsg = 'Docker daemon is not running or not installed.';
       return {
         status: 'error',
         engineType: 'docker',
-        message: 'Docker daemon is not running or not installed.',
+        activePort: this.activePort,
+        message: errorMsg,
+        errorInfo: classifyEngineError({
+          rawError: errorMsg,
+          activePort: this.activePort,
+          engineType: 'docker'
+        }),
         services: this.getDefaultServices('error'),
         stackLayers,
-        url: 'https://my.youmeos.com',
-        gateways: DOCKER_GATEWAYS,
+        url: primaryUrl,
+        gateways,
         availableEngines: { docker: false, embedded: true }
       };
     }
@@ -278,12 +358,13 @@ export class DockerEngine extends BaseEngine {
       return {
         status: 'starting',
         engineType: 'docker',
+        activePort: this.activePort,
         message: 'Docker cluster is starting...',
         downloadProgress: this.currentDownloadProgress,
         services: this.getDefaultServices('starting'),
         stackLayers,
-        url: 'https://my.youmeos.com',
-        gateways: DOCKER_GATEWAYS,
+        url: primaryUrl,
+        gateways,
         availableEngines: { docker: true, embedded: true }
       };
     }
@@ -294,10 +375,11 @@ export class DockerEngine extends BaseEngine {
         return {
           status: 'stopped',
           engineType: 'docker',
+          activePort: this.activePort,
           services: this.getDefaultServices('stopped'),
           stackLayers,
-          url: 'https://my.youmeos.com',
-          gateways: DOCKER_GATEWAYS,
+          url: primaryUrl,
+          gateways,
           availableEngines: { docker: true, embedded: true }
         };
       }
@@ -347,7 +429,7 @@ export class DockerEngine extends BaseEngine {
             ports = Array.from(new Set(rawPorts));
           }
           if (ports.length === 0 && meta.defaultPorts && meta.defaultPorts.length > 0) {
-            ports = meta.defaultPorts;
+            ports = this.activePort === 80 ? meta.defaultPorts : [this.activePort.toString()];
           }
 
           parsedServices.push({
@@ -373,13 +455,11 @@ export class DockerEngine extends BaseEngine {
           displayName: meta.displayName,
           role: meta.role,
           status: 'stopped',
-          ports: meta.defaultPorts,
+          ports: this.activePort === 80 ? meta.defaultPorts : [this.activePort.toString()],
           category: meta.category,
           specs: meta.specs
         };
       });
-
-      const isGatewayRunning = resultServices.find(s => s.name === 'youmeos')?.status === 'running';
 
       const requiredServices = Object.entries(KNOWN_SERVICES).filter(([_, meta]) => meta.isRequired !== false);
       const requiredRunningCount = resultServices.filter(s => {
@@ -399,29 +479,39 @@ export class DockerEngine extends BaseEngine {
       stackLayers = await inspectStackLayers({
         projectDir: this.projectDir,
         resourcesDir: this.resourcesDir,
-        isServerRunning: overallStatus === 'running'
+        isServerRunning: overallStatus === 'running',
+        port: this.activePort
       });
 
       return {
         status: overallStatus,
         engineType: 'docker',
+        activePort: this.activePort,
+        message: this.lastErrorMessage,
+        errorInfo: this.lastErrorInfo,
         downloadProgress: this.currentDownloadProgress,
         services: resultServices,
         stackLayers,
-        url: 'https://my.youmeos.com',
-        gateways: DOCKER_GATEWAYS,
+        url: primaryUrl,
+        gateways,
         availableEngines: { docker: true, embedded: true }
       };
     } catch (e: any) {
       return {
         status: 'error',
         engineType: 'docker',
+        activePort: this.activePort,
         message: e.message || 'Failed to inspect Docker stack',
+        errorInfo: classifyEngineError({
+          rawError: e.message,
+          activePort: this.activePort,
+          engineType: 'docker'
+        }),
         downloadProgress: this.currentDownloadProgress,
         services: this.getDefaultServices('error'),
         stackLayers,
-        url: 'https://my.youmeos.com',
-        gateways: DOCKER_GATEWAYS,
+        url: primaryUrl,
+        gateways,
         availableEngines: { docker: isDocker, embedded: true }
       };
     }
@@ -448,3 +538,4 @@ export class DockerEngine extends BaseEngine {
     }
   }
 }
+

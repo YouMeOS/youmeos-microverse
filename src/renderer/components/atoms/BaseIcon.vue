@@ -149,6 +149,32 @@
       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
     </g>
 
+    <!-- Alert Triangle / Warning -->
+    <g v-else-if="name === 'alert' || name === 'warning' || name === 'alert-triangle'">
+      <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+      <line x1="12" y1="9" x2="12" y2="13" />
+      <line x1="12" y1="17" x2="12.01" y2="17" />
+    </g>
+
+    <!-- Alert Circle / Error -->
+    <g v-else-if="name === 'error' || name === 'alert-circle'">
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="8" x2="12" y2="12" />
+      <line x1="12" y1="16" x2="12.01" y2="16" />
+    </g>
+
+    <!-- Wrench / Tool / Remediation -->
+    <g v-else-if="name === 'wrench' || name === 'tool'">
+      <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z" />
+    </g>
+
+    <!-- Server Port / Network Plug -->
+    <g v-else-if="name === 'port' || name === 'server-port' || name === 'plug'">
+      <path d="M12 2v6m0 8v6M2 12h6m8 0h6" />
+      <rect x="7" y="7" width="10" height="10" rx="2" ry="2" />
+      <circle cx="12" cy="12" r="2" />
+    </g>
+
     <!-- Bolt / Lightning / Power -->
     <g v-else-if="name === 'bolt'">
       <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" fill="currentColor" stroke="none" />

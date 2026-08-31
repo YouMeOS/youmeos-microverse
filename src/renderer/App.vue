@@ -13,6 +13,8 @@
       :is-active="state.activeView.value === 'splash'"
       :status="state.status.value"
       :engine-type="state.engineType.value"
+      :active-port="state.activePort.value"
+      :error-info="state.errorInfo.value"
       :stack-layers="state.stackLayers.value"
       :verified-count="state.verifiedLayersCount.value"
       :total-count="state.totalLayersCount.value"
@@ -27,6 +29,7 @@
       @launch-webtop="state.launchWebtop"
       @highlight-layer="handleHighlightLayer"
       @select-layer="handleSelectLayer"
+      @open-error-modal="state.openErrorModal"
       @start="state.start"
       @stop="state.stop"
       @open-url="state.openUrl"
@@ -43,6 +46,8 @@
       :status="state.status.value"
       :status-label="state.statusLabel.value"
       :engine-type="state.engineType.value"
+      :active-port="state.activePort.value"
+      :error-info="state.errorInfo.value"
       :current-gateway-url="state.currentGatewayUrl.value"
       :current-tier-data="license.currentTierData.value"
       :current-tier-color="license.currentTierColor.value"
@@ -59,7 +64,9 @@
       :api="state.api"
       @set-tab="handleSetTab"
       @set-engine-type="state.setEngineType"
+      @set-port="state.setPort"
       @set-stay-on-splash="state.setStayOnSplash"
+      @open-error-modal="state.openErrorModal"
       @toggle-console="logs.toggle"
       @open-license-modal="license.openModal"
       @open-onboarding="onboarding.openModal(1)"
@@ -143,6 +150,21 @@
       @download="updater.downloadUpdate"
       @install="updater.installUpdate"
     />
+
+    <!-- Engine Diagnostics & Remediation Error Modal -->
+    <EngineErrorModal
+      :is-open="state.isErrorModalOpen.value"
+      :error-info="state.errorInfo.value"
+      :raw-error="state.statusMessage.value"
+      :active-port="state.activePort.value"
+      :engine-type="state.engineType.value"
+      :is-action-pending="state.isActionPending.value"
+      @close="state.closeErrorModal"
+      @remediate="state.handleRemediateError"
+      @set-port="state.setPort"
+      @restart="state.restart"
+      @open-console="logs.toggle(true)"
+    />
   </div>
 </template>
 
@@ -154,6 +176,7 @@ import QuakeConsoleDrawer from './components/organisms/QuakeConsoleDrawer.vue';
 import LicenseModal from './components/organisms/LicenseModal.vue';
 import UpdateModal from './components/organisms/UpdateModal.vue';
 import OnboardingModal from './components/organisms/OnboardingModal.vue';
+import EngineErrorModal from './components/organisms/EngineErrorModal.vue';
 import { useMicroverseState } from './composables/useMicroverseState';
 import { useConsoleLogs } from './composables/useConsoleLogs';
 import { useLicenseState } from './composables/useLicenseState';

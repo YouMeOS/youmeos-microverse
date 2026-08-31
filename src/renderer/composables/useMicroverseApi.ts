@@ -23,6 +23,8 @@ export function useMicroverseApi(): DesktopApi {
     openBrowser: async () => {},
     minimizeToTray: async () => {},
     setEngineType: async () => {},
+    setPort: async () => {},
+    getPort: async () => 80,
     updatePlugins: async () => ({ success: true, updatedCount: 0, totalCount: 0, details: [] })
   };
 }

@@ -32,6 +32,8 @@
       :is-open="isSideDrawerOpen"
       :status="status"
       :engine-type="engineType"
+      :active-port="activePort"
+      :error-info="errorInfo"
       :stack-layers="stackLayers"
       :verified-count="verifiedCount"
       :total-count="totalCount"
@@ -45,6 +47,7 @@
       @launch-webtop="$emit('launchWebtop', $event)"
       @highlight-layer="$emit('highlightLayer', $event)"
       @select-layer="$emit('selectLayer', $event)"
+      @open-error-modal="$emit('openErrorModal')"
       @start="$emit('start')"
       @stop="$emit('stop')"
       @open-url="$emit('openUrl')"
@@ -60,12 +63,14 @@ import { ref } from 'vue';
 import BaseIcon from '../atoms/BaseIcon.vue';
 import StatusDot from '../atoms/StatusDot.vue';
 import SplashSideDrawer from '../organisms/SplashSideDrawer.vue';
-import type { EngineStatus, EngineType, StackLayerStatus, WebtopLaunchTarget } from '../../types';
+import type { EngineStatus, EngineType, StackLayerStatus, WebtopLaunchTarget, EngineErrorInfo } from '../../types';
 
 defineProps<{
   isActive: boolean;
   status: EngineStatus;
   engineType: EngineType;
+  activePort?: number;
+  errorInfo?: EngineErrorInfo | null;
   stackLayers: StackLayerStatus[];
   verifiedCount: number;
   totalCount: number;
@@ -83,6 +88,7 @@ defineEmits<{
   (e: 'launchWebtop', target: WebtopLaunchTarget): void;
   (e: 'highlightLayer', layerId: string | null): void;
   (e: 'selectLayer', layerId: string): void;
+  (e: 'openErrorModal'): void;
   (e: 'start'): void;
   (e: 'stop'): void;
   (e: 'openUrl'): void;
