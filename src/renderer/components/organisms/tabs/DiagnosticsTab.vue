@@ -232,60 +232,26 @@
           Wipe local SQLite tables and reset WordPress to a clean slate. Use if database corruption or plugin collisions lock the portal.
         </p>
 
-        <div
-          v-if="!showDbResetConfirm"
-          class="diag-action-stack"
-        >
+        <div class="diag-action-stack">
           <button
             type="button"
             class="btn-modal-danger"
             :disabled="isResettingDb"
-            @click="showDbResetConfirm = true"
+            @click="handleResetDatabase"
           >
             <BaseIcon
+              v-if="isResettingDb"
+              name="spin"
+              :size="14"
+              :spinning="true"
+            />
+            <BaseIcon
+              v-else
               name="trash"
               :size="14"
             />
-            <span>Reset Database...</span>
+            <span>{{ isResettingDb ? 'Wiping Database...' : 'Reset Database...' }}</span>
           </button>
-        </div>
-
-        <div
-          v-else
-          class="warning-confirm-box"
-        >
-          <div class="warning-confirm-text">
-            <strong>WARNING:</strong> This action will permanently erase all SQLite database tables, users, and options. This cannot be undone!
-          </div>
-          <div class="warning-btn-row">
-            <button
-              type="button"
-              class="btn-modal-danger"
-              :disabled="isResettingDb"
-              @click="handleResetDatabase"
-            >
-              <BaseIcon
-                v-if="isResettingDb"
-                name="spin"
-                :size="14"
-                :spinning="true"
-              />
-              <BaseIcon
-                v-else
-                name="trash"
-                :size="14"
-              />
-              <span>{{ isResettingDb ? 'Wiping Database...' : 'Confirm & Wipe Database' }}</span>
-            </button>
-            <button
-              type="button"
-              class="btn-modal-aux"
-              :disabled="isResettingDb"
-              @click="showDbResetConfirm = false"
-            >
-              Cancel
-            </button>
-          </div>
         </div>
 
         <span
@@ -322,7 +288,6 @@ const isFlushingSession = ref<boolean>(false);
 const flushSessionFeedback = ref<string>('');
 const isCheckingDb = ref<boolean>(false);
 const dbHealthResult = ref<{ status: string; integrity: string; userCount: number; sizeBytes: number } | null>(null);
-const showDbResetConfirm = ref<boolean>(false);
 const isResettingDb = ref<boolean>(false);
 const dbResetFeedback = ref<string>('');
 const dbResetSuccess = ref<boolean>(false);
@@ -438,20 +403,21 @@ const handleResetDatabase = async () => {
   try {
     if (props.api.resetDatabase) {
       const res = await props.api.resetDatabase();
-      if (res.success) {
+      if (res?.cancelled) {
+        return;
+      }
+      if (res?.success) {
         dbResetSuccess.value = true;
         dbResetFeedback.value = res.message || 'Database reset successfully.';
-        showDbResetConfirm.value = false;
         userList.value = [];
         dbHealthResult.value = null;
       } else {
         dbResetSuccess.value = false;
-        dbResetFeedback.value = `Reset failed: ${res.error || res.message}`;
+        dbResetFeedback.value = `Reset failed: ${res?.error || res?.message || 'Unknown error'}`;
       }
     } else {
       dbResetSuccess.value = true;
       dbResetFeedback.value = 'Database reset simulated.';
-      showDbResetConfirm.value = false;
     }
   } catch (e: any) {
     dbResetSuccess.value = false;
@@ -481,9 +447,9 @@ defineExpose({
 }
 
 .dash-diagnostics-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 
 .dash-card {
@@ -497,6 +463,7 @@ defineExpose({
 }
 
 .danger-panel {
+  grid-column: 1 / -1;
   border-color: rgba(239, 68, 68, 0.3);
   background: rgba(239, 68, 68, 0.04);
 }
@@ -692,26 +659,5 @@ defineExpose({
   font-size: 0.72rem;
   display: flex;
   justify-content: space-between;
-}
-
-.warning-confirm-box {
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.4);
-  border-radius: var(--radius-sm);
-  padding: 10px 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.warning-confirm-text {
-  font-size: 0.72rem;
-  color: #fca5a5;
-  line-height: 1.4;
-}
-
-.warning-btn-row {
-  display: flex;
-  gap: 8px;
 }
 </style>

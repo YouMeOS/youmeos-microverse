@@ -1,7 +1,7 @@
 <template>
   <section class="tab-content">
     <div class="dash-settings-grid">
-      <!-- Microverse Engine Configuration -->
+      <!-- 1. Microverse Engine Configuration -->
       <div class="dash-card glass-panel">
         <h3 class="card-title">Microverse Engine Configuration</h3>
         <div class="settings-field">
@@ -13,7 +13,36 @@
         </div>
       </div>
 
-      <!-- OS Homepage Routing Mode Card -->
+      <!-- 2. Plugin Sync & Maintenance Card -->
+      <div class="dash-card glass-panel">
+        <h3 class="card-title">Plugin Sync &amp; Maintenance</h3>
+        <p class="dash-card-desc">Sync and update the latest PHP and PWA Sparks from upstream.</p>
+        <button
+          type="button"
+          class="btn-modal-primary"
+          :disabled="isUpdatingPlugins"
+          @click="handleUpdatePlugins"
+        >
+          <BaseIcon
+            v-if="isUpdatingPlugins"
+            name="spin"
+            :size="14"
+            :spinning="true"
+          />
+          <BaseIcon
+            v-else
+            name="refresh"
+            :size="14"
+          />
+          <span>{{ isUpdatingPlugins ? 'Updating Plugins...' : 'Update Plugins Suite' }}</span>
+        </button>
+        <span
+          v-if="pluginUpdateFeedback"
+          class="feedback-msg"
+        >{{ pluginUpdateFeedback }}</span>
+      </div>
+
+      <!-- 3. OS Homepage Routing Mode Card -->
       <div class="dash-card glass-panel">
         <div class="card-header">
           <div class="card-title-group">
@@ -68,7 +97,7 @@
         </div>
       </div>
 
-      <!-- Gateway Port Configuration Card -->
+      <!-- 4. Gateway Port Configuration Card -->
       <div class="dash-card glass-panel">
         <div class="card-header">
           <div class="card-title-group">
@@ -125,35 +154,6 @@
             </button>
           </div>
         </div>
-      </div>
-
-      <!-- Plugin Sync & Maintenance Card -->
-      <div class="dash-card glass-panel">
-        <h3 class="card-title">Plugin Sync &amp; Maintenance</h3>
-        <p class="dash-card-desc">Sync and update the latest PHP and PWA Sparks from upstream.</p>
-        <button
-          type="button"
-          class="btn-modal-primary"
-          :disabled="isUpdatingPlugins"
-          @click="handleUpdatePlugins"
-        >
-          <BaseIcon
-            v-if="isUpdatingPlugins"
-            name="spin"
-            :size="14"
-            :spinning="true"
-          />
-          <BaseIcon
-            v-else
-            name="refresh"
-            :size="14"
-          />
-          <span>{{ isUpdatingPlugins ? 'Updating Plugins...' : 'Update Plugins Suite' }}</span>
-        </button>
-        <span
-          v-if="pluginUpdateFeedback"
-          class="feedback-msg"
-        >{{ pluginUpdateFeedback }}</span>
       </div>
     </div>
   </section>
@@ -232,9 +232,9 @@ const handleUpdatePlugins = async () => {
 }
 
 .dash-settings-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
 }
 
 .dash-card {

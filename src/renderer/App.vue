@@ -267,9 +267,11 @@ const handleVisibilityChange = () => {
   if (document.hidden) {
     smokeEngine?.pause();
     architecture3D?.pause();
-  } else if (state.activeView.value === 'splash') {
+  } else {
     smokeEngine?.resume();
-    architecture3D?.resume();
+    if (state.activeView.value === 'splash') {
+      architecture3D?.resume();
+    }
   }
 };
 
@@ -293,10 +295,8 @@ watch(
   (view) => {
     if (view === 'splash' && !document.hidden) {
       architecture3D?.resume();
-      smokeEngine?.resume();
     } else {
       architecture3D?.pause();
-      smokeEngine?.pause();
     }
   }
 );

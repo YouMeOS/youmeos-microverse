@@ -8,6 +8,7 @@ import {
   Tray,
   session,
   nativeImage,
+  dialog,
 } from "electron";
 import path from "path";
 import fs from "fs";
@@ -460,9 +461,25 @@ const readyHandler = async () => {
   ipcMain.handle("diagnostics:db-health", () =>
     diagnosticsManager.checkDatabaseHealth(),
   );
-  ipcMain.handle("diagnostics:reset-database", () =>
-    diagnosticsManager.resetDatabase(),
-  );
+  ipcMain.handle("diagnostics:reset-database", async () => {
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      const { response } = await dialog.showMessageBox(mainWindow, {
+        type: "warning",
+        buttons: ["Confirm & Wipe Database", "Cancel"],
+        defaultId: 1,
+        cancelId: 1,
+        title: "Database Reset (Destructive)",
+        message: "Are you sure you want to reset the database?",
+        detail:
+          "WARNING: This action will permanently erase all SQLite database tables, users, and options. This cannot be undone!",
+      });
+
+      if (response !== 0) {
+        return { success: false, cancelled: true };
+      }
+    }
+    return diagnosticsManager.resetDatabase();
+  });
 
   // Stripe Checkout Popup Window with Automatic Completion Capture
   ipcMain.handle("checkout:open-stripe", async (_, checkoutUrl: string) => {

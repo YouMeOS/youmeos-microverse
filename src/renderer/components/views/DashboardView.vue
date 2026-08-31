@@ -87,20 +87,23 @@
       />
     </main>
 
-    <!-- Fixed Bottom Cluster Transport Controls -->
-    <QuickActionBar
+    <!-- Fixed Bottom Cluster Transport Controls (TapeDeck) -->
+    <TapeDeckToolbar
+      :status="status"
+      :active-tab="activeTab"
       :is-running="isRunning"
       :is-stopped="isStopped"
       :is-transitioning="isTransitioning"
       :is-action-pending="isActionPending"
       :is-error="isError"
+      :current-gateway-url="currentGatewayUrl"
+      @open-splash="$emit('openSplash')"
       @start="handleStartClick"
+      @toggle-console="$emit('toggleConsole')"
       @stop="$emit('stop')"
       @restart="$emit('restart')"
-      @toggle-console="$emit('toggleConsole')"
-      @open-settings="handleTabSelect('tab-settings')"
-      @open-diagnostics="handleTabSelect('tab-diagnostics')"
-      @open-url="$emit('openUrl', currentGatewayUrl)"
+      @set-tab="handleTabSelect"
+      @open-url="$emit('openUrl', $event)"
       @open-browser="$emit('openBrowser')"
       @open-blackbox="$emit('openBlackbox')"
     />
@@ -116,7 +119,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import TabItem from '../atoms/TabItem.vue';
-import QuickActionBar from '../molecules/QuickActionBar.vue';
+import TapeDeckToolbar from '../organisms/TapeDeckToolbar.vue';
 import AppHeader from '../organisms/AppHeader.vue';
 import AppFooter from '../organisms/AppFooter.vue';
 import OverviewTab from '../organisms/tabs/OverviewTab.vue';
