@@ -15,4 +15,6 @@ services:
     environment:
       - PORT=${PORT:-80}
       - HTTPS_PORT=${HTTPS_PORT:-443}
+      - OS_HOMEPAGE_MODE=${OS_HOMEPAGE_MODE:-homepage}
+      - YOUMEOS_LOAD_MODE=${YOUMEOS_LOAD_MODE:-homepage}
       - WP_DEBUG=false

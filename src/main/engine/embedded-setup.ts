@@ -483,12 +483,26 @@ require_once ABSPATH . 'wp-settings.php';
   } else {
     try {
       let existingConfig = fs.readFileSync(wpConfigPath, 'utf8');
+      let modified = false;
       const targetDbDirLine = `define('DB_DIR', '${hostWpDir.replace(/\\/g, '/')}');`;
       if (!existingConfig.includes(targetDbDirLine)) {
         existingConfig = existingConfig.replace(
           /define\s*\(\s*['"]DB_DIR['"]\s*,\s*['"][^'"]*['"]\s*\);/,
           targetDbDirLine
         );
+        modified = true;
+      }
+      if (!existingConfig.includes('OS_HOMEPAGE_MODE')) {
+        const homepageBlock = `\n$os_homepage_mode = getenv('OS_HOMEPAGE_MODE') ?: getenv('YOUMEOS_LOAD_MODE');\nif ( $os_homepage_mode && ! defined( 'OS_HOMEPAGE_MODE' ) ) {\n\tdefine( 'OS_HOMEPAGE_MODE', $os_homepage_mode );\n\tdefine( 'YOUMEOS_LOAD_MODE', $os_homepage_mode );\n}\n`;
+        if (existingConfig.includes("require_once ABSPATH . 'wp-settings.php';") || existingConfig.includes('require_once ABSPATH . "wp-settings.php";')) {
+          existingConfig = existingConfig.replace(
+            /require_once\s+ABSPATH\s*\.\s*['"]wp-settings\.php['"]\s*;/,
+            `${homepageBlock}\nrequire_once ABSPATH . 'wp-settings.php';`
+          );
+          modified = true;
+        }
+      }
+      if (modified) {
         fs.writeFileSync(wpConfigPath, existingConfig);
       }
     } catch {}

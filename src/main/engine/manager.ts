@@ -109,6 +109,18 @@ export class EngineManager {
     return this.activeEngine.getPort?.() || 80;
   }
 
+  async setHomepageMode(mode: string): Promise<void> {
+    const cleanMode = (mode || 'homepage').trim();
+    await Promise.allSettled([
+      this.embeddedEngine.setHomepageMode?.(cleanMode),
+      this.dockerEngine.setHomepageMode?.(cleanMode)
+    ]);
+  }
+
+  getHomepageMode(): string {
+    return this.activeEngine.getHomepageMode?.() || 'homepage';
+  }
+
   async status(): Promise<EngineStatusInfo> {
     const [dockerAvail, embeddedAvail, engineStatus] = await Promise.all([
       this.dockerEngine.isAvailable(),

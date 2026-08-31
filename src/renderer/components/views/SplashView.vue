@@ -37,24 +37,26 @@
       :stack-layers="stackLayers"
       :verified-count="verifiedCount"
       :total-count="totalCount"
-      :stay-on-splash="stayOnSplash"
       :is-running="isRunning"
       :is-transitioning="isTransitioning"
       :is-action-pending="isActionPending"
       @close="$emit('toggleSideDrawer', false)"
       @set-engine-type="$emit('setEngineType', $event)"
       @set-port="$emit('setPort', $event)"
-      @set-stay-on-splash="$emit('setStayOnSplash', $event)"
       @launch-webtop="$emit('launchWebtop', $event)"
       @highlight-layer="$emit('highlightLayer', $event)"
       @select-layer="$emit('selectLayer', $event)"
       @open-error-modal="$emit('openErrorModal')"
       @start="$emit('start')"
       @stop="$emit('stop')"
+      @restart="$emit('restart')"
+      @toggle-console="$emit('toggleConsole')"
+      @open-overview="$emit('openOverview')"
+      @open-diagnostics="$emit('openDiagnostics')"
+      @open-settings="$emit('openSettings')"
       @open-url="$emit('openUrl')"
       @open-browser="$emit('openBrowser')"
       @open-blackbox="$emit('openBlackbox')"
-      @open-settings="$emit('openSettings')"
     />
   </div>
 </template>
@@ -75,7 +77,6 @@ defineProps<{
   stackLayers: StackLayerStatus[];
   verifiedCount: number;
   totalCount: number;
-  stayOnSplash: boolean;
   isRunning: boolean;
   isTransitioning: boolean;
   isActionPending: boolean;
@@ -86,17 +87,20 @@ defineEmits<{
   (e: 'toggleSideDrawer', forceState?: boolean): void;
   (e: 'setEngineType', val: EngineType): void;
   (e: 'setPort', val: number): void;
-  (e: 'setStayOnSplash', val: boolean): void;
   (e: 'launchWebtop', target: WebtopLaunchTarget): void;
   (e: 'highlightLayer', layerId: string | null): void;
   (e: 'selectLayer', layerId: string): void;
   (e: 'openErrorModal'): void;
   (e: 'start'): void;
   (e: 'stop'): void;
+  (e: 'restart'): void;
+  (e: 'toggleConsole'): void;
+  (e: 'openOverview'): void;
+  (e: 'openDiagnostics'): void;
+  (e: 'openSettings'): void;
   (e: 'openUrl'): void;
   (e: 'openBrowser'): void;
   (e: 'openBlackbox'): void;
-  (e: 'openSettings'): void;
 }>();
 
 const canvasContainerRef = ref<HTMLElement | null>(null);

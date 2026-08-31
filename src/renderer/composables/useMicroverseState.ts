@@ -20,6 +20,8 @@ export function useMicroverseState() {
   const status = ref<EngineStatus>("stopped");
   const engineType = ref<EngineType>("embedded");
   const activePort = ref<number>(80);
+  const savedHomepageMode = localStorage.getItem("youmeos_os_homepage_mode");
+  const osHomepageMode = ref<string>(savedHomepageMode || "homepage");
   const errorInfo = ref<EngineErrorInfo | null>(null);
   const isErrorModalOpen = ref<boolean>(false);
   const services = ref<ServiceInfo[]>([]);
@@ -33,10 +35,6 @@ export function useMicroverseState() {
   const activeView = ref<"splash" | "dashboard">("splash");
   const isSideDrawerOpen = ref<boolean>(true);
   const activeTab = ref<string>("tab-overview");
-  const savedStaySplash = localStorage.getItem("youmeos_stay_splash");
-  const stayOnSplash = ref<boolean>(
-    savedStaySplash !== null ? savedStaySplash === "true" : true,
-  );
   const isLaunchPromptOpen = ref<boolean>(false);
 
   // Diagnostic states
@@ -58,7 +56,6 @@ export function useMicroverseState() {
     error?: string;
   } | null>(null);
 
-  let hasAutoTransitioned = false;
   let hasPromptedLaunch = false;
   let pollInterval: any = null;
   let unsubscribeProgress: (() => void) | null = null;
@@ -109,6 +106,7 @@ export function useMicroverseState() {
     if (info.status) status.value = info.status;
     if (info.engineType) engineType.value = info.engineType;
     if (info.activePort) activePort.value = info.activePort;
+    if (info.osHomepageMode) osHomepageMode.value = info.osHomepageMode;
     if (info.services) services.value = info.services;
     if (info.stackLayers) stackLayers.value = sortStackLayers(info.stackLayers);
     if (info.gateways) gateways.value = info.gateways;
@@ -125,7 +123,6 @@ export function useMicroverseState() {
 
     // Reset auto triggers on stop
     if (status.value === "stopped") {
-      hasAutoTransitioned = false;
       hasPromptedLaunch = false;
       isLaunchPromptOpen.value = false;
     }
@@ -135,16 +132,6 @@ export function useMicroverseState() {
       hasPromptedLaunch = true;
       isSideDrawerOpen.value = true;
       isErrorModalOpen.value = false;
-    }
-
-    // Auto-transition to dashboard if running and not locked on splash
-    if (isRunning.value && !hasAutoTransitioned && !stayOnSplash.value) {
-      hasAutoTransitioned = true;
-      setTimeout(() => {
-        if (!stayOnSplash.value) {
-          activeView.value = "dashboard";
-        }
-      }, 1200);
     }
   };
 
@@ -225,6 +212,23 @@ export function useMicroverseState() {
     }
   };
 
+  const setHomepageMode = async (mode: string) => {
+    const cleanMode = (mode || "homepage").trim();
+    isActionPending.value = true;
+    try {
+      if (api.setHomepageMode) {
+        await api.setHomepageMode(cleanMode);
+      }
+      osHomepageMode.value = cleanMode;
+      localStorage.setItem("youmeos_os_homepage_mode", cleanMode);
+    } catch (e: any) {
+      console.error("Failed to set homepage mode", e);
+    } finally {
+      isActionPending.value = false;
+      await pollStatus();
+    }
+  };
+
   const openErrorModal = () => {
     isErrorModalOpen.value = true;
   };
@@ -247,11 +251,6 @@ export function useMicroverseState() {
     } else {
       await restart();
     }
-  };
-
-  const setStayOnSplash = (val: boolean) => {
-    stayOnSplash.value = val;
-    localStorage.setItem("youmeos_stay_splash", val ? "true" : "false");
   };
 
   const toggleSideDrawer = (forceState?: boolean) => {
@@ -344,6 +343,7 @@ export function useMicroverseState() {
     status,
     engineType,
     activePort,
+    osHomepageMode,
     errorInfo,
     isErrorModalOpen,
     services,
@@ -357,7 +357,6 @@ export function useMicroverseState() {
     activeView,
     isSideDrawerOpen,
     activeTab,
-    stayOnSplash,
     isLaunchPromptOpen,
     isRunning,
     isStopped,
@@ -377,10 +376,10 @@ export function useMicroverseState() {
     restart,
     setEngineType,
     setPort,
+    setHomepageMode,
     openErrorModal,
     closeErrorModal,
     handleRemediateError,
-    setStayOnSplash,
     launchWebtop,
     closeLaunchPrompt,
     toggleSideDrawer,

@@ -22,6 +22,7 @@ export class EmbeddedEngine extends BaseEngine {
   readonly type: EngineType = 'embedded';
   private serverProcess: ChildProcess | null = null;
   private activePort = 80;
+  private osHomepageMode: string = process.env.OS_HOMEPAGE_MODE || process.env.YOUMEOS_LOAD_MODE || 'homepage';
   private projectDir: string;
   private resourcesDir: string;
   private isSettingUp = false;
@@ -53,6 +54,20 @@ export class EmbeddedEngine extends BaseEngine {
 
   getPort(): number {
     return this.activePort;
+  }
+
+  async setHomepageMode(mode: string): Promise<void> {
+    const cleanMode = (mode || 'homepage').trim();
+    if (this.osHomepageMode === cleanMode) return;
+    this.osHomepageMode = cleanMode;
+    this.pushLog('gateway', `OS Homepage mode updated to ${this.osHomepageMode}`);
+    if (this.currentStatus === 'running' || this.currentStatus === 'starting') {
+      await this.restart();
+    }
+  }
+
+  getHomepageMode(): string {
+    return this.osHomepageMode;
   }
 
   private resolveCaddyfilePath(): string {
@@ -264,6 +279,8 @@ export class EmbeddedEngine extends BaseEngine {
           WP_ROOT: wpCoreDir.replace(/\\/g, '/'),
           PORT: this.activePort.toString(),
           HTTPS_PORT: httpsPort,
+          OS_HOMEPAGE_MODE: this.osHomepageMode,
+          YOUMEOS_LOAD_MODE: this.osHomepageMode,
           TLS_DIRECTIVE: tlsDirective,
           TLS_CERT: hasCerts ? activeCert.replace(/\\/g, '/') : 'internal',
           TLS_KEY: hasCerts ? activeKey.replace(/\\/g, '/') : ''
@@ -501,6 +518,7 @@ export class EmbeddedEngine extends BaseEngine {
       status: this.currentStatus,
       engineType: 'embedded',
       activePort: this.activePort,
+      osHomepageMode: this.osHomepageMode,
       message: this.lastErrorMessage,
       errorInfo: this.lastErrorInfo,
       downloadProgress: this.currentDownloadProgress,

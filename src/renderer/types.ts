@@ -67,6 +67,8 @@ export interface DesktopApi {
   setEngineType: (type: string) => Promise<void>;
   setPort?: (port: number) => Promise<void>;
   getPort?: () => Promise<number>;
+  setHomepageMode?: (mode: string) => Promise<void>;
+  getHomepageMode?: () => Promise<string>;
   updatePlugins: () => Promise<PluginUpdateResult>;
   getVersion?: () => Promise<string>;
   minimizeToTray?: () => Promise<void>;

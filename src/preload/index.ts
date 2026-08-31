@@ -16,6 +16,8 @@ const openStripeCheckoutHandler = (url: string) => ipcRenderer.invoke('checkout:
 const setEngineTypeHandler = (type: string) => ipcRenderer.invoke('engine:set-type', type);
 const setPortHandler = (port: number) => ipcRenderer.invoke('engine:set-port', port);
 const getPortHandler = () => ipcRenderer.invoke('engine:get-port');
+const setHomepageModeHandler = (mode: string) => ipcRenderer.invoke('engine:set-homepage-mode', mode);
+const getHomepageModeHandler = () => ipcRenderer.invoke('engine:get-homepage-mode');
 const updatePluginsHandler = () => ipcRenderer.invoke('engine:update-plugins');
 const getVersionHandler = () => ipcRenderer.invoke('app:version');
 const minimizeToTrayHandler = () => ipcRenderer.invoke('window:minimize-to-tray');
@@ -81,6 +83,8 @@ contextBridge.exposeInMainWorld('api', {
   setEngineType: setEngineTypeHandler,
   setPort: setPortHandler,
   getPort: getPortHandler,
+  setHomepageMode: setHomepageModeHandler,
+  getHomepageMode: getHomepageModeHandler,
   updatePlugins: updatePluginsHandler,
   getVersion: getVersionHandler,
   minimizeToTray: minimizeToTrayHandler,

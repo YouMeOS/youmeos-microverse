@@ -25,6 +25,8 @@ export function useMicroverseApi(): DesktopApi {
     setEngineType: async () => {},
     setPort: async () => {},
     getPort: async () => 80,
+    setHomepageMode: async () => {},
+    getHomepageMode: async () => 'homepage',
     updatePlugins: async () => ({ success: true, updatedCount: 0, totalCount: 0, details: [] })
   };
 }

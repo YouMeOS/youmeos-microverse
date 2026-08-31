@@ -75,6 +75,7 @@ export interface EngineStatusInfo {
   engineType: EngineType;
   message?: string;
   activePort?: number;
+  osHomepageMode?: string;
   errorInfo?: EngineErrorInfo;
   downloadProgress?: DownloadProgress | null;
   services: ServiceInfo[];
@@ -119,6 +120,8 @@ export interface MicroverseEngine {
   isAvailable(): Promise<boolean>;
   setPort?(port: number): Promise<void>;
   getPort?(): number;
+  setHomepageMode?(mode: string): Promise<void>;
+  getHomepageMode?(): string;
   setProgressCallback?(callback: ProgressCallback): void;
   setLogCallback?(callback: LogCallback): void;
   setStatusCallback?(callback: StatusCallback): void;

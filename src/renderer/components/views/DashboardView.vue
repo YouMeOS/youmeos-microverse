@@ -31,17 +31,17 @@
         @select="handleTabSelect"
       />
       <TabItem
-        tab-id="tab-diagnostics"
-        label="Diagnostics"
-        icon="gear"
-        :is-active="activeTab === 'tab-diagnostics'"
-        @select="handleTabSelect"
-      />
-      <TabItem
         tab-id="tab-settings"
         label="Settings"
         icon="gear"
         :is-active="activeTab === 'tab-settings'"
+        @select="handleTabSelect"
+      />
+      <TabItem
+        tab-id="tab-diagnostics"
+        label="Diagnostics"
+        icon="diagnostics"
+        :is-active="activeTab === 'tab-diagnostics'"
         @select="handleTabSelect"
       />
     </nav>
@@ -499,17 +499,62 @@
                 @update:model-value="$emit('setEngineType', $event)"
               />
             </div>
+          </div>
 
-            <div class="settings-field">
-              <label class="pref-toggle-label">
-                <input
-                  type="checkbox"
-                  :checked="stayOnSplash"
-                  class="pref-checkbox"
-                  @change="$emit('setStayOnSplash', ($event.target as HTMLInputElement).checked)"
+          <!-- OS Homepage Routing Mode (OS_HOMEPAGE_MODE) Card -->
+          <div class="dash-card glass-panel">
+            <div class="card-header">
+              <div class="card-title-group">
+                <BaseIcon
+                  name="brand"
+                  :size="16"
                 />
-                <span class="pref-text">Stay on 3D Matrix on Start</span>
-              </label>
+                <h3 class="card-title">OS Homepage Routing Mode</h3>
+              </div>
+              <span
+                class="homepage-mode-badge"
+                :class="{ 'is-routes-only': osHomepageMode === 'routes_only' }"
+              >
+                {{ osHomepageMode === 'routes_only' ? 'Routes Only' : 'WebTop Root' }}
+              </span>
+            </div>
+            <p class="dash-card-desc">
+              Controls whether YouMeOS WebTop acts as the root homepage (/) or runs under /youmeos so WordPress themes
+              and decoupled applications can serve the main homepage.
+            </p>
+
+            <div class="port-preset-row">
+              <button
+                type="button"
+                :class="['btn-port-preset', { active: (osHomepageMode || 'homepage') === 'homepage' }]"
+                :disabled="isActionPending"
+                @click="handleSelectHomepageMode('homepage')"
+              >
+                <span>YouMeOS WebTop</span>
+                <span class="preset-sub">Root Homepage (/)</span>
+              </button>
+
+              <button
+                type="button"
+                :class="['btn-port-preset', { active: osHomepageMode === 'routes_only' }]"
+                :disabled="isActionPending"
+                @click="handleSelectHomepageMode('routes_only')"
+              >
+                <span>Standard Site</span>
+                <span class="preset-sub">Routes Only (/youmeos)</span>
+              </button>
+            </div>
+
+            <div class="route-preview-box">
+              <div class="route-preview-item">
+                <span class="route-preview-label">Root (/)</span>
+                <span class="route-preview-val">{{ (osHomepageMode === 'routes_only') ? 'WordPress Theme / Application'
+                  : 'YouMeOS Spatial WebTop' }}</span>
+              </div>
+              <div class="route-preview-item">
+                <span class="route-preview-label">Portal Route</span>
+                <span class="route-preview-val">/youmeos &amp; /os (Always Available)</span>
+              </div>
             </div>
           </div>
 
@@ -610,7 +655,7 @@
             name="brand"
             :size="16"
           />
-          <h3 class="card-title">Cluster Controls</h3>
+          <h3 class="card-title">Engine Controls</h3>
         </div>
         <StatusBadge :status="status" />
       </div>
@@ -687,21 +732,7 @@
           <span class="btn-transport-label">Restart</span>
         </button>
 
-        <!-- 6. Diagnostics -->
-        <button
-          type="button"
-          :class="['btn-transport', 'btn-aux-diagnostics', { 'is-active': activeTab === 'tab-diagnostics' }]"
-          title="Open Diagnostics &amp; System Health"
-          @click="handleTabSelect('tab-diagnostics')"
-        >
-          <BaseIcon
-            name="diagnostics"
-            :size="20"
-          />
-          <span class="btn-transport-label">Diagnostics</span>
-        </button>
-
-        <!-- 7. Settings / Port (Eject) -->
+        <!-- 6. Settings / Port (Eject) -->
         <button
           type="button"
           :class="['btn-transport', 'btn-transport-eject', { 'is-active': activeTab === 'tab-settings' }]"
@@ -728,7 +759,7 @@
             name="external"
             :size="20"
           />
-          <span class="btn-transport-label">Native App</span>
+          <span class="btn-transport-label">Native Window</span>
         </button>
 
         <!-- 8. Browser -->
@@ -757,6 +788,20 @@
           />
           <span class="btn-transport-label">Files</span>
         </button>
+
+        <!-- 10. Diagnostics -->
+        <button
+          type="button"
+          :class="['btn-transport', 'btn-aux-diagnostics', { 'is-active': activeTab === 'tab-diagnostics' }]"
+          title="Open Diagnostics &amp; System Health"
+          @click="handleTabSelect('tab-diagnostics')"
+        >
+          <BaseIcon
+            name="diagnostics"
+            :size="20"
+          />
+          <span class="btn-transport-label">Diagnostics</span>
+        </button>
       </div>
     </div>
 
@@ -776,6 +821,7 @@ import StatusBadge from '../atoms/StatusBadge.vue';
 import StatusDot from '../atoms/StatusDot.vue';
 import TabItem from '../atoms/TabItem.vue';
 import EngineSelector from '../molecules/EngineSelector.vue';
+import HomepageModeSelector from '../molecules/HomepageModeSelector.vue';
 import AppHeader from '../organisms/AppHeader.vue';
 import AppFooter from '../organisms/AppFooter.vue';
 import type { DesktopApi, EngineStatus, EngineType, WpUser, StackLayerStatus, EngineErrorInfo } from '../../types';
@@ -788,13 +834,13 @@ const props = defineProps<{
   statusLabel: string;
   engineType: EngineType;
   activePort?: number;
+  osHomepageMode?: string;
   errorInfo?: EngineErrorInfo | null;
   currentGatewayUrl: string;
   currentTierData: TierInfo;
   currentTierColor: { hex: string; three: number };
   version: string;
   stackLayers?: StackLayerStatus[];
-  stayOnSplash: boolean;
   isRunning: boolean;
   isStopped: boolean;
   isTransitioning: boolean;
@@ -809,7 +855,7 @@ const emit = defineEmits<{
   (e: 'setTab', tabId: string): void;
   (e: 'setEngineType', val: EngineType): void;
   (e: 'setPort', port: number): void;
-  (e: 'setStayOnSplash', val: boolean): void;
+  (e: 'setHomepageMode', mode: string): void;
   (e: 'openErrorModal'): void;
   (e: 'toggleConsole'): void;
   (e: 'openLicenseModal'): void;
@@ -1007,6 +1053,10 @@ const handleUpdatePlugins = async () => {
 const handleSelectPort = (port: number) => {
   customPortInput.value = port;
   emit('setPort', port);
+};
+
+const handleSelectHomepageMode = (mode: string) => {
+  emit('setHomepageMode', mode);
 };
 
 const handleApplyCustomPort = () => {
@@ -1751,5 +1801,52 @@ const handleStartClick = () => {
   .btn-apply-port {
     white-space: nowrap;
     padding: 7px 14px;
+  }
+
+  .homepage-mode-badge {
+    font-size: 0.68rem;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--accent-cyan);
+    background: rgba(0, 242, 254, 0.1);
+    border: 1px solid rgba(0, 242, 254, 0.3);
+    padding: 2px 8px;
+    border-radius: 9999px;
+  }
+
+  .homepage-mode-badge.is-routes-only {
+    color: #c084fc;
+    background: rgba(192, 132, 252, 0.1);
+    border-color: rgba(192, 132, 252, 0.3);
+  }
+
+  .route-preview-box {
+    margin-top: 10px;
+    padding: 8px 12px;
+    border-radius: var(--radius-sm);
+    background: rgba(6, 10, 18, 0.7);
+    border: 1px solid var(--border-glass);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .route-preview-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.72rem;
+  }
+
+  .route-preview-label {
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-family: var(--font-mono);
+  }
+
+  .route-preview-val {
+    color: #fff;
+    font-family: var(--font-sans);
+    font-weight: 500;
   }
 </style>

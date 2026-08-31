@@ -18,7 +18,6 @@
       :stack-layers="state.stackLayers.value"
       :verified-count="state.verifiedLayersCount.value"
       :total-count="state.totalLayersCount.value"
-      :stay-on-splash="state.stayOnSplash.value"
       :is-running="state.isRunning.value"
       :is-transitioning="state.isTransitioning.value"
       :is-action-pending="state.isActionPending.value"
@@ -26,17 +25,20 @@
       @toggle-side-drawer="state.toggleSideDrawer"
       @set-engine-type="state.setEngineType"
       @set-port="state.setPort"
-      @set-stay-on-splash="state.setStayOnSplash"
       @launch-webtop="state.launchWebtop"
       @highlight-layer="handleHighlightLayer"
       @select-layer="handleSelectLayer"
       @open-error-modal="state.openErrorModal"
       @start="state.start"
       @stop="state.stop"
+      @restart="state.restart"
+      @toggle-console="logs.toggle"
+      @open-overview="handleOpenOverview"
+      @open-diagnostics="handleOpenDiagnostics"
+      @open-settings="handleOpenSettings"
       @open-url="state.openUrl"
       @open-browser="state.openBrowser"
       @open-blackbox="state.openBlackbox"
-      @open-settings="handleOpenSettings"
     />
 
     <!-- Primary Main Dashboard Layout View -->
@@ -48,13 +50,13 @@
       :status-label="state.statusLabel.value"
       :engine-type="state.engineType.value"
       :active-port="state.activePort.value"
+      :os-homepage-mode="state.osHomepageMode.value"
       :error-info="state.errorInfo.value"
       :current-gateway-url="state.currentGatewayUrl.value"
       :current-tier-data="license.currentTierData.value"
       :current-tier-color="license.currentTierColor.value"
       :version="state.version.value"
       :stack-layers="state.stackLayers.value"
-      :stay-on-splash="state.stayOnSplash.value"
       :is-running="state.isRunning.value"
       :is-stopped="state.isStopped.value"
       :is-transitioning="state.isTransitioning.value"
@@ -66,7 +68,7 @@
       @set-tab="handleSetTab"
       @set-engine-type="state.setEngineType"
       @set-port="state.setPort"
-      @set-stay-on-splash="state.setStayOnSplash"
+      @set-homepage-mode="state.setHomepageMode"
       @open-error-modal="state.openErrorModal"
       @toggle-console="logs.toggle"
       @open-license-modal="license.openModal"
@@ -214,6 +216,16 @@ const handleSwitchView = (view: 'splash' | 'dashboard') => {
   nextTick(() => {
     switchCanvasContainer(view);
   });
+};
+
+const handleOpenOverview = () => {
+  state.activeTab.value = 'tab-overview';
+  handleSwitchView('dashboard');
+};
+
+const handleOpenDiagnostics = () => {
+  state.activeTab.value = 'tab-diagnostics';
+  handleSwitchView('dashboard');
 };
 
 const handleOpenSettings = () => {

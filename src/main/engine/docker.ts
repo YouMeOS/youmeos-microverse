@@ -48,6 +48,7 @@ export class DockerEngine extends BaseEngine {
   private isSettingUp = false;
   private isStarting = false;
   private activePort = 80;
+  private osHomepageMode: string = process.env.OS_HOMEPAGE_MODE || process.env.YOUMEOS_LOAD_MODE || 'homepage';
   private lastErrorMessage?: string;
   private lastErrorInfo?: EngineErrorInfo;
 
@@ -74,12 +75,29 @@ export class DockerEngine extends BaseEngine {
     return this.activePort;
   }
 
+  async setHomepageMode(mode: string): Promise<void> {
+    const cleanMode = (mode || 'homepage').trim();
+    if (this.osHomepageMode === cleanMode) return;
+    this.osHomepageMode = cleanMode;
+    this.pushLog('gateway', `Docker OS Homepage mode updated to ${this.osHomepageMode}`);
+    const currentStatus = await this.status();
+    if (currentStatus.status === 'running' || currentStatus.status === 'starting') {
+      await this.restart();
+    }
+  }
+
+  getHomepageMode(): string {
+    return this.osHomepageMode;
+  }
+
   private getComposeEnv(): NodeJS.ProcessEnv {
     const httpsPort = this.activePort === 80 ? '443' : (this.activePort + 363).toString();
     return {
       ...process.env,
       PORT: this.activePort.toString(),
-      HTTPS_PORT: httpsPort
+      HTTPS_PORT: httpsPort,
+      OS_HOMEPAGE_MODE: this.osHomepageMode,
+      YOUMEOS_LOAD_MODE: this.osHomepageMode
     };
   }
 
@@ -487,6 +505,7 @@ export class DockerEngine extends BaseEngine {
         status: overallStatus,
         engineType: 'docker',
         activePort: this.activePort,
+        osHomepageMode: this.osHomepageMode,
         message: this.lastErrorMessage,
         errorInfo: this.lastErrorInfo,
         downloadProgress: this.currentDownloadProgress,
@@ -501,6 +520,7 @@ export class DockerEngine extends BaseEngine {
         status: 'error',
         engineType: 'docker',
         activePort: this.activePort,
+        osHomepageMode: this.osHomepageMode,
         message: e.message || 'Failed to inspect Docker stack',
         errorInfo: classifyEngineError({
           rawError: e.message,
