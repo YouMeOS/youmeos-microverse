@@ -40,6 +40,37 @@ microverse_boot_required_plugins();
 add_filter( 'validate_current_theme', '__return_false' );
 
 /**
+ * Resolves OS homepage mode override from constants or environment variables.
+ * Returns null if not explicitly overridden.
+ */
+function microverse_get_os_homepage_mode() {
+	if ( defined( 'OS_HOMEPAGE_MODE' ) && OS_HOMEPAGE_MODE !== '' ) {
+		return OS_HOMEPAGE_MODE;
+	}
+	$env_mode = getenv( 'OS_HOMEPAGE_MODE' );
+	if ( false !== $env_mode && '' !== $env_mode ) {
+		return $env_mode;
+	}
+	if ( defined( 'YOUMEOS_LOAD_MODE' ) && YOUMEOS_LOAD_MODE !== '' ) {
+		return YOUMEOS_LOAD_MODE;
+	}
+	$env_youmeos_mode = getenv( 'YOUMEOS_LOAD_MODE' );
+	if ( false !== $env_youmeos_mode && '' !== $env_youmeos_mode ) {
+		return $env_youmeos_mode;
+	}
+	return null;
+}
+
+// 3. Override youmeos_load_mode option if OS_HOMEPAGE_MODE or YOUMEOS_LOAD_MODE is defined in env/constants
+add_filter( 'pre_option_youmeos_load_mode', function( $pre_value ) {
+	$override = microverse_get_os_homepage_mode();
+	if ( null !== $override ) {
+		return $override;
+	}
+	return $pre_value;
+} );
+
+/**
  * Synchronizes active_plugins and default options in the database
  * once the database and blog are installed.
  */
@@ -63,10 +94,12 @@ function microverse_ensure_active_plugins() {
 		update_option( 'active_plugins', array_values( array_unique( $active_plugins ) ) );
 	}
 
-	// Ensure YouMeOS portal is set to load on Homepage by default
+	// Ensure YouMeOS portal load mode is configured (defaults to 'homepage' unless OS_HOMEPAGE_MODE is set)
 	$current_load_mode = get_option( 'youmeos_load_mode' );
+	$configured_override = microverse_get_os_homepage_mode();
 	if ( false === $current_load_mode ) {
-		update_option( 'youmeos_load_mode', 'homepage' );
+		$default_mode = ( null !== $configured_override ) ? $configured_override : 'homepage';
+		update_option( 'youmeos_load_mode', $default_mode );
 		delete_option( 'rewrite_rules' );
 	}
 

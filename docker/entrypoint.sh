@@ -45,6 +45,12 @@ if (!defined('WP_SITEURL')) {
     define('WP_SITEURL', $proto . $host);
 }
 
+$os_homepage_mode = getenv('OS_HOMEPAGE_MODE') ?: getenv('YOUMEOS_LOAD_MODE');
+if ( $os_homepage_mode && ! defined( 'OS_HOMEPAGE_MODE' ) ) {
+    define( 'OS_HOMEPAGE_MODE', $os_homepage_mode );
+    define( 'YOUMEOS_LOAD_MODE', $os_homepage_mode );
+}
+
 if ( ! defined( 'ABSPATH' ) ) {
     define( 'ABSPATH', __DIR__ . '/' );
 }
