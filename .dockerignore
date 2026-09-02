@@ -4,7 +4,9 @@
 **/.gitmodules
 .github
 .agents
-.agent
+wp-content/plugins/*
+!wp-content/plugins/.gitkeep
+!wp-content/plugins/index.php
 wp-content/mu-plugins/blackbox-bedrock
 wp-content/themes/xophz-magic-hat
 node_modules

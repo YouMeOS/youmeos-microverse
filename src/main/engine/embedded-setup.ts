@@ -450,6 +450,7 @@ define( 'NONCE_SALT',       'youmeos-embedded-nonce-salt-5192830491' );
 define( 'WP_DEBUG', true );
 define( 'WP_DEBUG_LOG', true );
 define( 'WP_DEBUG_DISPLAY', false );
+define( 'FS_METHOD', 'direct' );
 
 define('DB_FILE', 'database.sqlite');
 define('DB_DIR', '${hostWpDir.replace(/\\/g, '/')}');
@@ -491,6 +492,16 @@ require_once ABSPATH . 'wp-settings.php';
           targetDbDirLine
         );
         modified = true;
+      }
+      if (!existingConfig.includes('FS_METHOD')) {
+        const fsMethodBlock = `\ndefine( 'FS_METHOD', 'direct' );\n`;
+        if (existingConfig.includes("require_once ABSPATH . 'wp-settings.php';") || existingConfig.includes('require_once ABSPATH . "wp-settings.php";')) {
+          existingConfig = existingConfig.replace(
+            /require_once\s+ABSPATH\s*\.\s*['"]wp-settings\.php['"]\s*;/,
+            `${fsMethodBlock}\nrequire_once ABSPATH . 'wp-settings.php';`
+          );
+          modified = true;
+        }
       }
       if (!existingConfig.includes('OS_HOMEPAGE_MODE')) {
         const homepageBlock = `\n$os_homepage_mode = getenv('OS_HOMEPAGE_MODE') ?: getenv('YOUMEOS_LOAD_MODE');\nif ( $os_homepage_mode && ! defined( 'OS_HOMEPAGE_MODE' ) ) {\n\tdefine( 'OS_HOMEPAGE_MODE', $os_homepage_mode );\n\tdefine( 'YOUMEOS_LOAD_MODE', $os_homepage_mode );\n}\n`;

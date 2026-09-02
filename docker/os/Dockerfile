@@ -9,18 +9,16 @@ COPY --from=wordpress:php8.3 --chown=www-data:www-data /usr/src/wordpress /var/w
 # Copy Composer config
 COPY composer.json composer.lock* /var/www/html/
 
-# Install plugins, themes, and dependencies via Composer during build
+# Cache busting argument to invalidate cached layers when new plugin versions are released
+ARG CACHE_BUST=1
+
+# Install / update plugins, themes, and dependencies via Composer during build
 RUN --mount=type=secret,id=GITHUB_TOKEN,required=false \
     --mount=type=cache,target=/root/.composer/cache \
     if [ -f /run/secrets/GITHUB_TOKEN ]; then \
         export COMPOSER_AUTH="{\"github-oauth\": {\"github.com\": \"$(cat /run/secrets/GITHUB_TOKEN)\"}}"; \
     fi; \
-    if [ -f composer.lock ]; then \
-        COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader || \
-        COMPOSER_ALLOW_SUPERUSER=1 composer update --no-dev --prefer-dist --no-interaction --optimize-autoloader; \
-    else \
-        COMPOSER_ALLOW_SUPERUSER=1 composer update --no-dev --prefer-dist --no-interaction --optimize-autoloader; \
-    fi
+    COMPOSER_ALLOW_SUPERUSER=1 composer update --no-dev --prefer-dist --no-interaction --optimize-autoloader
 
 # Copy core mu-plugins
 COPY --chown=www-data:www-data wp-content/mu-plugins/ /var/www/html/wp-content/mu-plugins/

@@ -88,9 +88,9 @@ jobs:
           pull: true
           push: true
           tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
           build-args: |
             BASE_IMAGE=${{ env.GHCR_BASE_IMAGE }}
+            CACHE_BUST=${{ github.sha }}-${{ github.run_id }}
           secrets: |
             GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }}
           cache-from: type=gha

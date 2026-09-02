@@ -8,7 +8,7 @@ export interface PluginDefinition {
   slug: string;
   name: string;
   url: string;
-  targetType: 'plugin' | 'mu-plugin';
+  targetType: 'plugin' | 'mu-plugin' | 'theme';
   mainPhpFile?: string;
 }
 
@@ -57,6 +57,13 @@ export const DEFAULT_PLUGINS: PluginDefinition[] = [
     url: 'https://github.com/HalloftheGods/xophz-compass-event-horizon/archive/refs/heads/main.zip',
     targetType: 'plugin',
     mainPhpFile: 'xophz-compass-event-horizon.php'
+  },
+  {
+    slug: 'xophz-magic-hat',
+    name: 'Xophz Magic Hat Theme',
+    url: 'https://github.com/HalloftheGods/xophz-magic-hat/archive/refs/heads/main.zip',
+    targetType: 'theme',
+    mainPhpFile: 'functions.php'
   }
 ];
 
@@ -80,8 +87,8 @@ export class PluginUpdater {
     this.logCallback?.(entry);
   }
 
-  private getPluginsDir(targetType: 'plugin' | 'mu-plugin'): string {
-    const sub = targetType === 'mu-plugin' ? 'mu-plugins' : 'plugins';
+  private getPluginsDir(targetType: 'plugin' | 'mu-plugin' | 'theme'): string {
+    const sub = targetType === 'mu-plugin' ? 'mu-plugins' : (targetType === 'theme' ? 'themes' : 'plugins');
     const wpPath = path.join(this.projectDir, 'wp-content', sub);
     if (fs.existsSync(wpPath)) return wpPath;
     const legacyPath = path.join(this.projectDir, 'blackbox', sub);

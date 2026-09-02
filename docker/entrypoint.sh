@@ -32,6 +32,8 @@ define( 'WP_DEBUG', getenv('WP_DEBUG') === 'true' );
 define( 'WP_DEBUG_LOG', getenv('WP_DEBUG_LOG') === 'true' );
 define( 'WP_DEBUG_DISPLAY', false );
 
+define( 'FS_METHOD', getenv('FS_METHOD') ?: 'direct' );
+
 $is_https = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ||
             (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') ||
             (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443);
@@ -58,6 +60,11 @@ require_once ABSPATH . 'wp-settings.php';
 EOF
 fi
 
+# Ensure existing wp-config.php has FS_METHOD defined
+if [ -f "${WP_DIR}/wp-config.php" ] && ! grep -q "FS_METHOD" "${WP_DIR}/wp-config.php"; then
+  sed -i "/<\?php/a define( 'FS_METHOD', getenv('FS_METHOD') ?: 'direct' );" "${WP_DIR}/wp-config.php"
+fi
+
 # 2. Ensure SQLite drop-in db.php exists
 if [ ! -f "${CONTENT_DIR}/db.php" ] && [ -f "${CONTENT_DIR}/plugins/sqlite-database-integration/db.copy" ]; then
   cp "${CONTENT_DIR}/plugins/sqlite-database-integration/db.copy" "${CONTENT_DIR}/db.php"
@@ -73,7 +80,7 @@ if [ -d "/var/www/custom-plugins" ]; then
 fi
 
 # 4. Fix permissions (Optimized: Avoid recursive chown on every startup)
-mkdir -p "${CONTENT_DIR}/uploads"
-chown www-data:www-data "${CONTENT_DIR}" "${CONTENT_DIR}/uploads" 2>/dev/null || true
+mkdir -p "${CONTENT_DIR}/uploads" "${CONTENT_DIR}/upgrade" "${CONTENT_DIR}/plugins" "${CONTENT_DIR}/themes"
+chown www-data:www-data "${CONTENT_DIR}" "${CONTENT_DIR}/uploads" "${CONTENT_DIR}/upgrade" "${CONTENT_DIR}/plugins" "${CONTENT_DIR}/themes" 2>/dev/null || true
 
 exec "$@"

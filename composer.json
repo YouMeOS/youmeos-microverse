@@ -32,6 +32,7 @@
   "require": {
     "php": ">=8.1",
     "composer/installers": "^2.2",
+    "wpackagist-plugin/sqlite-database-integration": "^2.2",
     "hallofthegods/blackbox-bedrock": "dev-main",
     "hallofthegods/xophz-compass": "dev-main",
     "hallofthegods/xophz-compass-event-horizon": "dev-main",
