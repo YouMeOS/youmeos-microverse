@@ -109,7 +109,7 @@
               name="brand"
               :size="14"
             />
-            <span>Launch Native App</span>
+            <span>Launch In App</span>
           </button>
 
           <button

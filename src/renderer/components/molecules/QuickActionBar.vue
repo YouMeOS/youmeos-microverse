@@ -14,36 +14,7 @@
           name="start"
           :size="16"
         />
-        <span class="btn-transport-label">Start</span>
-      </button>
-
-      <!-- 2. Console HUD -->
-      <button
-        type="button"
-        class="btn-transport btn-aux-terminal"
-        title="Toggle Terminal HUD (` or ~)"
-        @click="$emit('toggleConsole')"
-      >
-        <BaseIcon
-          name="pause"
-          :size="16"
-        />
-        <span class="btn-transport-label">Console</span>
-      </button>
-
-      <!-- 3. Stop -->
-      <button
-        type="button"
-        :class="['btn-transport', 'btn-transport-stop', { 'is-active': isStopped }]"
-        :disabled="isActionPending || isStopped || isTransitioning || isError"
-        title="Stop Microverse Stack"
-        @click="$emit('stop')"
-      >
-        <BaseIcon
-          name="stop"
-          :size="16"
-        />
-        <span class="btn-transport-label">Stop</span>
+        <span class="btn-transport-label">Up</span>
       </button>
 
       <!-- 4. Restart -->
@@ -69,10 +40,38 @@
         @click="$emit('openSettings')"
       >
         <BaseIcon
-          name="eject"
+          name="pause"
           :size="16"
         />
         <span class="btn-transport-label">Settings</span>
+      </button>
+
+      <!-- 2. Console HUD -->
+      <button
+        type="button"
+        class="btn-transport btn-aux-terminal"
+        title="Toggle Terminal HUD (` or ~)"
+        @click="$emit('toggleConsole')"
+      >
+        <BaseIcon
+          name="eject"
+          :size="16"
+        />
+        <span class="btn-transport-label">Logs</span>
+      </button>
+      <!-- 3. Stop -->
+      <button
+        type="button"
+        :class="['btn-transport', 'btn-transport-stop', { 'is-active': isStopped }]"
+        :disabled="isActionPending || isStopped || isTransitioning || isError"
+        title="Stop Microverse Stack"
+        @click="$emit('stop')"
+      >
+        <BaseIcon
+          name="stop"
+          :size="16"
+        />
+        <span class="btn-transport-label">Down</span>
       </button>
     </div>
 
@@ -90,7 +89,7 @@
           name="external"
           :size="16"
         />
-        <span class="btn-transport-label">Native App</span>
+        <span class="btn-transport-label">In App</span>
       </button>
 
       <!-- 7. Browser -->
@@ -132,7 +131,7 @@
           name="diagnostics"
           :size="16"
         />
-        <span class="btn-transport-label">Diagnostics</span>
+        <span class="btn-transport-label">Tools</span>
       </button>
     </div>
   </div>
