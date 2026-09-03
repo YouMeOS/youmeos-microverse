@@ -69,6 +69,8 @@ export interface DesktopApi {
   getPort?: () => Promise<number>;
   setHomepageMode?: (mode: string) => Promise<void>;
   getHomepageMode?: () => Promise<string>;
+  setDevMode?: (enabled: boolean) => Promise<boolean>;
+  getDevMode?: () => Promise<boolean>;
   updatePlugins: () => Promise<PluginUpdateResult>;
   getVersion?: () => Promise<string>;
   minimizeToTray?: () => Promise<void>;

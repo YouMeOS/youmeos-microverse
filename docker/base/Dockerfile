@@ -20,9 +20,14 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     intl \
     zip \
     opcache \
+    apcu \
+    redis \
     exif \
     bcmath \
     && rm -rf /var/lib/apt/lists/*
+
+# Copy performance and runtime PHP configurations
+COPY docker/base/conf.d/ /usr/local/etc/php/conf.d/
 
 # Install Composer binary
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer

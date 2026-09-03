@@ -122,6 +122,17 @@ export class EngineManager {
     return this.activeEngine.getHomepageMode?.() || 'homepage';
   }
 
+  async setDevMode(enabled: boolean): Promise<void> {
+    await Promise.allSettled([
+      this.embeddedEngine.setDevMode?.(enabled),
+      this.dockerEngine.setDevMode?.(enabled)
+    ]);
+  }
+
+  getDevMode(): boolean {
+    return this.activeEngine.getDevMode?.() ?? false;
+  }
+
   async status(): Promise<EngineStatusInfo> {
     const [dockerAvail, embeddedAvail, engineStatus] = await Promise.all([
       this.dockerEngine.isAvailable(),

@@ -42,6 +42,61 @@
         >{{ pluginUpdateFeedback }}</span>
       </div>
 
+      <!-- 3. Plugin Developer Mode Card -->
+      <div class="dash-card glass-panel">
+        <div class="card-header">
+          <div class="card-title-group">
+            <BaseIcon
+              name="spark"
+              :size="16"
+            />
+            <h3 class="card-title">Plugin Developer Mode</h3>
+          </div>
+          <span
+            class="homepage-mode-badge"
+            :class="{ 'is-routes-only': !devMode }"
+          >
+            {{ devMode ? 'Live Hot Reload' : 'Production Cache' }}
+          </span>
+        </div>
+        <p class="dash-card-desc">
+          Disables static caching, revalidates PHP timestamps immediately, and monitors wp-content/plugins to auto-reload the portal window on file changes.
+        </p>
+
+        <div class="port-preset-row">
+          <button
+            type="button"
+            :class="['btn-port-preset', { active: devMode }]"
+            :disabled="isActionPending"
+            @click="$emit('setDevMode', true)"
+          >
+            <span>Active</span>
+            <span class="preset-sub">Live Dev &amp; Reload</span>
+          </button>
+
+          <button
+            type="button"
+            :class="['btn-port-preset', { active: !devMode }]"
+            :disabled="isActionPending"
+            @click="$emit('setDevMode', false)"
+          >
+            <span>Disabled</span>
+            <span class="preset-sub">Production Cache</span>
+          </button>
+        </div>
+
+        <div style="margin-top: 12px; display: flex; gap: 8px;">
+          <button
+            type="button"
+            class="btn-modal-secondary"
+            @click="handleOpenPluginsFolder"
+          >
+            <BaseIcon name="portal" :size="14" />
+            <span>Open Plugins Folder</span>
+          </button>
+        </div>
+      </div>
+
       <!-- 3. OS Homepage Routing Mode Card -->
       <div class="dash-card glass-panel">
         <div class="card-header">
@@ -169,6 +224,7 @@ const props = defineProps<{
   engineType: EngineType;
   activePort?: number;
   osHomepageMode?: string;
+  devMode?: boolean;
   isActionPending: boolean;
   api: DesktopApi;
 }>();
@@ -177,6 +233,7 @@ const emit = defineEmits<{
   (e: 'setEngineType', val: EngineType): void;
   (e: 'setPort', port: number): void;
   (e: 'setHomepageMode', mode: string): void;
+  (e: 'setDevMode', val: boolean): void;
   (e: 'toggleConsole'): void;
 }>();
 
@@ -198,6 +255,10 @@ const handleApplyCustomPort = () => {
   if (!isNaN(parsed) && parsed >= 1 && parsed <= 65535) {
     emit('setPort', parsed);
   }
+};
+
+const handleOpenPluginsFolder = () => {
+  props.api?.openBlackboxFolder?.('plugins');
 };
 
 const handleUpdatePlugins = async () => {
@@ -423,6 +484,34 @@ const handleUpdatePlugins = async () => {
 }
 
 .btn-modal-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-modal-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-glass);
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 0.76rem;
+  border-radius: var(--radius-sm);
+  padding: 8px 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-modal-secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  transform: translateY(-1px);
+}
+
+.btn-modal-secondary:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }

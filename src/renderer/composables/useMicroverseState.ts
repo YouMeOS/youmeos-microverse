@@ -22,6 +22,7 @@ export function useMicroverseState() {
   const activePort = ref<number>(80);
   const savedHomepageMode = localStorage.getItem("youmeos_os_homepage_mode");
   const osHomepageMode = ref<string>(savedHomepageMode || "homepage");
+  const devMode = ref<boolean>(true);
   const errorInfo = ref<EngineErrorInfo | null>(null);
   const isErrorModalOpen = ref<boolean>(false);
   const services = ref<ServiceInfo[]>([]);
@@ -107,6 +108,7 @@ export function useMicroverseState() {
     if (info.engineType) engineType.value = info.engineType;
     if (info.activePort) activePort.value = info.activePort;
     if (info.osHomepageMode) osHomepageMode.value = info.osHomepageMode;
+    if (info.devMode !== undefined) devMode.value = info.devMode;
     if (info.services) services.value = info.services;
     if (info.stackLayers) stackLayers.value = sortStackLayers(info.stackLayers);
     if (info.gateways) gateways.value = info.gateways;
@@ -221,11 +223,22 @@ export function useMicroverseState() {
       }
       osHomepageMode.value = cleanMode;
       localStorage.setItem("youmeos_os_homepage_mode", cleanMode);
-    } catch (e: any) {
-      console.error("Failed to set homepage mode", e);
+      await api.setHomepageMode?.(cleanMode);
     } finally {
       isActionPending.value = false;
-      await pollStatus();
+    }
+  };
+
+  const setDevMode = async (enabled: boolean) => {
+    if (isActionPending.value) return;
+    isActionPending.value = true;
+    try {
+      devMode.value = enabled;
+      await api.setDevMode?.(enabled);
+    } catch (e) {
+      console.error("Failed to update dev mode:", e);
+    } finally {
+      isActionPending.value = false;
     }
   };
 
@@ -344,6 +357,7 @@ export function useMicroverseState() {
     engineType,
     activePort,
     osHomepageMode,
+    devMode,
     errorInfo,
     isErrorModalOpen,
     services,
@@ -377,6 +391,7 @@ export function useMicroverseState() {
     setEngineType,
     setPort,
     setHomepageMode,
+    setDevMode,
     openErrorModal,
     closeErrorModal,
     handleRemediateError,

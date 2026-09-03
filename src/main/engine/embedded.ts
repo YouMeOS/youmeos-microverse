@@ -23,6 +23,7 @@ export class EmbeddedEngine extends BaseEngine {
   private serverProcess: ChildProcess | null = null;
   private activePort = 80;
   private osHomepageMode: string = process.env.OS_HOMEPAGE_MODE || process.env.YOUMEOS_LOAD_MODE || 'homepage';
+  private isDevMode: boolean = process.env.YOUMEOS_DEV_MODE === '1' || (app?.isPackaged === false);
   private projectDir: string;
   private resourcesDir: string;
   private isSettingUp = false;
@@ -68,6 +69,19 @@ export class EmbeddedEngine extends BaseEngine {
 
   getHomepageMode(): string {
     return this.osHomepageMode;
+  }
+
+  async setDevMode(enabled: boolean): Promise<void> {
+    if (this.isDevMode === enabled) return;
+    this.isDevMode = enabled;
+    this.pushLog('gateway', `Developer Mode updated to ${enabled ? 'ENABLED' : 'DISABLED'}`);
+    if (this.currentStatus === 'running' || this.currentStatus === 'starting') {
+      await this.restart();
+    }
+  }
+
+  getDevMode(): boolean {
+    return this.isDevMode;
   }
 
   private resolveCaddyfilePath(): string {
@@ -270,6 +284,10 @@ export class EmbeddedEngine extends BaseEngine {
       ? `${binDir};${process.env.PATH || ''}`
       : `${binDir}:${process.env.PATH || ''}`;
 
+    const staticCache = this.isDevMode
+      ? 'no-cache, must-revalidate'
+      : 'public, max-age=31536000, immutable';
+
     try {
       this.serverProcess = spawn(frankenPath, ['run', '--config', caddyfilePath], {
         cwd: binDir,
@@ -281,6 +299,8 @@ export class EmbeddedEngine extends BaseEngine {
           HTTPS_PORT: httpsPort,
           OS_HOMEPAGE_MODE: this.osHomepageMode,
           YOUMEOS_LOAD_MODE: this.osHomepageMode,
+          YOUMEOS_DEV_MODE: this.isDevMode ? '1' : '0',
+          STATIC_CACHE_CONTROL: staticCache,
           TLS_DIRECTIVE: tlsDirective,
           TLS_CERT: hasCerts ? activeCert.replace(/\\/g, '/') : 'internal',
           TLS_KEY: hasCerts ? activeKey.replace(/\\/g, '/') : ''
@@ -519,6 +539,7 @@ export class EmbeddedEngine extends BaseEngine {
       engineType: 'embedded',
       activePort: this.activePort,
       osHomepageMode: this.osHomepageMode,
+      devMode: this.isDevMode,
       message: this.lastErrorMessage,
       errorInfo: this.lastErrorInfo,
       downloadProgress: this.currentDownloadProgress,

@@ -24,7 +24,15 @@ https://my.youmeos.com:{$HTTPS_PORT:443}, https://my.umeos.com:{$HTTPS_PORT:443}
 	{$TLS_DIRECTIVE:tls internal}
 	root * "{$WP_ROOT}"
 	encode zstd br gzip
-	php_server
+
+	@static {
+		path *.ico *.css *.js *.gif *.jpg *.jpeg *.png *.svg *.woff *.woff2 *.webp *.avif
+	}
+	header @static Cache-Control "{$STATIC_CACHE_CONTROL:no-cache, must-revalidate}"
+
+	php_server {
+		resolve_root_symlink
+	}
 	log {
 		format json
 		output stdout
@@ -35,7 +43,15 @@ https://my.youmeos.com:{$HTTPS_PORT:443}, https://my.umeos.com:{$HTTPS_PORT:443}
 :{$PORT:80}, http://my.youmeos.com:{$PORT:80}, http://youmeos.localhost:{$PORT:80}, http://youmeos.local:{$PORT:80}, http://localhost:{$PORT:80}, http://127.0.0.1:{$PORT:80} {
 	root * "{$WP_ROOT}"
 	encode zstd br gzip
-	php_server
+
+	@static {
+		path *.ico *.css *.js *.gif *.jpg *.jpeg *.png *.svg *.woff *.woff2 *.webp *.avif
+	}
+	header @static Cache-Control "{$STATIC_CACHE_CONTROL:no-cache, must-revalidate}"
+
+	php_server {
+		resolve_root_symlink
+	}
 	log {
 		format json
 		output stdout
@@ -239,7 +255,7 @@ export async function setupEmbeddedEnvironment(
   const needsCaddyfileUpdate = !fs.existsSync(targetCaddyfile) || (() => {
     try {
       const existing = fs.readFileSync(targetCaddyfile, 'utf8');
-      return existing.includes('root * {$WP_ROOT}') || !existing.includes('root * "{$WP_ROOT}"') || !existing.includes('http_port') || !existing.includes('{$PORT');
+      return existing.includes('root * {$WP_ROOT}') || !existing.includes('root * "{$WP_ROOT}"') || !existing.includes('http_port') || !existing.includes('{$PORT') || !existing.includes('resolve_root_symlink') || !existing.includes('STATIC_CACHE_CONTROL');
     } catch {
       return true;
     }
@@ -415,6 +431,20 @@ export async function setupEmbeddedEnvironment(
   }
   onProgress('SQLite integration configured.');
 
+  // Ensure persistent object cache drop-in exists
+  const rootObjectCache = path.join(projectDir, 'wp-content', 'object-cache.php');
+  const hostObjectCache = path.join(hostWpDir, 'object-cache.php');
+  const embeddedObjectCache = path.join(wpContentDir, 'object-cache.php');
+
+  if (fs.existsSync(rootObjectCache) && !fs.existsSync(hostObjectCache)) {
+    try { fs.copyFileSync(rootObjectCache, hostObjectCache); } catch {}
+  }
+  if (fs.existsSync(hostObjectCache) && !fs.existsSync(embeddedObjectCache)) {
+    try { fs.copyFileSync(hostObjectCache, embeddedObjectCache); } catch {}
+  } else if (fs.existsSync(rootObjectCache) && !fs.existsSync(embeddedObjectCache)) {
+    try { fs.copyFileSync(rootObjectCache, embeddedObjectCache); } catch {}
+  }
+
   // 4. Setup wp-config.php for SQLite pointing to shared wp-content/ database
   const sharedDb = path.join(hostWpDir, 'database.sqlite');
   const oldDb = path.join(embeddedDir, 'database.sqlite');
@@ -519,7 +549,7 @@ require_once ABSPATH . 'wp-settings.php';
     } catch {}
   }
 
-  // 5. Setup symlinks to host blackbox directory
+  // 5. Setup symlinks to host wp-content directory (all direct folder symlinks)
   const dirsToLink = ['plugins', 'mu-plugins', 'themes', 'uploads'];
   for (const dir of dirsToLink) {
     const hostDir = path.join(hostWpDir, dir);
@@ -530,53 +560,15 @@ require_once ABSPATH . 'wp-settings.php';
       try { fs.mkdirSync(hostDir, { recursive: true }); } catch {}
     }
 
-    const isDirectSymlinkDir = dir === 'mu-plugins' || dir === 'uploads' || dir === 'themes';
-    if (isDirectSymlinkDir) {
-      ensureSymlink(hostDir, targetDir);
-    } else if (dir === 'plugins') {
-      const hasTargetDir = fs.existsSync(targetDir);
-      if (!hasTargetDir) {
-        try { fs.mkdirSync(targetDir, { recursive: true }); } catch {}
+    // Clean up legacy non-symlink target directory to ensure direct symlink works
+    try {
+      const targetStat = fs.lstatSync(targetDir, { throwIfNoEntry: false });
+      if (targetStat && !targetStat.isSymbolicLink()) {
+        removePathSafe(targetDir);
       }
+    } catch {}
 
-      const existingPluginEntries = fs.readdirSync(targetDir);
-      for (const entry of existingPluginEntries) {
-        const tpPath = path.join(targetDir, entry);
-        let entryStat: fs.Stats | undefined;
-        try {
-          entryStat = fs.lstatSync(tpPath, { throwIfNoEntry: false });
-        } catch {
-          removePathSafe(tpPath);
-          continue;
-        }
-
-        const isSymlink = entryStat?.isSymbolicLink() ?? false;
-        if (isSymlink) {
-          try {
-            const currentLink = fs.readlinkSync(tpPath);
-            const cleanLink = currentLink.replace(/^\\\\\?\\|^\\\?\?\\/, '');
-            const resolvedTarget = path.isAbsolute(cleanLink) ? cleanLink : path.resolve(path.dirname(tpPath), cleanLink);
-            const isMissingTarget = !fs.existsSync(resolvedTarget);
-            if (isMissingTarget) {
-              removePathSafe(tpPath);
-            }
-          } catch {
-            removePathSafe(tpPath);
-          }
-        }
-      }
-
-      const hostPlugins = fs.readdirSync(hostDir);
-      for (const pluginName of hostPlugins) {
-        const isIndexFile = pluginName === 'index.php';
-        if (isIndexFile) {
-          continue;
-        }
-        const hpPath = path.join(hostDir, pluginName);
-        const tpPath = path.join(targetDir, pluginName);
-        ensureSymlink(hpPath, tpPath);
-      }
-    }
+    ensureSymlink(hostDir, targetDir);
   }
 
   // 6. Ensure FrankenPHP has port 80 binding privileges on Linux

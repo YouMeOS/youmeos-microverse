@@ -6,6 +6,7 @@ docker/.env
 *.pem
 *.crt
 *.ini
+!docker/base/conf.d/*.ini
 docker/nginx/certs/
 certs/
 

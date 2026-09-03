@@ -78,11 +78,13 @@
         :engine-type="engineType"
         :active-port="activePort"
         :os-homepage-mode="osHomepageMode"
+        :dev-mode="devMode"
         :is-action-pending="isActionPending"
         :api="api"
         @set-engine-type="$emit('setEngineType', $event)"
         @set-port="$emit('setPort', $event)"
         @set-homepage-mode="$emit('setHomepageMode', $event)"
+        @set-dev-mode="$emit('setDevMode', $event)"
         @toggle-console="$emit('toggleConsole')"
       />
     </main>
@@ -136,6 +138,7 @@ const props = defineProps<{
   engineType: EngineType;
   activePort?: number;
   osHomepageMode?: string;
+  devMode?: boolean;
   errorInfo?: EngineErrorInfo | null;
   currentGatewayUrl: string;
   currentTierData: TierInfo;
@@ -157,6 +160,7 @@ const emit = defineEmits<{
   (e: 'setEngineType', val: EngineType): void;
   (e: 'setPort', port: number): void;
   (e: 'setHomepageMode', mode: string): void;
+  (e: 'setDevMode', enabled: boolean): void;
   (e: 'openErrorModal'): void;
   (e: 'toggleConsole'): void;
   (e: 'openLicenseModal'): void;

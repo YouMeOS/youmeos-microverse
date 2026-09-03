@@ -18,6 +18,8 @@ const setPortHandler = (port: number) => ipcRenderer.invoke('engine:set-port', p
 const getPortHandler = () => ipcRenderer.invoke('engine:get-port');
 const setHomepageModeHandler = (mode: string) => ipcRenderer.invoke('engine:set-homepage-mode', mode);
 const getHomepageModeHandler = () => ipcRenderer.invoke('engine:get-homepage-mode');
+const setDevModeHandler = (enabled: boolean) => ipcRenderer.invoke('engine:set-dev-mode', enabled);
+const getDevModeHandler = () => ipcRenderer.invoke('engine:get-dev-mode');
 const updatePluginsHandler = () => ipcRenderer.invoke('engine:update-plugins');
 const getVersionHandler = () => ipcRenderer.invoke('app:version');
 const minimizeToTrayHandler = () => ipcRenderer.invoke('window:minimize-to-tray');
@@ -85,6 +87,8 @@ contextBridge.exposeInMainWorld('api', {
   getPort: getPortHandler,
   setHomepageMode: setHomepageModeHandler,
   getHomepageMode: getHomepageModeHandler,
+  setDevMode: setDevModeHandler,
+  getDevMode: getDevModeHandler,
   updatePlugins: updatePluginsHandler,
   getVersion: getVersionHandler,
   minimizeToTray: minimizeToTrayHandler,

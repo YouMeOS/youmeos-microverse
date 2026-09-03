@@ -71,6 +71,81 @@ const diagnosticsManager = new DiagnosticsManager(projectDir);
 
 let isQuitting = false;
 let isSessionConfigured = false;
+let pluginWatcher: fs.FSWatcher | null = null;
+let watcherDebounceTimer: NodeJS.Timeout | null = null;
+
+function syncPluginWatcher(enabled: boolean): void {
+  if (!enabled) {
+    if (pluginWatcher) {
+      try {
+        pluginWatcher.close();
+      } catch {}
+      pluginWatcher = null;
+    }
+    return;
+  }
+
+  if (pluginWatcher) return;
+
+  const pluginsDir = path.join(projectDir, "wp-content", "plugins");
+  if (!fs.existsSync(pluginsDir)) {
+    try {
+      fs.mkdirSync(pluginsDir, { recursive: true });
+    } catch {}
+  }
+
+  const IGNORE_PATTERNS = [
+    /(^|[\\/])\./,
+    /node_modules/,
+    /vendor[\\/]/,
+    /\.git/,
+    /\.vite/,
+    /\.cache/,
+    /\.tmp$/,
+    /~$/,
+    /\.swp$/
+  ];
+
+  try {
+    pluginWatcher = fs.watch(
+      pluginsDir,
+      { recursive: true },
+      (eventType, filename) => {
+        if (!filename) return;
+
+        const isIgnored = IGNORE_PATTERNS.some((pattern) => pattern.test(filename));
+        if (isIgnored) return;
+
+        if (watcherDebounceTimer) {
+          clearTimeout(watcherDebounceTimer);
+        }
+
+        // 500ms debounce window allows multi-file compiler writes to settle
+        watcherDebounceTimer = setTimeout(() => {
+          watcherDebounceTimer = null;
+
+          const logEntry: LogEntry = {
+            id: `watcher-${Date.now()}`,
+            service: "watcher",
+            level: "info",
+            text: `Plugin change detected (${eventType}: ${filename}). Reloading portal...`,
+            timestamp: Date.now(),
+          };
+
+          if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send("engine:log", logEntry);
+          }
+
+          if (portalWindow && !portalWindow.isDestroyed() && portalWindow.isVisible()) {
+            portalWindow.webContents.reloadIgnoringCache();
+          }
+        }, 500);
+      },
+    );
+  } catch (err: any) {
+    console.error("[Microverse] Failed to start plugin watcher:", err.message);
+  }
+}
 
 function isTrustedLocalHost(hostname: string): boolean {
   const isLoopback = hostname === "localhost" || hostname === "127.0.0.1";
@@ -311,6 +386,12 @@ const readyHandler = async () => {
   ipcMain.handle("engine:get-homepage-mode", () =>
     engineManager.getHomepageMode(),
   );
+  ipcMain.handle("engine:set-dev-mode", async (_, enabled: boolean) => {
+    await engineManager.setDevMode(enabled);
+    syncPluginWatcher(enabled);
+    return engineManager.getDevMode();
+  });
+  ipcMain.handle("engine:get-dev-mode", () => engineManager.getDevMode());
   ipcMain.handle("app:version", () => app.getVersion());
 
   ipcMain.handle("engine:update-plugins", async () => {
@@ -566,6 +647,15 @@ const readyHandler = async () => {
   });
 
   await createWindow();
+  syncPluginWatcher(engineManager.getDevMode());
+
+  app.on("second-instance", () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
+    }
+  });
+
   if (mainWindow) {
     tray = createTray(engineManager, mainWindow, (url) =>
       openPortalWindow(url),
@@ -751,6 +841,12 @@ const beforeQuitHandler = async (event: Electron.Event) => {
   if (!isQuitting) {
     event.preventDefault();
     isQuitting = true;
+    if (pluginWatcher) {
+      try {
+        pluginWatcher.close();
+      } catch {}
+      pluginWatcher = null;
+    }
     try {
       await engineManager.stop();
     } catch (e) {

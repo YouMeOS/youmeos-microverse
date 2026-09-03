@@ -11,7 +11,15 @@ https://my.youmeos.com:{$HTTPS_PORT:443}, https://my.umeos.com:{$HTTPS_PORT:443}
 	{$TLS_DIRECTIVE:tls internal}
 	root * "{$WP_ROOT}"
 	encode zstd br gzip
-	php_server
+
+	@static {
+		path *.ico *.css *.js *.gif *.jpg *.jpeg *.png *.svg *.woff *.woff2 *.webp *.avif
+	}
+	header @static Cache-Control "{$STATIC_CACHE_CONTROL:no-cache, must-revalidate}"
+
+	php_server {
+		resolve_root_symlink
+	}
 	log {
 		format json
 		output stdout
@@ -22,10 +30,17 @@ https://my.youmeos.com:{$HTTPS_PORT:443}, https://my.umeos.com:{$HTTPS_PORT:443}
 :{$PORT:80}, http://my.youmeos.com:{$PORT:80}, http://youmeos.localhost:{$PORT:80}, http://youmeos.local:{$PORT:80}, http://localhost:{$PORT:80}, http://127.0.0.1:{$PORT:80} {
 	root * "{$WP_ROOT}"
 	encode zstd br gzip
-	php_server
+
+	@static {
+		path *.ico *.css *.js *.gif *.jpg *.jpeg *.png *.svg *.woff *.woff2 *.webp *.avif
+	}
+	header @static Cache-Control "{$STATIC_CACHE_CONTROL:no-cache, must-revalidate}"
+
+	php_server {
+		resolve_root_symlink
+	}
 	log {
 		format json
 		output stdout
 	}
 }
-

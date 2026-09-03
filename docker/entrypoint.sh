@@ -65,12 +65,21 @@ if [ -f "${WP_DIR}/wp-config.php" ] && ! grep -q "FS_METHOD" "${WP_DIR}/wp-confi
   sed -i "/<\?php/a define( 'FS_METHOD', getenv('FS_METHOD') ?: 'direct' );" "${WP_DIR}/wp-config.php"
 fi
 
-# 2. Ensure SQLite drop-in db.php exists
+# 2. Ensure SQLite drop-in db.php exists and SQLite WAL mode is configured
 if [ ! -f "${CONTENT_DIR}/db.php" ] && [ -f "${CONTENT_DIR}/plugins/sqlite-database-integration/db.copy" ]; then
   cp "${CONTENT_DIR}/plugins/sqlite-database-integration/db.copy" "${CONTENT_DIR}/db.php"
 fi
 
-# 3. Symlink custom plugins if mounted
+if [ -f "${CONTENT_DIR}/database.sqlite" ] && command -v sqlite3 >/dev/null 2>&1; then
+  sqlite3 "${CONTENT_DIR}/database.sqlite" "PRAGMA journal_mode = WAL; PRAGMA synchronous = NORMAL; PRAGMA mmap_size = 268435456; PRAGMA busy_timeout = 5000;" 2>/dev/null || true
+fi
+
+# 3. Ensure persistent object cache drop-in exists
+if [ ! -f "${CONTENT_DIR}/object-cache.php" ] && [ -f "/var/www/html/wp-content/object-cache.php" ]; then
+  cp "/var/www/html/wp-content/object-cache.php" "${CONTENT_DIR}/object-cache.php"
+fi
+
+# 4. Symlink custom plugins if mounted
 if [ -d "/var/www/custom-plugins" ]; then
   for plugin in /var/www/custom-plugins/*; do
     if [ -d "$plugin" ] && [ "$(basename "$plugin")" != ".gitkeep" ]; then
