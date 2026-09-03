@@ -49,6 +49,7 @@ export class DockerEngine extends BaseEngine {
   private isStarting = false;
   private activePort = 80;
   private osHomepageMode: string = process.env.OS_HOMEPAGE_MODE || process.env.YOUMEOS_LOAD_MODE || 'homepage';
+  private isDevMode: boolean = process.env.YOUMEOS_DEV_MODE === '1' || (app?.isPackaged === false);
   private lastErrorMessage?: string;
   private lastErrorInfo?: EngineErrorInfo;
   private availabilityCache: { isAvailable: boolean; timestamp: number } | null = null;
@@ -92,6 +93,20 @@ export class DockerEngine extends BaseEngine {
     return this.osHomepageMode;
   }
 
+  async setDevMode(enabled: boolean): Promise<void> {
+    if (this.isDevMode === enabled) return;
+    this.isDevMode = enabled;
+    this.pushLog('gateway', `Docker Developer Mode updated to ${enabled ? 'ENABLED' : 'DISABLED'}`);
+    const currentStatus = await this.status();
+    if (currentStatus.status === 'running' || currentStatus.status === 'starting') {
+      await this.restart();
+    }
+  }
+
+  getDevMode(): boolean {
+    return this.isDevMode;
+  }
+
   private getComposeEnv(): NodeJS.ProcessEnv {
     const httpsPort = this.activePort === 80 ? '443' : (this.activePort + 363).toString();
     return {
@@ -99,7 +114,8 @@ export class DockerEngine extends BaseEngine {
       PORT: this.activePort.toString(),
       HTTPS_PORT: httpsPort,
       OS_HOMEPAGE_MODE: this.osHomepageMode,
-      YOUMEOS_LOAD_MODE: this.osHomepageMode
+      YOUMEOS_LOAD_MODE: this.osHomepageMode,
+      YOUMEOS_DEV_MODE: this.isDevMode ? '1' : '0'
     };
   }
 
@@ -371,6 +387,8 @@ export class DockerEngine extends BaseEngine {
         status: 'error',
         engineType: 'docker',
         activePort: this.activePort,
+        osHomepageMode: this.osHomepageMode,
+        devMode: this.isDevMode,
         message: errorMsg,
         errorInfo: classifyEngineError({
           rawError: errorMsg,
@@ -390,6 +408,8 @@ export class DockerEngine extends BaseEngine {
         status: 'starting',
         engineType: 'docker',
         activePort: this.activePort,
+        osHomepageMode: this.osHomepageMode,
+        devMode: this.isDevMode,
         message: 'Docker cluster is starting...',
         downloadProgress: this.currentDownloadProgress,
         services: this.getDefaultServices('starting'),
@@ -407,6 +427,8 @@ export class DockerEngine extends BaseEngine {
           status: 'stopped',
           engineType: 'docker',
           activePort: this.activePort,
+          osHomepageMode: this.osHomepageMode,
+          devMode: this.isDevMode,
           services: this.getDefaultServices('stopped'),
           stackLayers,
           url: primaryUrl,
@@ -519,6 +541,7 @@ export class DockerEngine extends BaseEngine {
         engineType: 'docker',
         activePort: this.activePort,
         osHomepageMode: this.osHomepageMode,
+        devMode: this.isDevMode,
         message: this.lastErrorMessage,
         errorInfo: this.lastErrorInfo,
         downloadProgress: this.currentDownloadProgress,
@@ -534,6 +557,7 @@ export class DockerEngine extends BaseEngine {
         engineType: 'docker',
         activePort: this.activePort,
         osHomepageMode: this.osHomepageMode,
+        devMode: this.isDevMode,
         message: e.message || 'Failed to inspect Docker stack',
         errorInfo: classifyEngineError({
           rawError: e.message,
