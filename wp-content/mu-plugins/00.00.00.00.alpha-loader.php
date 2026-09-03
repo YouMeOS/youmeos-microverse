@@ -63,7 +63,21 @@ function genesisWave( $library = __DIR__ ) {
 		$tokenFile = $library . '/_token_' . $pluginDir . '.php';
 		
 		// Conjure the token if it doesn't exist, is outdated, or forced refresh
-		if ( $forceRefresh || ! file_exists( $tokenFile ) || filemtime( $tokenFile ) < filemtime( $cardX ) ) {
+		$needsConjure = $forceRefresh || ! file_exists( $tokenFile ) || filemtime( $tokenFile ) < filemtime( $cardX );
+		if ( ! $needsConjure && file_exists( $tokenFile ) ) {
+			// Compare version headers to prevent stale tokens when zip extraction preserves timestamps
+			$tokenHeader = @file_get_contents( $tokenFile, false, null, 0, 4096 );
+			$cardHeader  = @file_get_contents( $cardX, false, null, 0, 4096 );
+			preg_match( '/Version:\s*([^\r\n*]+)/i', (string) $tokenHeader, $tokenVerMatch );
+			preg_match( '/Version:\s*([^\r\n*]+)/i', (string) $cardHeader, $cardVerMatch );
+			$tokenVer = isset( $tokenVerMatch[1] ) ? trim( $tokenVerMatch[1] ) : '';
+			$cardVer  = isset( $cardVerMatch[1] ) ? trim( $cardVerMatch[1] ) : '';
+			if ( $cardVer !== '' && $tokenVer !== $cardVer ) {
+				$needsConjure = true;
+			}
+		}
+
+		if ( $needsConjure ) {
 			$fp = @fopen( $cardX, 'r' );
 			$header = fread( $fp, 8192 );
 			fclose( $fp );

@@ -212,11 +212,9 @@ export async function setupEmbeddedEnvironment(
             errorOnExist: false,
             filter: (src) => {
               const rel = path.relative(bundledSource, src);
-              if (rel === 'database.sqlite' || rel.startsWith('database.sqlite-')) {
-                const destFile = path.join(hostWpDir, rel);
-                return !fs.existsSync(destFile);
-              }
-              return true;
+              const destFile = path.join(hostWpDir, rel);
+              // Only seed files that do not exist yet in hostWpDir (never overwrite updated plugins, themes, or database)
+              return !fs.existsSync(destFile);
             }
           });
           onProgress('Initialized wp-content workspace from bundled resources.');
@@ -530,17 +528,17 @@ require_once ABSPATH . 'wp-settings.php';
       try { fs.mkdirSync(hostDir, { recursive: true }); } catch {}
     }
 
-    const isDirectSymlinkDir = dir === 'mu-plugins' || dir === 'uploads' || dir === 'themes';
+    const isDirectSymlinkDir = dir === 'uploads' || dir === 'themes';
     if (isDirectSymlinkDir) {
       ensureSymlink(hostDir, targetDir);
-    } else if (dir === 'plugins') {
+    } else if (dir === 'plugins' || dir === 'mu-plugins') {
       const hasTargetDir = fs.existsSync(targetDir);
       if (!hasTargetDir) {
         try { fs.mkdirSync(targetDir, { recursive: true }); } catch {}
       }
 
-      const existingPluginEntries = fs.readdirSync(targetDir);
-      for (const entry of existingPluginEntries) {
+      const existingEntries = fs.readdirSync(targetDir);
+      for (const entry of existingEntries) {
         const tpPath = path.join(targetDir, entry);
         let entryStat: fs.Stats | undefined;
         try {
@@ -566,14 +564,14 @@ require_once ABSPATH . 'wp-settings.php';
         }
       }
 
-      const hostPlugins = fs.readdirSync(hostDir);
-      for (const pluginName of hostPlugins) {
-        const isIndexFile = pluginName === 'index.php';
+      const hostEntries = fs.readdirSync(hostDir);
+      for (const entryName of hostEntries) {
+        const isIndexFile = entryName === 'index.php';
         if (isIndexFile) {
           continue;
         }
-        const hpPath = path.join(hostDir, pluginName);
-        const tpPath = path.join(targetDir, pluginName);
+        const hpPath = path.join(hostDir, entryName);
+        const tpPath = path.join(targetDir, entryName);
         ensureSymlink(hpPath, tpPath);
       }
     }
