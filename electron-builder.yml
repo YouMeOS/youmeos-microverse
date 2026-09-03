@@ -21,6 +21,10 @@ extraResources:
     to: bin
     filter:
       - "**/*"
+  - from: assets
+    to: assets
+    filter:
+      - "**/*"
 publish:
   provider: github
   owner: YouMeOS

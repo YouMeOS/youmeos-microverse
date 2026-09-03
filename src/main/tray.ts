@@ -30,7 +30,30 @@ export function createTray(
       }
     }
   }
-  const tray = new Tray(icon);
+  let tray: Tray;
+  if (process.platform === "darwin") {
+    // macOS menu bar standard height is 22pt; resize to 18x18 to prevent stretching
+    const macIcon = icon.resize({ width: 18, height: 18, quality: "best" });
+    tray = new Tray(macIcon);
+  } else if (process.platform === "linux") {
+    // Linux libappindicator requires a real physical file path outside app.asar
+    try {
+      const userDataDir = app.getPath("userData");
+      if (!fs.existsSync(userDataDir)) {
+        fs.mkdirSync(userDataDir, { recursive: true });
+      }
+      const linuxTrayPath = path.join(userDataDir, "tray-icon.png");
+      const resizedBuf = icon.resize({ width: 22, height: 22, quality: "best" }).toPNG();
+      fs.writeFileSync(linuxTrayPath, resizedBuf);
+      tray = new Tray(linuxTrayPath);
+    } catch {
+      tray = new Tray(icon.resize({ width: 22, height: 22, quality: "best" }));
+    }
+  } else {
+    // Windows system tray standard icon size is 16x16
+    const winIcon = icon.resize({ width: 16, height: 16, quality: "best" });
+    tray = new Tray(winIcon);
+  }
 
   const updateMenu = () => {
     const showPanelHandler = () => mainWindow.show();
