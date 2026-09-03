@@ -211,10 +211,21 @@ export async function setupEmbeddedEnvironment(
             recursive: true,
             errorOnExist: false,
             filter: (src) => {
+              if (src === bundledSource) return true;
               const rel = path.relative(bundledSource, src);
               const destFile = path.join(hostWpDir, rel);
-              // Only seed files that do not exist yet in hostWpDir (never overwrite updated plugins, themes, or database)
-              return !fs.existsSync(destFile);
+              try {
+                if (fs.statSync(src).isDirectory()) return true;
+              } catch {}
+              if (rel === 'database.sqlite' || rel.startsWith('database.sqlite-')) {
+                return !fs.existsSync(destFile);
+              }
+              if (!fs.existsSync(destFile)) return true;
+              try {
+                return fs.statSync(src).mtimeMs > fs.statSync(destFile).mtimeMs;
+              } catch {
+                return true;
+              }
             }
           });
           onProgress('Initialized wp-content workspace from bundled resources.');
@@ -528,10 +539,10 @@ require_once ABSPATH . 'wp-settings.php';
       try { fs.mkdirSync(hostDir, { recursive: true }); } catch {}
     }
 
-    const isDirectSymlinkDir = dir === 'uploads' || dir === 'themes';
+    const isDirectSymlinkDir = dir === 'mu-plugins' || dir === 'uploads' || dir === 'themes';
     if (isDirectSymlinkDir) {
       ensureSymlink(hostDir, targetDir);
-    } else if (dir === 'plugins' || dir === 'mu-plugins') {
+    } else if (dir === 'plugins') {
       const hasTargetDir = fs.existsSync(targetDir);
       if (!hasTargetDir) {
         try { fs.mkdirSync(targetDir, { recursive: true }); } catch {}
