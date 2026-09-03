@@ -2,12 +2,12 @@
   <div class="splash-side-footer">
     <!-- Row 1: Core Stack Controls (5 Buttons) -->
     <div class="transport-grid-primary">
-      <!-- 1. Start (Overview) -->
+      <!-- 1. Start -->
       <button
         type="button"
         :class="['btn-transport', 'btn-transport-start', { 'is-active': isRunning }]"
         :disabled="isActionPending || isTransitioning"
-        title="Start Stack &amp; Open Overview"
+        title="Start Microverse Stack"
         @click="handleStartClick"
       >
         <BaseIcon
@@ -175,7 +175,6 @@ const handleStartClick = () => {
   if (!props.isRunning && !props.isActionPending && !props.isTransitioning) {
     emit('start');
   }
-  emit('openOverview');
 };
 </script>
 
