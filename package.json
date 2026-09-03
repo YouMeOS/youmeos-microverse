@@ -1,6 +1,6 @@
 {
   "name": "youmeos-microverse",
-  "version": "26.9.2",
+  "version": "26.9.3-711",
   "description": "My YouMeOS Microverse Desktop",
   "author": "YouMeOS <contact@youmeos.com>",
   "repository": {
@@ -23,6 +23,7 @@
   },
   "devDependencies": {
     "@types/adm-zip": "^0.5.8",
+    "@types/semver": "^7.8.0",
     "@types/three": "^0.185.4",
     "@vitejs/plugin-vue": "^5.2.4",
     "concurrently": "^10.0.5",
@@ -36,6 +37,7 @@
   "dependencies": {
     "adm-zip": "^0.6.0",
     "electron-updater": "^6.8.9",
+    "semver": "^7.8.5",
     "three": "^0.185.1",
     "vue": "^3.5.42"
   }

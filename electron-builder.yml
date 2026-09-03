@@ -21,12 +21,24 @@ extraResources:
     to: bin
     filter:
       - "**/*"
+  - from: assets
+    to: assets
+    filter:
+      - "**/*"
 publish:
   provider: github
   owner: YouMeOS
   repo: youmeos-microverse
 mac:
-  target: dmg
+  target:
+    - target: dmg
+      arch:
+        - x64
+        - arm64
+    - target: zip
+      arch:
+        - x64
+        - arm64
   icon: assets/icon.png
 win:
   target:

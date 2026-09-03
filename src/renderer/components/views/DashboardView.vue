@@ -39,7 +39,7 @@
       />
       <TabItem
         tab-id="tab-diagnostics"
-        label="Diagnostics"
+        label="Tools"
         icon="diagnostics"
         :is-active="activeTab === 'tab-diagnostics'"
         @select="handleTabSelect"

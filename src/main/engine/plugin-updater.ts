@@ -271,6 +271,34 @@ export class PluginUpdater {
         this.removeDirectoryRecursive(finalDestDir);
         this.copyDirectoryRecursive(sourceContentDir, finalDestDir);
 
+        // Remove Genesis Wave proxy token for mu-plugins so it is regenerated fresh
+        if (plugin.targetType === 'mu-plugin') {
+          const muPluginsDir = this.getPluginsDir('mu-plugin');
+          const tokenFile = path.join(muPluginsDir, `_token_${plugin.slug}.php`);
+          if (fs.existsSync(tokenFile)) {
+            try {
+              fs.unlinkSync(tokenFile);
+            } catch {}
+          }
+
+          // If an embedded wp-core mu-plugins directory exists as a separate directory, sync to it as well
+          const embeddedMuDir = path.join(this.projectDir, 'data', 'embedded', 'wp-core', 'wp-content', 'mu-plugins');
+          if (fs.existsSync(embeddedMuDir)) {
+            try {
+              const stat = fs.lstatSync(embeddedMuDir);
+              if (!stat.isSymbolicLink()) {
+                const embeddedDest = path.join(embeddedMuDir, plugin.slug);
+                this.removeDirectoryRecursive(embeddedDest);
+                this.copyDirectoryRecursive(sourceContentDir, embeddedDest);
+                const embeddedToken = path.join(embeddedMuDir, `_token_${plugin.slug}.php`);
+                if (fs.existsSync(embeddedToken)) {
+                  try { fs.unlinkSync(embeddedToken); } catch {}
+                }
+              }
+            } catch {}
+          }
+        }
+
         // Verify newly installed version
         const newVer = this.getPluginVersion(finalDestDir, plugin.mainPhpFile);
         const hasUpdated = prevVer !== newVer && prevVer !== 'none';

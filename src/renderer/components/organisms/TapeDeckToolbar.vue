@@ -23,7 +23,7 @@
           name="rewind"
           :size="20"
         />
-        <span class="btn-transport-label">3D Matrix</span>
+        <span class="btn-transport-label">Back</span>
       </button>
 
       <!-- 2. Start (Overview) -->
@@ -38,36 +38,7 @@
           name="start"
           :size="20"
         />
-        <span class="btn-transport-label">Start</span>
-      </button>
-
-      <!-- 3. Console (Pause - between Start & Stop) -->
-      <button
-        type="button"
-        class="btn-transport btn-aux-terminal"
-        title="Toggle Terminal HUD (` or ~)"
-        @click="$emit('toggleConsole')"
-      >
-        <BaseIcon
-          name="pause"
-          :size="20"
-        />
-        <span class="btn-transport-label">Console</span>
-      </button>
-
-      <!-- 4. Stop -->
-      <button
-        type="button"
-        :class="['btn-transport', 'btn-transport-stop', { 'is-active': isStopped }]"
-        :disabled="isActionPending || isStopped || isTransitioning || isError"
-        title="Stop Microverse Stack"
-        @click="$emit('stop')"
-      >
-        <BaseIcon
-          name="stop"
-          :size="20"
-        />
-        <span class="btn-transport-label">Stop</span>
+        <span class="btn-transport-label">Up</span>
       </button>
 
       <!-- 5. Restart -->
@@ -93,10 +64,39 @@
         @click="$emit('setTab', 'tab-settings')"
       >
         <BaseIcon
-          name="eject"
+          name="pause"
           :size="20"
         />
         <span class="btn-transport-label">Settings</span>
+      </button>
+    
+      <!-- 3. Console (Pause - between Start & Stop) -->
+      <button
+        type="button"
+        class="btn-transport btn-aux-terminal"
+        title="Toggle Terminal HUD (` or ~)"
+        @click="$emit('toggleConsole')"
+      >
+        <BaseIcon
+          name="eject"
+          :size="20"
+        />
+        <span class="btn-transport-label">Logs</span>
+      </button>
+
+      <!-- 4. Stop -->
+      <button
+        type="button"
+        :class="['btn-transport', 'btn-transport-stop', { 'is-active': isStopped }]"
+        :disabled="isActionPending || isStopped || isTransitioning || isError"
+        title="Stop Microverse Stack"
+        @click="$emit('stop')"
+      >
+        <BaseIcon
+          name="stop"
+          :size="20"
+        />
+        <span class="btn-transport-label">Down</span>
       </button>
 
       <div class="transport-sep" />
@@ -113,7 +113,7 @@
           name="external"
           :size="20"
         />
-        <span class="btn-transport-label">Native App</span>
+        <span class="btn-transport-label">In App</span>
       </button>
 
       <!-- 8. Browser -->
@@ -155,7 +155,7 @@
           name="diagnostics"
           :size="20"
         />
-        <span class="btn-transport-label">Diagnostics</span>
+        <span class="btn-transport-label">Tools</span>
       </button>
     </div>
   </div>

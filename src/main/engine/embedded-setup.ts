@@ -227,12 +227,21 @@ export async function setupEmbeddedEnvironment(
             recursive: true,
             errorOnExist: false,
             filter: (src) => {
+              if (src === bundledSource) return true;
               const rel = path.relative(bundledSource, src);
+              const destFile = path.join(hostWpDir, rel);
+              try {
+                if (fs.statSync(src).isDirectory()) return true;
+              } catch {}
               if (rel === 'database.sqlite' || rel.startsWith('database.sqlite-')) {
-                const destFile = path.join(hostWpDir, rel);
                 return !fs.existsSync(destFile);
               }
-              return true;
+              if (!fs.existsSync(destFile)) return true;
+              try {
+                return fs.statSync(src).mtimeMs > fs.statSync(destFile).mtimeMs;
+              } catch {
+                return true;
+              }
             }
           });
           onProgress('Initialized wp-content workspace from bundled resources.');

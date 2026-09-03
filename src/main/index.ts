@@ -17,6 +17,11 @@ app.setName("My YouMeOS Microverse");
 if (process.platform === "win32") {
   app.setAppUserModelId("com.youmeos.microverse");
 }
+if (process.platform === "linux") {
+  if (typeof (app as any).setDesktopName === "function") {
+    (app as any).setDesktopName("my-youmeos-microverse.desktop");
+  }
+}
 
 process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = "true";
 import { execFile } from "child_process";
@@ -38,11 +43,12 @@ const execFileAsync = promisify(execFile);
 
 export function getAppIcon(): Electron.NativeImage {
   const possiblePaths = [
+    path.join(process.resourcesPath || "", "assets", "icon.png"),
     path.join(__dirname, "..", "..", "assets", "icon.png"),
     path.join(__dirname, "..", "assets", "icon.png"),
     path.join(__dirname, "assets", "icon.png"),
-    path.join(process.resourcesPath || "", "assets", "icon.png"),
     path.join(app.getAppPath(), "assets", "icon.png"),
+    path.join(app.getAppPath(), "dist", "assets", "icon.png"),
     path.join(app.getAppPath(), "dist", "renderer", "icon.png"),
   ];
 
