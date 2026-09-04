@@ -1,8 +1,10 @@
 import path from 'path';
 import fs from 'fs';
+import crypto from 'crypto';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
 import { session } from 'electron';
+import { downloadFile } from './download';
 
 const execFileAsync = promisify(execFile);
 
@@ -41,6 +43,17 @@ export interface DbResetResult {
   error?: string;
 }
 
+export interface DbManagerResult {
+  success: boolean;
+  url?: string;
+  error?: string;
+}
+
+export interface DbManagerStatus {
+  active: boolean;
+  url?: string;
+}
+
 export class DiagnosticsManager {
   private projectDir: string;
 
@@ -57,11 +70,16 @@ export class DiagnosticsManager {
   }
 
   private getDbPath(): string {
-    const wpPath = path.join(this.projectDir, 'wp-content', 'database.sqlite');
-    if (fs.existsSync(wpPath)) return wpPath;
-    const legacyPath = path.join(this.projectDir, 'blackbox', 'database.sqlite');
-    if (fs.existsSync(legacyPath)) return legacyPath;
-    return wpPath;
+    const candidatePaths = [
+      path.join(this.projectDir, 'wp-content', 'database', '.ht.sqlite'),
+      path.join(this.projectDir, 'wp-content', 'database.sqlite'),
+      path.join(this.projectDir, 'blackbox', 'database.sqlite'),
+      path.join(this.projectDir, 'data', 'database.sqlite')
+    ];
+    for (const p of candidatePaths) {
+      if (fs.existsSync(p)) return p;
+    }
+    return candidatePaths[0];
   }
 
   async listUsers(): Promise<WpUser[]> {
@@ -279,5 +297,244 @@ export class DiagnosticsManager {
       };
     }
   }
+
+  private getAdminerDir(): string {
+    return path.join(this.projectDir, 'wp-content', 'plugins', 'microverse-adminer');
+  }
+
+  private getAdminerSessionFile(): string {
+    return path.join(this.getAdminerDir(), '.session.json');
+  }
+
+  private ensureAdminerFiles(): void {
+    const adminerDir = this.getAdminerDir();
+    if (!fs.existsSync(adminerDir)) {
+      fs.mkdirSync(adminerDir, { recursive: true });
+    }
+
+    const indexPhpPath = path.join(adminerDir, 'index.php');
+    const adminerCssPath = path.join(adminerDir, 'adminer.css');
+
+    fs.writeFileSync(indexPhpPath, ADMINER_INDEX_PHP_CONTENT, 'utf8');
+
+    const hydraCssSource = path.join(this.projectDir, 'assets', 'adminer-hydra.css');
+    if (fs.existsSync(hydraCssSource)) {
+      try {
+        fs.copyFileSync(hydraCssSource, adminerCssPath);
+      } catch {}
+    }
+  }
+
+  private async ensureAdminerBinary(): Promise<void> {
+    const adminerDir = this.getAdminerDir();
+    const adminerBinPath = path.join(adminerDir, 'adminer.php');
+
+    if (fs.existsSync(adminerBinPath) && fs.statSync(adminerBinPath).size > 10000) {
+      return;
+    }
+
+    const primaryUrl = 'https://github.com/vrana/adminer/releases/download/v4.8.1/adminer-4.8.1.php';
+    const fallbackUrl = 'https://www.adminer.org/static/download/4.8.1/adminer-4.8.1.php';
+
+    try {
+      await downloadFile(primaryUrl, adminerBinPath);
+    } catch {
+      await downloadFile(fallbackUrl, adminerBinPath);
+    }
+  }
+
+  async launchDbManager(port: number = 80, customGatewayUrl?: string): Promise<DbManagerResult> {
+    try {
+      this.ensureAdminerFiles();
+      await this.ensureAdminerBinary();
+
+      const token = crypto.randomBytes(24).toString('hex');
+      const now = Date.now();
+      const expiresAt = now + 2 * 60 * 60 * 1000;
+
+      const sessionData = {
+        token,
+        createdAt: now,
+        expiresAt: Math.floor(expiresAt / 1000)
+      };
+
+      fs.writeFileSync(this.getAdminerSessionFile(), JSON.stringify(sessionData, null, 2), 'utf8');
+
+      const baseUrl = customGatewayUrl || (port && port !== 80 ? `http://localhost:${port}` : 'https://my.youmeos.com');
+      const url = `${baseUrl}/wp-content/plugins/microverse-adminer/?token=${token}&sqlite=&username=`;
+
+      return {
+        success: true,
+        url
+      };
+    } catch (err: any) {
+      return {
+        success: false,
+        error: err?.message || 'Failed to initialize database manager'
+      };
+    }
+  }
+
+  async stopDbManager(): Promise<boolean> {
+    try {
+      const sessionFile = this.getAdminerSessionFile();
+      if (fs.existsSync(sessionFile)) {
+        fs.unlinkSync(sessionFile);
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  async getDbManagerStatus(port: number = 80, customGatewayUrl?: string): Promise<DbManagerStatus> {
+    try {
+      const sessionFile = this.getAdminerSessionFile();
+      if (!fs.existsSync(sessionFile)) {
+        return { active: false };
+      }
+
+      const raw = fs.readFileSync(sessionFile, 'utf8');
+      const data = JSON.parse(raw);
+      const currentTimeSec = Math.floor(Date.now() / 1000);
+
+      if (!data.token || !data.expiresAt || data.expiresAt <= currentTimeSec) {
+        return { active: false };
+      }
+
+      const baseUrl = customGatewayUrl || (port && port !== 80 ? `http://localhost:${port}` : 'https://my.youmeos.com');
+      const url = `${baseUrl}/wp-content/plugins/microverse-adminer/?token=${data.token}&sqlite=&username=`;
+
+      return {
+        active: true,
+        url
+      };
+    } catch {
+      return { active: false };
+    }
+  }
 }
 
+const ADMINER_INDEX_PHP_CONTENT = `<?php
+/**
+ * YouMeOS Microverse - SQLite Adminer Diagnostic Bridge
+ */
+error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED & ~E_NOTICE);
+@ini_set('display_errors', '0');
+
+session_start();
+
+$sessionFile = __DIR__ . '/.session.json';
+$isAuthenticated = false;
+
+if (file_exists($sessionFile)) {
+    $raw = file_get_contents($sessionFile);
+    $sessionData = json_decode($raw, true);
+    $validToken = $sessionData['token'] ?? '';
+    $expiresAt = $sessionData['expiresAt'] ?? 0;
+
+    if ($expiresAt > time()) {
+        if (!empty($_GET['token']) && hash_equals((string)$validToken, (string)$_GET['token'])) {
+            $_SESSION['microverse_adminer_authed'] = true;
+            $_SESSION['microverse_adminer_token'] = $validToken;
+            $isAuthenticated = true;
+        } elseif (!empty($_SESSION['microverse_adminer_authed']) &&
+                  !empty($_SESSION['microverse_adminer_token']) &&
+                  hash_equals((string)$validToken, (string)$_SESSION['microverse_adminer_token'])) {
+            $isAuthenticated = true;
+        }
+    }
+}
+
+if (!$isAuthenticated) {
+    http_response_code(403);
+    echo '<!DOCTYPE html><html><head><meta charset="utf-8"><title>Session Inactive</title><style>body{background:#0a0e17;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;}.card{background:#111827;border:1px solid rgba(98,201,255,0.25);border-radius:10px;padding:32px;max-width:440px;text-align:center;}h2{color:#62c9ff;margin-top:0;}p{color:#94a3b8;font-size:14px;line-height:1.6;}</style></head><body><div class="card"><h2>Database Session Inactive</h2><p>The SQLite database management session is inactive. Please open the Microverse Desktop app, navigate to <strong>Tools</strong>, and click <strong>Launch Database Manager</strong>.</p></div></body></html>';
+    exit;
+}
+
+$activeDbPath = '';
+$searchPaths = [
+    __DIR__ . '/../../database.sqlite',
+    dirname(__DIR__, 2) . '/blackbox/database.sqlite',
+    dirname(__DIR__, 2) . '/data/embedded/database.sqlite',
+    '/var/www/html/wp-content/database.sqlite',
+    '/var/www/html/blackbox/database.sqlite',
+    __DIR__ . '/../../database/.ht.sqlite',
+    '/var/www/html/wp-content/database/.ht.sqlite'
+];
+
+foreach ($searchPaths as $path) {
+    if (file_exists($path) && filesize($path) > 200000) {
+        $activeDbPath = realpath($path) ?: $path;
+        break;
+    }
+}
+if (empty($activeDbPath)) {
+    foreach ($searchPaths as $path) {
+        if (file_exists($path)) {
+            $activeDbPath = realpath($path) ?: $path;
+            break;
+        }
+    }
+}
+
+if (!isset($_GET['sqlite'])) {
+    $_GET['sqlite'] = '';
+}
+if (!isset($_GET['username'])) {
+    $_GET['username'] = '';
+}
+if (!isset($_GET['db']) && !empty($activeDbPath)) {
+    $_GET['db'] = $activeDbPath;
+}
+
+function adminer_object() {
+    global $activeDbPath;
+
+    class AdminerCustom extends Adminer {
+        private $sqlitePath;
+
+        public function __construct($path) {
+            $this->sqlitePath = $path;
+        }
+
+        public function name() {
+            return 'SQLite DB Manager';
+        }
+
+        public function head() {
+            echo '<style>#version, .version { display: none !important; }</style>';
+            return true;
+        }
+
+        public function credentials() {
+            return array('', '', '');
+        }
+
+        public function database() {
+            return $this->sqlitePath;
+        }
+
+        public function login($login, $password) {
+            return true;
+        }
+
+        public function permanentLogin($i = false) {
+            return 'youmeos_adminer_session';
+        }
+
+        public function databases($flush = true) {
+            return array($this->sqlitePath);
+        }
+    }
+
+    return new AdminerCustom($activeDbPath);
+}
+
+if (file_exists(__DIR__ . '/adminer.php')) {
+    include __DIR__ . '/adminer.php';
+} else {
+    http_response_code(503);
+    echo 'Adminer engine missing. Please re-launch from Microverse desktop tools.';
+}
+`;

@@ -22,7 +22,9 @@ import type {
   PasswordResetResult,
   AutoLoginResult,
   DbHealthResult,
-  DbResetResult
+  DbResetResult,
+  DbManagerResult,
+  DbManagerStatus
 } from '../main/engine/diagnostics';
 
 export interface PluginUpdateDetail {
@@ -80,6 +82,9 @@ export interface DesktopApi {
   flushSession?: () => Promise<boolean>;
   checkDbHealth?: () => Promise<DbHealthResult>;
   resetDatabase?: () => Promise<DbResetResult>;
+  launchDbManager?: () => Promise<DbManagerResult>;
+  stopDbManager?: () => Promise<boolean>;
+  getDbManagerStatus?: () => Promise<DbManagerStatus>;
   checkForUpdates?: () => Promise<AppUpdateStatus>;
   downloadUpdate?: () => Promise<void>;
   installUpdate?: () => Promise<void>;
@@ -112,5 +117,7 @@ export type {
   PasswordResetResult,
   AutoLoginResult,
   DbHealthResult,
-  DbResetResult
+  DbResetResult,
+  DbManagerResult,
+  DbManagerStatus
 };

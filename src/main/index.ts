@@ -63,6 +63,7 @@ export function getAppIcon(): Electron.NativeImage {
 
 let mainWindow: BrowserWindow | null = null;
 let portalWindow: BrowserWindow | null = null;
+let dbManagerWindow: BrowserWindow | null = null;
 let tray: Tray | null = null;
 const engineManager = new EngineManager();
 const updaterManager = new UpdaterManager();
@@ -281,6 +282,57 @@ export function openPortalWindow(
 
   portalWindow.loadURL(targetUrl);
   return portalWindow;
+}
+
+export function openDbManagerWindow(
+  targetUrl: string,
+): BrowserWindow {
+  if (dbManagerWindow && !dbManagerWindow.isDestroyed()) {
+    if (targetUrl && dbManagerWindow.webContents.getURL() !== targetUrl) {
+      dbManagerWindow.loadURL(targetUrl);
+    }
+    dbManagerWindow.setTitle("SQLite DB Manager");
+    dbManagerWindow.maximize();
+    dbManagerWindow.show();
+    dbManagerWindow.focus();
+    return dbManagerWindow;
+  }
+
+  setupPortalSession();
+
+  const appIcon = getAppIcon();
+
+  dbManagerWindow = new BrowserWindow({
+    width: 1024,
+    height: 738,
+    minWidth: 640,
+    minHeight: 480,
+    title: "SQLite DB Manager",
+    center: true,
+    resizable: true,
+    backgroundColor: "#221f2e",
+    icon: appIcon,
+    autoHideMenuBar: true,
+    webPreferences: {
+      partition: "persist:youmeos",
+      nodeIntegration: false,
+      contextIsolation: true,
+    },
+  });
+
+  if (!appIcon.isEmpty()) {
+    dbManagerWindow.setIcon(appIcon);
+  }
+
+  dbManagerWindow.setMenu(null);
+  dbManagerWindow.maximize();
+
+  dbManagerWindow.on("closed", () => {
+    dbManagerWindow = null;
+  });
+
+  dbManagerWindow.loadURL(targetUrl);
+  return dbManagerWindow;
 }
 
 async function createWindow(): Promise<void> {
@@ -566,6 +618,25 @@ const readyHandler = async () => {
       }
     }
     return diagnosticsManager.resetDatabase();
+  });
+  ipcMain.handle("diagnostics:launch-db-manager", async () => {
+    const activePort = engineManager.getPort ? engineManager.getPort() : 80;
+    const result = await diagnosticsManager.launchDbManager(activePort);
+    if (result.success && result.url) {
+      openDbManagerWindow(result.url);
+    }
+    return result;
+  });
+  ipcMain.handle("diagnostics:stop-db-manager", () => {
+    if (dbManagerWindow && !dbManagerWindow.isDestroyed()) {
+      dbManagerWindow.close();
+      dbManagerWindow = null;
+    }
+    return diagnosticsManager.stopDbManager();
+  });
+  ipcMain.handle("diagnostics:get-db-manager-status", () => {
+    const activePort = engineManager.getPort ? engineManager.getPort() : 80;
+    return diagnosticsManager.getDbManagerStatus(activePort);
   });
 
   // Stripe Checkout Popup Window with Automatic Completion Capture

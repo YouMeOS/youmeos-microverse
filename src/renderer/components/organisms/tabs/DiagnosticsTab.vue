@@ -211,6 +211,73 @@
         </div>
       </div>
 
+      <!-- SQLite DB Manager (Adminer) -->
+      <div class="dash-card glass-panel">
+        <div class="card-header">
+          <div class="card-title-group">
+            <BaseIcon
+              name="database"
+              :size="16"
+            />
+            <h3 class="card-title">SQLite DB Manager</h3>
+          </div>
+          <span
+            v-if="isDbManagerActive"
+            class="badge-active"
+          >Active</span>
+        </div>
+        <p class="dash-card-desc">
+          On-demand Adminer interface to inspect SQLite tables, run SQL queries, and manage local data.
+        </p>
+        <div class="diag-action-stack">
+          <div class="diag-btn-row">
+            <button
+              type="button"
+              class="btn-modal-primary"
+              :disabled="!isRunning || isLaunchingDbManager"
+              @click="handleLaunchDbManager"
+            >
+              <BaseIcon
+                v-if="isLaunchingDbManager"
+                name="spin"
+                :size="14"
+                :spinning="true"
+              />
+              <BaseIcon
+                v-else
+                name="external"
+                :size="14"
+              />
+              <span>{{ dbManagerButtonLabel }}</span>
+            </button>
+            <button
+              v-if="isDbManagerActive"
+              type="button"
+              class="btn-modal-aux"
+              :disabled="isStoppingDbManager"
+              @click="handleStopDbManager"
+            >
+              <BaseIcon
+                v-if="isStoppingDbManager"
+                name="spin"
+                :size="14"
+                :spinning="true"
+              />
+              <BaseIcon
+                v-else
+                name="close"
+                :size="14"
+              />
+              <span>Stop Session</span>
+            </button>
+          </div>
+          <span
+            v-if="dbManagerFeedback"
+            :class="dbManagerError ? 'feedback-error' : 'feedback-msg'"
+          >{{ dbManagerFeedback }}</span>
+        </div>
+      </div>
+
       <!-- Destructive: Database Reset & Wipe Tool -->
       <div class="dash-card glass-panel danger-panel">
         <div class="card-header">
@@ -267,7 +334,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import BaseIcon from '../../atoms/BaseIcon.vue';
 import type { DesktopApi, WpUser } from '../../../types';
 
@@ -291,6 +358,18 @@ const dbHealthResult = ref<{ status: string; integrity: string; userCount: numbe
 const isResettingDb = ref<boolean>(false);
 const dbResetFeedback = ref<string>('');
 const dbResetSuccess = ref<boolean>(false);
+
+const isDbManagerActive = ref<boolean>(false);
+const isLaunchingDbManager = ref<boolean>(false);
+const isStoppingDbManager = ref<boolean>(false);
+const dbManagerFeedback = ref<string>('');
+const dbManagerError = ref<boolean>(false);
+
+const dbManagerButtonLabel = computed(() => {
+  if (isLaunchingDbManager.value) return 'Preparing DB Manager...';
+  if (isDbManagerActive.value) return 'Open DB Manager';
+  return 'Launch DB Manager';
+});
 
 const loadUsers = async () => {
   if (props.api.listUsers) {
@@ -427,8 +506,64 @@ const handleResetDatabase = async () => {
   }
 };
 
+const checkDbManagerStatus = async () => {
+  if (props.api.getDbManagerStatus) {
+    try {
+      const status = await props.api.getDbManagerStatus();
+      isDbManagerActive.value = Boolean(status?.active);
+    } catch {
+      isDbManagerActive.value = false;
+    }
+  }
+};
+
+const handleLaunchDbManager = async () => {
+  isLaunchingDbManager.value = true;
+  dbManagerFeedback.value = '';
+  dbManagerError.value = false;
+  try {
+    if (props.api.launchDbManager) {
+      const res = await props.api.launchDbManager();
+      if (res.success) {
+        isDbManagerActive.value = true;
+        dbManagerFeedback.value = 'Database manager launched.';
+      } else {
+        dbManagerError.value = true;
+        dbManagerFeedback.value = res.error || 'Failed to launch database manager';
+      }
+    } else {
+      dbManagerFeedback.value = 'Database manager API not supported in this runtime.';
+      dbManagerError.value = true;
+    }
+  } catch (e: any) {
+    dbManagerError.value = true;
+    dbManagerFeedback.value = e?.message || 'Error launching database manager';
+  } finally {
+    isLaunchingDbManager.value = false;
+  }
+};
+
+const handleStopDbManager = async () => {
+  isStoppingDbManager.value = true;
+  dbManagerFeedback.value = '';
+  dbManagerError.value = false;
+  try {
+    if (props.api.stopDbManager) {
+      await props.api.stopDbManager();
+      isDbManagerActive.value = false;
+      dbManagerFeedback.value = 'Database manager session stopped.';
+    }
+  } catch (e: any) {
+    dbManagerError.value = true;
+    dbManagerFeedback.value = e?.message || 'Error stopping database manager';
+  } finally {
+    isStoppingDbManager.value = false;
+  }
+};
+
 onMounted(() => {
   loadUsers();
+  checkDbManagerStatus();
 });
 
 defineExpose({
@@ -463,7 +598,6 @@ defineExpose({
 }
 
 .danger-panel {
-  grid-column: 1 / -1;
   border-color: rgba(239, 68, 68, 0.3);
   background: rgba(239, 68, 68, 0.04);
 }
@@ -659,5 +793,23 @@ defineExpose({
   font-size: 0.72rem;
   display: flex;
   justify-content: space-between;
+}
+
+.diag-btn-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.badge-active {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(52, 211, 153, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.4);
 }
 </style>

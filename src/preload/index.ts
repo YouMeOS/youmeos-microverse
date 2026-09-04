@@ -30,6 +30,9 @@ const autoLoginHandler = (userId?: number, redirectTo?: string) => ipcRenderer.i
 const flushSessionHandler = () => ipcRenderer.invoke('diagnostics:flush-session');
 const checkDbHealthHandler = () => ipcRenderer.invoke('diagnostics:db-health');
 const resetDatabaseHandler = () => ipcRenderer.invoke('diagnostics:reset-database');
+const launchDbManagerHandler = () => ipcRenderer.invoke('diagnostics:launch-db-manager');
+const stopDbManagerHandler = () => ipcRenderer.invoke('diagnostics:stop-db-manager');
+const getDbManagerStatusHandler = () => ipcRenderer.invoke('diagnostics:get-db-manager-status');
 
 const checkUpdatesHandler = () => ipcRenderer.invoke('updater:check');
 const downloadUpdateHandler = () => ipcRenderer.invoke('updater:download');
@@ -98,6 +101,9 @@ contextBridge.exposeInMainWorld('api', {
   flushSession: flushSessionHandler,
   checkDbHealth: checkDbHealthHandler,
   resetDatabase: resetDatabaseHandler,
+  launchDbManager: launchDbManagerHandler,
+  stopDbManager: stopDbManagerHandler,
+  getDbManagerStatus: getDbManagerStatusHandler,
   checkForUpdates: checkUpdatesHandler,
   downloadUpdate: downloadUpdateHandler,
   installUpdate: installUpdateHandler,
